@@ -13,13 +13,23 @@ import {
 // Add loading type
 type MessageType = 'user' | 'bot' | 'loading';
 
+interface Source {
+  chunk_id: string;
+  text: string;
+  source: string;
+  page?: string;
+}
+
+
+
 interface Message {
   id: number;
   type: MessageType;
   content: string;
-  sources?: string[];
+  sources?: Source[];
   timestamp: string;
 }
+
 
 export function StudentChat() {
   const [messages, setMessages] = useState<Message[]>([
@@ -78,17 +88,24 @@ export function StudentChat() {
       const response = await fetch("http://localhost:8000/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: questionToSend })
+        body: JSON.stringify({ 
+          question: questionToSend 
+        })
       });
 
-      const data = await response.json();
+    const data = await response.json();
+console.log("RAG response:", data);
 
-      const botMessage: Message = {
-        id: Date.now() + 2,
-        type: 'bot',
-        content: data.answer,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
+   
+
+  const botMessage: Message = {
+  id: Date.now() + 2,
+  type: 'bot',
+  content: data.answer,
+  sources: data.sources, // ✅ CORRECT
+  timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+};
+
 
       // Replace the loading bubble
       setMessages(prev => [
@@ -169,16 +186,32 @@ export function StudentChat() {
                   </div>
 
                   {/* Sources */}
-                  {message.sources && (
-                    <div className="mt-2 space-y-1">
-                      {message.sources.map((source, index) => (
-                        <div key={index} className="flex items-center gap-2 text-xs text-gray-500">
-                          <FileText className="w-3 h-3" />
-                          <span>{source}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+             {message.sources && (
+  <div className="mt-2 space-y-2">
+    {message.sources.map((source, index) => (
+      <div
+        key={index}
+        className="flex items-start gap-2 text-xs text-gray-500 bg-gray-50 rounded-lg p-2"
+      >
+        <FileText className="w-3 h-3 mt-0.5 flex-shrink-0" />
+
+        <div className="space-y-1">
+          {/* Evidence snippet */}
+          <p className="text-gray-700 line-clamp-3">
+            {source.text}
+          </p>
+
+          {/* Provenance */}
+          <div className="flex gap-3 text-[11px] text-gray-400">
+            <span>📄 {source.source}</span>
+            {source.page && <span>Page {source.page}</span>}
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+)}
+
 
                   {/* BOT FOOTER */}
                   {message.type === 'bot' && (
