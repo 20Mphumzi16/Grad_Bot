@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -14,6 +14,7 @@ import {
   Save
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
+import { useLoading } from '../components/ui/loading';
 
 export function StudentProfile() {
   const [formData, setFormData] = useState({
@@ -29,6 +30,41 @@ export function StudentProfile() {
     linkedin: 'linkedin.com/in/janesmith',
     github: 'github.com/janesmith',
   });
+
+  const { setLoading } = useLoading();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    (async () => {
+      setLoading(true);
+      try {
+        const res = await fetch('http://127.0.0.1:8000/auth/me', {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!res.ok) return;
+        const data: any = await res.json();
+
+        setFormData((prev) => ({
+          ...prev,
+          firstName: data.first_name || data.given_name || data.firstName || prev.firstName,
+          lastName: data.last_name || data.family_name || data.lastName || prev.lastName,
+          email: data.email || prev.email,
+          phone: data.phone || prev.phone,
+        }));
+      } catch {
+        // ignore fetch errors silently
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [setLoading]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData({ ...formData, [field]: value });
