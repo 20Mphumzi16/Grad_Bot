@@ -18,6 +18,7 @@ export function StudentLogin() {
     e.preventDefault();
     setError(null);
     setLoading(true);
+    const start = Date.now();
 
     try {
       const res = await fetch('http://127.0.0.1:8000/auth/login', {
@@ -41,6 +42,12 @@ export function StudentLogin() {
       }
 
       localStorage.setItem('token', token);
+     const elapsed = Date.now() - start;
+  if (elapsed < 500) {
+    await new Promise(r => setTimeout(r, 500 - elapsed));
+  }
+
+
       navigate('/student');
     } catch (err: any) {
       setError(err?.message || 'Network error during login');

@@ -2,6 +2,17 @@ import { useState } from 'react';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
+import { CustomModal } from "../components/ui/custom-modal";
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../components/ui/select';
+
 import { 
   Upload, 
   FileText, 
@@ -17,6 +28,10 @@ import { Badge } from '../components/ui/badge';
 
 export function AdminDocuments() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [fileName, setFileName] = useState('');
+  const [category, setCategory] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const documents = [
     { 
@@ -103,6 +118,16 @@ export function AdminDocuments() {
     }
   };
 
+  const handleUpload = () => {
+    // Handle upload logic here
+    console.log('Uploading:', { fileName, category, selectedFile });
+    // Reset form
+    setFileName('');
+    setCategory('');
+    setSelectedFile(null);
+    setIsDialogOpen(false);
+  };
+
   return (
     <div className="pt-8 space-y-8">
       {/* Page header */}
@@ -111,7 +136,10 @@ export function AdminDocuments() {
           <h1 className="text-gray-900 mb-2">Document Management</h1>
           <p className="text-gray-600">Upload and manage knowledge base documents</p>
         </div>
-        <Button className="bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 rounded-xl">
+        <Button 
+          onClick={() => setIsDialogOpen(true)}
+          className="bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 rounded-xl"
+        >
           <Upload className="w-4 h-4 mr-2" />
           Upload Document
         </Button>
@@ -217,6 +245,91 @@ export function AdminDocuments() {
           </table>
         </div>
       </Card>
+<CustomModal
+  open={isDialogOpen}
+  onClose={() => {
+    setIsDialogOpen(false);
+    setFileName('');
+    setCategory('');
+    setSelectedFile(null);
+  }}
+  title="Upload Document"
+  footer={
+    <>
+      <Button
+        variant="outline"
+        onClick={() => {
+          setIsDialogOpen(false);
+          setFileName('');
+          setCategory('');
+          setSelectedFile(null);
+        }}
+        className="rounded-lg"
+      >
+        Cancel
+      </Button>
+      <Button
+        onClick={handleUpload}
+        disabled={!fileName || !category || !selectedFile}
+        className="bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 rounded-lg"
+      >
+        <Upload className="w-4 h-4 mr-2" />
+        Upload
+      </Button>
+    </>
+  }
+>
+  <p className="text-sm text-gray-600">
+    Upload a new document to the knowledge base
+  </p>
+
+  {/* File Name */}
+  <div className="space-y-2">
+    <Label htmlFor="filename">File Name</Label>
+    <Input
+      id="filename"
+      value={fileName}
+      onChange={(e) => setFileName(e.target.value)}
+    />
+  </div>
+
+  {/* Category */}
+  <div className="space-y-2">
+    <Label>Category</Label>
+    <Select value={category} onValueChange={setCategory}>
+      <SelectTrigger>
+        <SelectValue placeholder="Select a category" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="Onboarding">Onboarding</SelectItem>
+        <SelectItem value="Training">Training</SelectItem>
+        <SelectItem value="HR">HR</SelectItem>
+        <SelectItem value="Policy">Policy</SelectItem>
+      </SelectContent>
+    </Select>
+  </div>
+
+  {/* File Upload */}
+  <div className="space-y-2">
+    <Label>Select File</Label>
+    <div className="border-2 border-dashed rounded-lg p-6 text-center">
+      <input
+        id="file"
+        type="file"
+        className="hidden"
+        onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+      />
+      <label htmlFor="file" className="cursor-pointer">
+        <FileText className="mx-auto mb-2 h-8 w-8 text-gray-400" />
+        <p className="text-sm">
+          {selectedFile ? selectedFile.name : "Click to select a file"}
+        </p>
+      </label>
+    </div>
+  </div>
+</CustomModal>
+
+
     </div>
   );
 }

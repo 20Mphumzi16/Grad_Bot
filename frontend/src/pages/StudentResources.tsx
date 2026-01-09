@@ -1,84 +1,90 @@
-import { useState } from 'react';
+'use client';
+
+import { useEffect, useState } from 'react';
 import { Card } from '../components/ui/card';
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
-import { 
-  Search,
-  FileText,
-  Download,
-  Eye,
-  BookOpen
-} from 'lucide-react';
+import { Search, BookOpen, Eye, Download } from 'lucide-react';
 import { Badge } from '../components/ui/badge';
 
+interface Resource {
+  id: string;
+  file_name: string;
+  category_id: number;
+  file_path: string;
+  file_extension: string;
+  mime_type: string;
+  file_size: number;
+  views: number;
+  description?: string;
+  created_at: string;
+}
+
+const CATEGORY_MAP: Record<number, string> = {
+  1: 'HR',
+  2: 'Onboarding',
+  3: 'Training',
+  4: 'Policy',
+};
+
 export function StudentResources() {
+  const [resources, setResources] = useState<Resource[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-
-  const resources = [
-    { 
-      id: 1,
-      title: 'Graduate Handbook 2025',
-      category: 'Onboarding',
-      type: 'PDF',
-      size: '2.4 MB',
-      views: 245,
-      description: 'Complete guide to your graduate programme including policies, procedures, and key contacts.'
-    },
-    { 
-      id: 2,
-      title: 'Technical Training Guide',
-      category: 'Training',
-      type: 'PDF',
-      size: '1.8 MB',
-      views: 189,
-      description: 'Overview of technical training modules and learning paths available to graduates.'
-    },
-    { 
-      id: 3,
-      title: 'Benefits Overview',
-      category: 'HR',
-      type: 'PDF',
-      size: '3.1 MB',
-      views: 167,
-      description: 'Comprehensive overview of employee benefits, health insurance, and wellness programmes.'
-    },
-    { 
-      id: 4,
-      title: 'Code of Conduct',
-      category: 'Policy',
-      type: 'PDF',
-      size: '1.2 MB',
-      views: 156,
-      description: 'Company code of conduct, ethics guidelines, and professional standards.'
-    },
-    { 
-      id: 5,
-      title: 'First 90 Days Checklist',
-      category: 'Onboarding',
-      type: 'PDF',
-      size: '0.5 MB',
-      views: 298,
-      description: 'Step-by-step checklist for your first three months in the programme.'
-    },
-    { 
-      id: 6,
-      title: 'Leave Policy 2025',
-      category: 'HR',
-      type: 'PDF',
-      size: '0.8 MB',
-      views: 134,
-      description: 'Annual leave, sick leave, and special leave policies and procedures.'
-    },
-  ];
-
-  const categories = ['All', 'Onboarding', 'Training', 'HR', 'Policy'];
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchResources = async () => {
+      try {
+        const res = await fetch('http://127.0.0.1:8000/documents/get-documents');
+        const data: Resource[] = await res.json();
+        setResources(data);
+      } catch (error) {
+        console.error('Error fetching resources:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchResources();
+  }, []);
 
   const filteredResources = resources.filter(resource => {
-    const matchesSearch = resource.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === 'All' || resource.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+    const titleMatch = resource.file_name.toLowerCase().includes(searchQuery.toLowerCase());
+    const categoryName = CATEGORY_MAP[resource.category_id] || 'Other';
+    const categoryMatch = selectedCategory === 'All' || categoryName === selectedCategory;
+    return titleMatch && categoryMatch;
   });
+
+  const handleView = async (id: string) => {
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/documents/${id}/download`);
+      const data = await res.json();
+      window.open(data.url, '_blank');
+    } catch (err) {
+      console.error('Error fetching document URL:', err);
+    }
+  };
+
+  const handleDownload = async (id: string, fileName: string) => {
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/documents/${id}/download`);
+      const data = await res.json();
+
+      const link = document.createElement('a');
+      link.href = data.url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      console.error('Error downloading document:', err);
+    }
+  };
+
+  const categories = ['All', 'Onboarding', 'Training', 'HR', 'Policy'];
+
+  if (loading) return <p>Loading resources...</p>;
 
   return (
     <div className="pt-8 space-y-8">
@@ -123,38 +129,36 @@ export function StudentResources() {
 
       {/* Resources grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {filteredResources.map((resource) => (
-          <Card key={resource.id} className="p-6 border-gray-200 hover:shadow-lg transition-shadow">
+        {filteredResources.map((res) => (
+          <Card key={res.id} className="p-6 border-gray-200 hover:shadow-lg transition-shadow">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-teal-500 flex items-center justify-center flex-shrink-0">
                 <BookOpen className="w-6 h-6 text-white" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between mb-2">
-                  <h3 className="text-gray-900">{resource.title}</h3>
+                  <h3 className="text-gray-900">{res.file_name}</h3>
                 </div>
                 <div className="flex items-center gap-2 mb-3">
                   <Badge variant="outline" className="rounded-lg">
-                    {resource.category}
+                    {CATEGORY_MAP[res.category_id] || 'Other'}
                   </Badge>
                   <span className="text-xs text-gray-500">
-                    {resource.type} • {resource.size}
+                    {res.file_extension.toUpperCase()} • {(res.file_size / 1024).toFixed(2)} KB
                   </span>
                 </div>
-                <p className="text-sm text-gray-600 mb-4">
-                  {resource.description}
-                </p>
+                <p className="text-sm text-gray-600 mb-4">{res.description}</p>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1 text-xs text-gray-500">
                     <Eye className="w-3 h-3" />
-                    <span>{resource.views} views</span>
+                    <span>{res.views} views</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" className="rounded-lg">
+                    <Button variant="outline" size="sm" className="rounded-lg" onClick={() => handleView(res.id)}>
                       <Eye className="w-4 h-4 mr-2" />
                       View
                     </Button>
-                    <Button variant="outline" size="sm" className="rounded-lg">
+                    <Button variant="outline" size="sm" className="rounded-lg" onClick={() => handleDownload(res.id, res.file_name)}>
                       <Download className="w-4 h-4" />
                     </Button>
                   </div>
@@ -167,7 +171,7 @@ export function StudentResources() {
 
       {filteredResources.length === 0 && (
         <Card className="p-12 border-gray-200 text-center">
-          <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-gray-900 mb-2">No resources found</h3>
           <p className="text-gray-600">Try adjusting your search or filters</p>
         </Card>

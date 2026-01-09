@@ -5,17 +5,50 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Lock, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router';
+import { useLoading } from '../components/ui/loading';
 
 export function AdminLogin() {
-  const navigate = useNavigate();
+ const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const { loading, setLoading } = useLoading();
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Mock authentication - in real app, validate credentials
-    navigate('/admin');
+    setError(null);
+    setLoading(true);
+
+    try {
+      const res = await fetch('http://127.0.0.1:8000/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        setError(`Login failed: ${res.status} ${errText}`);
+        return;
+      }
+
+      const data = await res.json();
+      const token = data.token || data.access || data.access_token;
+
+      if (!token) {
+        setError('Login succeeded but no token returned by server.');
+        return;
+      }
+
+      localStorage.setItem('token', token);
+      navigate('/admin');
+    } catch (err: any) {
+      setError(err?.message || 'Network error during login');
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center px-6">
@@ -67,12 +100,17 @@ export function AdminLogin() {
               />
             </div>
 
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
+              disabled={loading}
               className="w-full bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 rounded-xl"
             >
-              Sign In
+              {loading ? 'Signing In...' : 'Sign In'}
             </Button>
+
+            {error && (
+              <p className="text-sm text-red-600 mt-2">{error}</p>
+            )}
           </form>
 
           <div className="mt-6 text-center">

@@ -4,13 +4,16 @@ from pydantic import BaseModel
 from auth_routes import router as auth_router
 # 🔹 Import your core logic
 from main import ask_grad_question
+from document_routes import router as document_router
+
+
 
 app = FastAPI(title="RAG Chatbot API", version="1.0.0")
 
 # Enable CORS
 # 🔥 ADD THIS LINE
 app.include_router(auth_router)
-
+app.include_router(document_router)
 # Enable CORS
 app.add_middleware(
     CORSMiddleware,
