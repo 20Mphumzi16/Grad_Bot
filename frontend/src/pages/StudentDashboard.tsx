@@ -11,19 +11,110 @@ import {
 } from 'lucide-react';
 import { Progress } from '../components/ui/progress';
 import { Link } from 'react-router';
+import { useEffect, useState, } from 'react';
+import { useLoading } from '../components/ui/loading';
 
 export function StudentDashboard() {
+
+  const [firstName, setFirstName] = useState<string | null>(null);
+  const { setLoading } = useLoading();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    (async () => {
+      try {
+        const res = await fetch('http://127.0.0.1:8000/auth/me', {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!res.ok) return;
+        const data: any = await res.json();
+
+        // Common field names returned by /auth/me
+        const f = data.first_name || data.given_name || data.firstName || data.first || (data.name ? data.name.split(' ')[0] : null);
+
+        if (f) setFirstName(f);
+      } catch {
+        // ignore errors silently
+      }
+    })();
+  }, []);
+
+  const openDocument = async (docId: string) => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`http://127.0.0.1:8000/documents/${docId}/view`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+
+      if (!res.ok) {
+        console.error('Failed to fetch document URL', res.statusText);
+        return;
+      }
+
+      const data: any = await res.json();
+      if (data?.url) {
+        window.open(data.url, '_blank');
+        // refresh list since views count likely changed on the server
+        fetchPopularDocuments();
+      } else {
+        console.error('No URL returned for document', data);
+      }
+    } catch (err) {
+      console.error('Error opening document:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const upcomingMilestones = [
     { title: 'Complete onboarding modules', dueDate: 'Dec 15, 2024', status: 'in-progress', progress: 75 },
     { title: 'First 1-on-1 with manager', dueDate: 'Dec 10, 2024', status: 'upcoming', progress: 0 },
     { title: 'Submit learning plan', dueDate: 'Dec 20, 2024', status: 'upcoming', progress: 0 },
   ];
-
-  const recentResources = [
+  const [recentResources, setRecentResources] = useState<any[]>([
     { title: 'Graduate Handbook 2025', type: 'PDF', views: 245 },
     { title: 'Technical Training Guide', type: 'PDF', views: 189 },
     { title: 'Benefits Overview', type: 'PDF', views: 167 },
-  ];
+  ]);
+
+  const fetchPopularDocuments = async () => {
+    const token = localStorage.getItem('token');
+
+    try {
+      const res = await fetch('http://127.0.0.1:8000/documents/get-popular-documents', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+
+      if (!res.ok) return;
+      const data: any = await res.json();
+      console.log('Fetch popular documents response:', data);
+      // expect data to be an array of documents
+      if (Array.isArray(data)) setRecentResources(data);
+    } catch (err) {
+      // ignore fetch errors for now
+      console.error('Error fetching popular documents', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchPopularDocuments();
+  }, []);
 
   const quickActions = [
     { icon: MessageSquare, label: 'Ask a Question', path: '/student/chat', color: 'from-blue-500 to-blue-600' },
@@ -35,7 +126,7 @@ export function StudentDashboard() {
     <div className="pt-8 space-y-8">
       {/* Welcome section */}
       <div className="bg-gradient-to-r from-blue-500 to-teal-500 rounded-3xl p-8 text-white">
-        <h1 className="mb-2">Welcome back, Jane!</h1>
+        <h1 className="mb-2">Welcome back, {firstName}!</h1>
         <p className="text-blue-100 mb-6">
           You're on day 15 of your graduate programme. Keep up the great progress!
         </p>
@@ -165,10 +256,19 @@ export function StudentDashboard() {
                   <BookOpen className="w-5 h-5 text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-gray-900 text-sm truncate">{resource.title}</p>
-                  <p className="text-gray-500 text-xs">{resource.type} • {resource.views} views</p>
+                  <p className="text-gray-900 text-sm truncate">{resource.file_name}</p>
+                  <p className="text-gray-500 text-xs">{resource.file_extension} • {resource.views} views</p>
                 </div>
-                <ArrowRight className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openDocument(resource.id);
+                  }}
+                  aria-label={`Open ${resource.file_name}`}
+                  className="rounded p-1 hover:bg-gray-100"
+                >
+                  <ArrowRight className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                </button>
               </div>
             ))}
           </div>

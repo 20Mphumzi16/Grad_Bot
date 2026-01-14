@@ -15,23 +15,31 @@ import {
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
 import { useLoading } from '../components/ui/loading';
+import { toast } from 'sonner';
+
+
+const user_data: any = {
+  id: '',
+  role: '',
+
+}
 
 export function StudentProfile() {
   const [formData, setFormData] = useState({
-    firstName: 'Jane',
-    lastName: 'Smith',
-    email: 'jane.smith@example.com',
-    phone: '+1 (555) 123-4567',
-    location: 'New York, NY',
-    department: 'Engineering',
-    startDate: '2024-11-15',
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    location: '',
+    department: '',
+    startDate: '',
     bio: 'Passionate about technology and innovation. Excited to start my journey in the graduate programme!',
     interests: 'Cloud computing, AI/ML, Software architecture',
     linkedin: 'linkedin.com/in/janesmith',
     github: 'github.com/janesmith',
   });
 
-  const { setLoading } = useLoading();
+  const { loading, setLoading } = useLoading();
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -50,6 +58,9 @@ export function StudentProfile() {
 
         if (!res.ok) return;
         const data: any = await res.json();
+        user_data.id = data.id;
+        user_data.role = data.role;
+        console.log('Fetched user data:', data);
 
         setFormData((prev) => ({
           ...prev,
@@ -57,6 +68,13 @@ export function StudentProfile() {
           lastName: data.last_name || data.family_name || data.lastName || prev.lastName,
           email: data.email || prev.email,
           phone: data.phone || prev.phone,
+          department: data.department || "",
+          location: data.branch || "",
+          startDate: data.start_date || "",
+          bio: data.bio || "",
+          interests: data.interests || prev.interests,
+          linkedin: data.linkedin_link || "",
+          github: data.github_link || "",
         }));
       } catch {
         // ignore fetch errors silently
@@ -70,25 +88,81 @@ export function StudentProfile() {
     setFormData({ ...formData, [field]: value });
   };
 
-  const handleSave = () => {
-    // Mock save functionality
-    alert('Profile updated successfully!');
-  };
+   const handleSave = async () => {
+    setLoading(true);
+
+      try {
+        // assign form values into the shared user_data object
+        user_data.email = formData.email;
+        user_data.first_name = formData.firstName;
+        user_data.last_name = formData.lastName;
+        user_data.phone = formData.phone;
+        user_data.department = formData.department;
+        user_data.branch = formData.location;
+        user_data.start_date = formData.startDate;
+        user_data.bio = formData.bio;
+        user_data.interests = formData.interests;
+        user_data.linkedin_link = formData.linkedin;
+        user_data.github_link = formData.github;
+
+        console.log('Submitting user_data payload:', user_data);
+
+        const token = localStorage.getItem('token');
+
+      const res = await fetch('http://127.0.0.1:8000/auth/update', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(user_data),
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || `HTTP ${res.status}`);
+      }
+
+      toast.success('Profile updated');
+    }
+    catch (error) {
+      console.error('Error updating profile:', error);
+      const message = error instanceof Error ? error.message : String(error);
+      toast.error(`Failed to update profile: ${message}`);
+    }
+    finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <div className="pt-8 space-y-8 max-w-4xl">
       {/* Page header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-gray-900 mb-2">My Profile</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-gray-900 mb-2">My Profile</h1>
+            {loading && (
+              <div
+                role="status"
+                aria-label="Loading profile"
+                className="w-5 h-5 border-2 border-gray-300 border-t-transparent rounded-full animate-spin"
+              />
+            )}
+          </div>
           <p className="text-gray-600">Manage your personal information and preferences</p>
         </div>
-        <Button 
+        <Button
           onClick={handleSave}
+          disabled={loading}
           className="bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 rounded-xl"
         >
-          <Save className="w-4 h-4 mr-2" />
-          Save Changes
+          {loading ? (
+            <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
+          ) : (
+            <Save className="w-4 h-4 mr-2" />
+          )}
+          {loading ? 'Saving...' : 'Save Changes'}
         </Button>
       </div>
 
@@ -143,6 +217,7 @@ export function StudentProfile() {
               value={formData.firstName}
               onChange={(e) => handleInputChange('firstName', e.target.value)}
               className="rounded-xl"
+              disabled={loading}
             />
           </div>
 
@@ -153,6 +228,7 @@ export function StudentProfile() {
               value={formData.lastName}
               onChange={(e) => handleInputChange('lastName', e.target.value)}
               className="rounded-xl"
+              disabled={loading}
             />
           </div>
 
@@ -166,6 +242,7 @@ export function StudentProfile() {
                 value={formData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
                 className="pl-10 rounded-xl"
+                disabled={loading}
               />
             </div>
           </div>
@@ -179,6 +256,7 @@ export function StudentProfile() {
                 value={formData.phone}
                 onChange={(e) => handleInputChange('phone', e.target.value)}
                 className="pl-10 rounded-xl"
+                disabled={loading}
               />
             </div>
           </div>
@@ -192,6 +270,7 @@ export function StudentProfile() {
                 value={formData.location}
                 onChange={(e) => handleInputChange('location', e.target.value)}
                 className="pl-10 rounded-xl"
+                disabled={loading}
               />
             </div>
           </div>
@@ -205,6 +284,7 @@ export function StudentProfile() {
                 value={formData.department}
                 onChange={(e) => handleInputChange('department', e.target.value)}
                 className="pl-10 rounded-xl"
+                disabled={loading}
               />
             </div>
           </div>
@@ -218,6 +298,7 @@ export function StudentProfile() {
               className="rounded-xl"
               rows={4}
               placeholder="Tell us about yourself..."
+              disabled={loading}
             />
           </div>
         </div>
@@ -236,6 +317,7 @@ export function StudentProfile() {
               value={formData.startDate}
               onChange={(e) => handleInputChange('startDate', e.target.value)}
               className="rounded-xl"
+              disabled={loading}
             />
           </div>
 
@@ -247,6 +329,7 @@ export function StudentProfile() {
               onChange={(e) => handleInputChange('interests', e.target.value)}
               className="rounded-xl"
               placeholder="e.g., Cloud computing, AI/ML"
+              disabled={loading}
             />
           </div>
         </div>
@@ -265,6 +348,7 @@ export function StudentProfile() {
               onChange={(e) => handleInputChange('linkedin', e.target.value)}
               className="rounded-xl"
               placeholder="linkedin.com/in/yourprofile"
+              disabled={loading}
             />
           </div>
 
@@ -276,6 +360,7 @@ export function StudentProfile() {
               onChange={(e) => handleInputChange('github', e.target.value)}
               className="rounded-xl"
               placeholder="github.com/yourusername"
+              disabled={loading}
             />
           </div>
         </div>
@@ -317,12 +402,17 @@ export function StudentProfile() {
         <Button variant="outline" className="rounded-xl">
           Cancel
         </Button>
-        <Button 
+        <Button
           onClick={handleSave}
+          disabled={loading}
           className="bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 rounded-xl"
         >
-          <Save className="w-4 h-4 mr-2" />
-          Save Changes
+          {loading ? (
+            <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
+          ) : (
+            <Save className="w-4 h-4 mr-2" />
+          )}
+          {loading ? 'Saving...' : 'Save Changes'}
         </Button>
       </div>
     </div>

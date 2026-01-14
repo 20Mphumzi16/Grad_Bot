@@ -60,14 +60,48 @@ def download_document(document_id: UUID):
 
     return {"url": signed_url["signedURL"]}
 
-@router.post("/{document_id}/view")
-def increment_views(document_id: UUID):
-    supabase.rpc(
-        "increment_document_views",
-        {"doc_id": str(document_id)}
-    ).execute()
+@router.get("/{document_id}/view")
+def download_document(document_id: UUID):
+    doc = supabase.table("documents") \
+        .select("file_path") \
+        .eq("id", str(document_id)) \
+        .single() \
+        .execute()
 
-    return {"status": "ok"}
+    if not doc.data:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    signed_url = supabase.storage.from_("Documents") \
+        .create_signed_url(doc.data["file_path"], 60)
+    
+    increment_views(document_id)
+
+    return {"url": signed_url["signedURL"]}
+
+def increment_views(document_id: UUID):
+    # Read current views value
+    doc = supabase.table("documents") \
+        .select("views") \
+        .eq("id", str(document_id)) \
+        .single() \
+        .execute()
+
+    if not doc.data:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    current_views = doc.data.get("views") or 0
+    new_views = current_views + 1
+
+    # Update document with incremented views
+    resp = supabase.table("documents") \
+        .update({"views": new_views}) \
+        .eq("id", str(document_id)) \
+        .execute()
+
+    if getattr(resp, "error", None):
+        raise HTTPException(status_code=500, detail=str(resp.error))
+
+    return {"status": "ok", "views": new_views}
 
 @router.delete("/delete/{document_id}")
 def remove_document(document_id: str):
@@ -84,6 +118,16 @@ def list_documents():
         .select("*") \
         .order("created_at", desc=True) \
         .limit(5) \
+        .execute()
+
+    return result.data
+
+@router.get("/get-popular-documents", response_model=list[DocumentResponse])
+def list_documents():
+    result = supabase.table("documents") \
+        .select("*") \
+        .order("views", desc=True) \
+        .limit(4) \
         .execute()
 
     return result.data
