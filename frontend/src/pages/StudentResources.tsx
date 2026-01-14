@@ -88,12 +88,6 @@ export function StudentResources() {
 
   return (
     <div className="pt-8 space-y-8">
-      {/* Page header */}
-      <div>
-        <h1 className="text-gray-900 mb-2">Resources</h1>
-        <p className="text-gray-600">Access programme documents and learning materials</p>
-      </div>
-
       {/* Search and filters */}
       <Card className="p-6 border-gray-200">
         <div className="space-y-4">
@@ -137,7 +131,7 @@ export function StudentResources() {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between mb-2">
-                  <h3 className="text-gray-900">{res.file_name}</h3>
+                  <h3 style={{ color: 'var(--foreground)' }}>{res.file_name}</h3>
                 </div>
                 <div className="flex items-center gap-2 mb-3">
                   <Badge variant="outline" className="rounded-lg">
@@ -172,7 +166,7 @@ export function StudentResources() {
       {filteredResources.length === 0 && (
         <Card className="p-12 border-gray-200 text-center">
           <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-gray-900 mb-2">No resources found</h3>
+          <h3 style={{ color: 'var(--foreground)' }} className="mb-2">No resources found</h3>
           <p className="text-gray-600">Try adjusting your search or filters</p>
         </Card>
       )}

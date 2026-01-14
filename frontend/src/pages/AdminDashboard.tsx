@@ -89,11 +89,7 @@ export function AdminDashboard() {
   return (
     <div className="pt-8 space-y-8">
       {/* Page header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-gray-900 mb-2">Dashboard Overview</h1>
-          <p className="text-gray-600">Monitor your knowledge base and chatbot performance</p>
-        </div>
+      <div className="flex items-center justify-end">
         <Button className="bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 rounded-xl">
           <Upload className="w-4 h-4 mr-2" />
           Upload Document
@@ -115,7 +111,7 @@ export function AdminDashboard() {
                 </Button>
               </div>
               <p className="text-gray-600 text-sm mb-1">{stat.label}</p>
-              <p className="text-gray-900 mb-2">{stat.value}</p>
+              <p style={{ color: 'var(--foreground)' }} className="mb-2">{stat.value}</p>
               <p className="text-sm text-green-600">{stat.change}</p>
             </Card>
           );
@@ -127,7 +123,7 @@ export function AdminDashboard() {
         {/* Recent documents */}
         <Card className="p-6 border-gray-200">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-gray-900">Recent Documents</h3>
+            <h3 style={{ color: 'var(--foreground)' }}>Recent Documents</h3>
             <Button 
               variant="ghost" 
               size="sm" 
@@ -149,7 +145,7 @@ export function AdminDashboard() {
                     <FileText className="w-5 h-5 text-gray-600" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-gray-900 text-sm truncate">{doc.name}</p>
+                    <p style={{ color: 'var(--foreground)' }} className="text-sm truncate">{doc.name}</p>
                     <div className="flex items-center gap-2 mt-1">
                       {doc.status === 'processed' ? (
                         <span className="inline-flex items-center gap-1 text-xs text-green-600">
@@ -175,7 +171,7 @@ export function AdminDashboard() {
         {/* Recent queries */}
         <Card className="p-6 border-gray-200">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-gray-900">Recent Queries</h3>
+            <h3 style={{ color: 'var(--foreground)' }}>Recent Queries</h3>
             <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700">
               View all
             </Button>
@@ -183,7 +179,7 @@ export function AdminDashboard() {
           <div className="space-y-4">
             {recentQueries.map((query, index) => (
               <div key={index} className="p-4 rounded-xl border border-gray-100 hover:border-gray-200 transition-colors">
-                <p className="text-gray-900 text-sm mb-2">{query.question}</p>
+                <p style={{ color: 'var(--foreground)' }} className="text-sm mb-2">{query.question}</p>
                 <div className="flex items-center justify-between">
                   <span className="inline-flex items-center gap-1 text-xs text-green-600">
                     <CheckCircle2 className="w-3 h-3" />
@@ -199,7 +195,7 @@ export function AdminDashboard() {
 
       {/* System status */}
       <Card className="p-6 border-gray-200">
-        <h3 className="text-gray-900 mb-6">System Status</h3>
+        <h3 style={{ color: 'var(--foreground)' }} className="mb-6">System Status</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <div className="flex items-center justify-between mb-2">
@@ -232,7 +228,7 @@ export function AdminDashboard() {
             <AlertCircle className="w-5 h-5 text-orange-600" />
           </div>
           <div className="flex-1">
-            <h4 className="text-gray-900 mb-1">Documents Pending Review</h4>
+            <h4 style={{ color: 'var(--foreground)' }} className="mb-1">Documents Pending Review</h4>
             <p className="text-sm text-gray-600 mb-3">
               3 documents have been uploaded and are awaiting administrator review before being added to the knowledge base.
             </p>

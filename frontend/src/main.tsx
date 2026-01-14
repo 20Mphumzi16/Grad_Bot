@@ -3,10 +3,13 @@
   import App from "./App.tsx";
   import "./index.css";
   import { LoadingProvider } from "./components/ui/loading";
+  import { ThemeProvider } from "./context/ThemeContext";
 
   createRoot(document.getElementById("root")!).render(
-    <LoadingProvider>
-      <App />
-    </LoadingProvider>
+    <ThemeProvider>
+      <LoadingProvider>
+        <App />
+      </LoadingProvider>
+    </ThemeProvider>
   );
   

@@ -94,30 +94,23 @@ export function AdminConversations() {
   return (
     <div className="pt-8 space-y-8">
       {/* Page header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-gray-900 mb-2">Conversations</h1>
-          <p className="text-gray-600">Monitor user interactions and chatbot responses</p>
-        </div>
-      </div>
-
       {/* Stats cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card className="p-6 border-gray-200">
           <p className="text-gray-600 text-sm mb-1">Total Conversations</p>
-          <p className="text-gray-900">1,429</p>
+          <p style={{ color: 'var(--foreground)' }}>1,429</p>
         </Card>
         <Card className="p-6 border-gray-200">
           <p className="text-gray-600 text-sm mb-1">Today</p>
-          <p className="text-gray-900">89</p>
+          <p style={{ color: 'var(--foreground)' }}>89</p>
         </Card>
         <Card className="p-6 border-gray-200">
           <p className="text-gray-600 text-sm mb-1">Positive Feedback</p>
-          <p className="text-gray-900">94.7%</p>
+          <p style={{ color: 'var(--foreground)' }}>94.7%</p>
         </Card>
         <Card className="p-6 border-gray-200">
           <p className="text-gray-600 text-sm mb-1">Avg Response Time</p>
-          <p className="text-gray-900">1.2s</p>
+          <p style={{ color: 'var(--foreground)' }}>1.2s</p>
         </Card>
       </div>
 
@@ -149,7 +142,7 @@ export function AdminConversations() {
                   {conversation.user.split('#')[1].substring(0, 2)}
                 </div>
                 <div>
-                  <p className="text-gray-900 text-sm">{conversation.user}</p>
+                  <p style={{ color: 'var(--foreground)' }} className="text-sm">{conversation.user}</p>
                   <p className="text-gray-500 text-xs">{conversation.timestamp}</p>
                 </div>
               </div>
@@ -165,12 +158,12 @@ export function AdminConversations() {
             <div className="space-y-3">
               <div className="bg-gray-50 rounded-xl p-4">
                 <p className="text-xs text-gray-500 mb-2">USER QUERY</p>
-                <p className="text-gray-900 text-sm">{conversation.query}</p>
+                <p style={{ color: 'var(--foreground)' }} className="text-sm">{conversation.query}</p>
               </div>
 
               <div className="bg-blue-50 rounded-xl p-4">
                 <p className="text-xs text-blue-600 mb-2">BOT RESPONSE</p>
-                <p className="text-gray-900 text-sm">{conversation.response}</p>
+                <p style={{ color: 'var(--foreground)' }} className="text-sm">{conversation.response}</p>
               </div>
             </div>
 

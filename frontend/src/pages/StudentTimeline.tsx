@@ -79,21 +79,15 @@ export function StudentTimeline() {
 
   return (
     <div className="pt-8 space-y-8">
-      {/* Page header */}
-      <div>
-        <h1 className="text-gray-900 mb-2">My Timeline</h1>
-        <p className="text-gray-600">Track your progress through the graduate programme</p>
-      </div>
-
       {/* Overall progress */}
       <Card className="p-6 border-gray-200">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="text-gray-900 mb-1">Overall Progress</h3>
+            <h3 style={{ color: 'var(--foreground)' }} className="mb-1">Overall Progress</h3>
             <p className="text-sm text-gray-600">Day 15 of 90 • First 90 Days Programme</p>
           </div>
           <div className="text-right">
-            <p className="text-gray-900 mb-1">25%</p>
+            <p style={{ color: 'var(--foreground)' }} className="mb-1">25%</p>
             <p className="text-sm text-gray-600">Complete</p>
           </div>
         </div>
@@ -121,7 +115,7 @@ export function StudentTimeline() {
                     <div className="flex items-center justify-between mb-2">
                       <div>
                         <p className="text-sm text-gray-600 mb-1">{milestone.week}</p>
-                        <h3 className="text-gray-900">{milestone.title}</h3>
+                        <h3 style={{ color: 'var(--foreground)' }}>{milestone.title}</h3>
                       </div>
                       {milestone.status === 'completed' && (
                         <span className="text-sm text-green-600 bg-green-100 px-3 py-1 rounded-full">

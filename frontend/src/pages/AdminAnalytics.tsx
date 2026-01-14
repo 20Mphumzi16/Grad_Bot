@@ -56,12 +56,6 @@ export function AdminAnalytics() {
 
   return (
     <div className="pt-8 space-y-8">
-      {/* Page header */}
-      <div>
-        <h1 className="text-gray-900 mb-2">Analytics</h1>
-        <p className="text-gray-600">Track performance metrics and usage patterns</p>
-      </div>
-
       {/* Key metrics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card className="p-6 border-gray-200">
@@ -71,7 +65,7 @@ export function AdminAnalytics() {
             </div>
             <p className="text-gray-600 text-sm">Total Conversations</p>
           </div>
-          <p className="text-gray-900 mb-1">1,429</p>
+          <p style={{ color: 'var(--foreground)' }} className="mb-1">1,429</p>
           <p className="text-sm text-green-600">+12.5% vs last week</p>
         </Card>
 
@@ -82,7 +76,7 @@ export function AdminAnalytics() {
             </div>
             <p className="text-gray-600 text-sm">Avg Response Time</p>
           </div>
-          <p className="text-gray-900 mb-1">1.2s</p>
+          <p style={{ color: 'var(--foreground)' }} className="mb-1">1.2s</p>
           <p className="text-sm text-green-600">-0.3s improvement</p>
         </Card>
 
@@ -93,7 +87,7 @@ export function AdminAnalytics() {
             </div>
             <p className="text-gray-600 text-sm">Satisfaction Rate</p>
           </div>
-          <p className="text-gray-900 mb-1">94.7%</p>
+          <p style={{ color: 'var(--foreground)' }} className="mb-1">94.7%</p>
           <p className="text-sm text-green-600">+2.1% vs last month</p>
         </Card>
 
@@ -104,7 +98,7 @@ export function AdminAnalytics() {
             </div>
             <p className="text-gray-600 text-sm">Active Users</p>
           </div>
-          <p className="text-gray-900 mb-1">342</p>
+          <p style={{ color: 'var(--foreground)' }} className="mb-1">342</p>
           <p className="text-sm text-green-600">+18 new this week</p>
         </Card>
       </div>
@@ -112,7 +106,7 @@ export function AdminAnalytics() {
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="p-6 border-gray-200">
-          <h3 className="text-gray-900 mb-6">Conversation Volume</h3>
+          <h3 style={{ color: 'var(--foreground)' }} className="mb-6">Conversation Volume</h3>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={conversationData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -131,7 +125,7 @@ export function AdminAnalytics() {
         </Card>
 
         <Card className="p-6 border-gray-200">
-          <h3 className="text-gray-900 mb-6">Response Time Trend</h3>
+          <h3 style={{ color: 'var(--foreground)' }} className="mb-6">Response Time Trend</h3>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={responseTimeData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -153,7 +147,7 @@ export function AdminAnalytics() {
       {/* Tables */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="p-6 border-gray-200">
-          <h3 className="text-gray-900 mb-6">Top Queries</h3>
+          <h3 style={{ color: 'var(--foreground)' }} className="mb-6">Top Queries</h3>
           <div className="space-y-4">
             {topQueries.map((item, index) => (
               <div key={index} className="flex items-center justify-between">
@@ -161,7 +155,7 @@ export function AdminAnalytics() {
                   <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-600 text-sm flex-shrink-0">
                     {index + 1}
                   </div>
-                  <span className="text-gray-900 text-sm">{item.query}</span>
+                  <span style={{ color: 'var(--foreground)' }} className="text-sm">{item.query}</span>
                 </div>
                 <span className="text-gray-600 text-sm">{item.count}</span>
               </div>
@@ -170,7 +164,7 @@ export function AdminAnalytics() {
         </Card>
 
         <Card className="p-6 border-gray-200">
-          <h3 className="text-gray-900 mb-6">Document Usage</h3>
+          <h3 style={{ color: 'var(--foreground)' }} className="mb-6">Document Usage</h3>
           <ResponsiveContainer width="100%" height={240}>
             <BarChart data={documentUsage} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />

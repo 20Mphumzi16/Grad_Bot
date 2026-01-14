@@ -173,13 +173,6 @@ export function StudentChat() {
   return (
     <div className="pt-8 h-[calc(100vh-8rem)]">
       <div className="flex flex-col h-full max-w-4xl mx-auto">
-
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-gray-900 mb-2">Chat Assistant</h1>
-          <p className="text-gray-600">Ask me anything about the graduate programme</p>
-        </div>
-
         {/* Chat container */}
         <Card className="flex-1 border-gray-200 flex flex-col overflow-hidden">
 

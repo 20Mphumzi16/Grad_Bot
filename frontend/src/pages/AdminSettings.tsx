@@ -16,19 +16,13 @@ import { Separator } from '../components/ui/separator';
 export function AdminSettings() {
   return (
     <div className="pt-8 space-y-8">
-      {/* Page header */}
-      <div>
-        <h1 className="text-gray-900 mb-2">Settings</h1>
-        <p className="text-gray-600">Configure your knowledge assistant settings</p>
-      </div>
-
       {/* General Settings */}
-      <Card className="p-6 border-gray-200">
+      <Card className="p-6 border-border">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-teal-500 flex items-center justify-center">
             <Settings className="w-5 h-5 text-white" />
           </div>
-          <h3 className="text-gray-900">General Settings</h3>
+          <h3 className="text-foreground">General Settings</h3>
         </div>
 
         <div className="space-y-6">
@@ -64,12 +58,12 @@ export function AdminSettings() {
       </Card>
 
       {/* RAG Settings */}
-      <Card className="p-6 border-gray-200">
+      <Card className="p-6 border-border">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
             <Database className="w-5 h-5 text-white" />
           </div>
-          <h3 className="text-gray-900">RAG Configuration</h3>
+          <h3 className="text-foreground">RAG Configuration</h3>
         </div>
 
         <div className="space-y-6">
@@ -81,7 +75,7 @@ export function AdminSettings() {
               defaultValue="512"
               className="rounded-xl"
             />
-            <p className="text-sm text-gray-500">Number of tokens per document chunk</p>
+            <p className="text-sm text-muted-foreground">Number of tokens per document chunk</p>
           </div>
 
           <div className="space-y-2">
@@ -92,7 +86,7 @@ export function AdminSettings() {
               defaultValue="5"
               className="rounded-xl"
             />
-            <p className="text-sm text-gray-500">Number of relevant chunks to retrieve</p>
+            <p className="text-sm text-muted-foreground">Number of relevant chunks to retrieve</p>
           </div>
 
           <div className="space-y-2">
@@ -104,25 +98,25 @@ export function AdminSettings() {
               defaultValue="0.75"
               className="rounded-xl"
             />
-            <p className="text-sm text-gray-500">Minimum similarity score for retrieval (0-1)</p>
+            <p className="text-sm text-muted-foreground">Minimum similarity score for retrieval (0-1)</p>
           </div>
         </div>
       </Card>
 
       {/* Security Settings */}
-      <Card className="p-6 border-gray-200">
+      <Card className="p-6 border-border">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center">
             <Shield className="w-5 h-5 text-white" />
           </div>
-          <h3 className="text-gray-900">Security & Privacy</h3>
+          <h3 className="text-foreground">Security & Privacy</h3>
         </div>
 
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <Label>Require Authentication</Label>
-              <p className="text-sm text-gray-500">Users must log in to access the chatbot</p>
+              <p className="text-sm text-muted-foreground">Users must log in to access the chatbot</p>
             </div>
             <Switch defaultChecked />
           </div>
@@ -132,7 +126,7 @@ export function AdminSettings() {
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <Label>Log Conversations</Label>
-              <p className="text-sm text-gray-500">Store conversation history for analytics</p>
+              <p className="text-sm text-muted-foreground">Store conversation history for analytics</p>
             </div>
             <Switch defaultChecked />
           </div>
@@ -142,7 +136,7 @@ export function AdminSettings() {
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <Label>Anonymous Usage Data</Label>
-              <p className="text-sm text-gray-500">Collect anonymous usage statistics</p>
+              <p className="text-sm text-muted-foreground">Collect anonymous usage statistics</p>
             </div>
             <Switch defaultChecked />
           </div>
@@ -150,19 +144,19 @@ export function AdminSettings() {
       </Card>
 
       {/* Notification Settings */}
-      <Card className="p-6 border-gray-200">
+      <Card className="p-6 border-border">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
             <Bell className="w-5 h-5 text-white" />
           </div>
-          <h3 className="text-gray-900">Notifications</h3>
+          <h3 className="text-foreground">Notifications</h3>
         </div>
 
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <Label>Email Notifications</Label>
-              <p className="text-sm text-gray-500">Receive email alerts for important events</p>
+              <p className="text-sm text-muted-foreground">Receive email alerts for important events</p>
             </div>
             <Switch defaultChecked />
           </div>
@@ -172,7 +166,7 @@ export function AdminSettings() {
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <Label>Failed Processing Alerts</Label>
-              <p className="text-sm text-gray-500">Get notified when document processing fails</p>
+              <p className="text-sm text-muted-foreground">Get notified when document processing fails</p>
             </div>
             <Switch defaultChecked />
           </div>
@@ -182,7 +176,7 @@ export function AdminSettings() {
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <Label>Weekly Reports</Label>
-              <p className="text-sm text-gray-500">Receive weekly analytics summary</p>
+              <p className="text-sm text-muted-foreground">Receive weekly analytics summary</p>
             </div>
             <Switch />
           </div>
@@ -190,19 +184,19 @@ export function AdminSettings() {
       </Card>
 
       {/* Performance Settings */}
-      <Card className="p-6 border-gray-200">
+      <Card className="p-6 border-border">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
             <Zap className="w-5 h-5 text-white" />
           </div>
-          <h3 className="text-gray-900">Performance</h3>
+          <h3 className="text-foreground">Performance</h3>
         </div>
 
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <Label>Enable Caching</Label>
-              <p className="text-sm text-gray-500">Cache frequent queries for faster responses</p>
+              <p className="text-sm text-muted-foreground">Cache frequent queries for faster responses</p>
             </div>
             <Switch defaultChecked />
           </div>
