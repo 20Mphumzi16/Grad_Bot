@@ -3,6 +3,7 @@ import { Bell, LogOut, Moon, Sun } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router';
 import { useEffect, useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
+import { ConfirmDialog } from '../ui/confirm-dialog';
 
 const pageLabels: Record<string, string> = {
   '/student': 'Dashboard',
@@ -19,6 +20,7 @@ export function StudentHeader() {
   const { isDark, toggleTheme } = useTheme();
   const [firstName, setFirstName] = useState<string | null>(null);
   const [lastName, setLastName] = useState<string | null>(null);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -53,7 +55,6 @@ export function StudentHeader() {
     localStorage.removeItem('token');
     navigate('/');
   };
-  const [showConfirm, setShowConfirm] = useState(false);
 
 
   return (
@@ -106,47 +107,17 @@ export function StudentHeader() {
               <LogOut className="w-5 h-5" />
             </Button>
 
-            {showConfirm && (
-              <div className="fixed inset-0 z-50">
-                {/* Backdrop */}
-                <div
-                  className="absolute inset-0 bg-black/50"
-                  onClick={() => setShowConfirm(false)}
-                />
-
-                {/* Centered dialog */}
-                <div className="fixed inset-0 flex items-center justify-center">
-                  <div 
-                    className="w-full max-w-md mx-4 rounded-lg p-6 shadow-lg"
-                    style={{
-                      backgroundColor: 'var(--background)',
-                      color: 'var(--foreground)',
-                      border: `1px solid var(--border)`
-                    }}
-                  >
-                    <h3 className="text-lg font-semibold mb-2">Confirm Logout</h3>
-                    <p className="text-sm mb-4" style={{ color: 'var(--muted-foreground)' }}>
-                      Are you sure you want to log out?
-                    </p>
-                    <div className="flex justify-end gap-2">
-                      <Button variant="outline" onClick={() => setShowConfirm(false)}>
-                        Cancel
-                      </Button>
-                      <Button
-                        className="bg-gradient-to-r from-blue-500 to-teal-500 text-white"
-                        onClick={() => {
-                          setShowConfirm(false);
-                          handleLogout();
-                        }}
-                      >
-                        Log out
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
+            <ConfirmDialog
+              open={showConfirm}
+              title="Confirm Logout"
+              description="Are you sure you want to log out?"
+              onCancel={() => setShowConfirm(false)}
+              onConfirm={() => {
+                setShowConfirm(false);
+                handleLogout();
+              }}
+              confirmText="Log out"
+            />
           </>
         </div>
       </div>

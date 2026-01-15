@@ -129,6 +129,82 @@
   }
 }
 
+body.logout-blur #root {
+  filter: blur(8px) brightness(0.86);
+  transition: filter 240ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  will-change: filter;
+}
+
+.theme-transition,
+.theme-transition * {
+  transition:
+    background-color 380ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    color 380ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    border-color 380ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    fill 380ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    stroke 380ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    box-shadow 380ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.orbit-loader {
+  position: relative;
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: orbit-rotate 950ms linear infinite;
+}
+
+.orbit-loader-dot {
+  position: absolute;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: #ffffff;
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.9);
+}
+
+.orbit-loader-dot:nth-child(1) {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: orbit-pulse 950ms ease-in-out infinite;
+}
+
+.orbit-loader-dot:nth-child(2) {
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  animation: orbit-pulse 950ms ease-in-out infinite 120ms;
+}
+
+.orbit-loader-dot:nth-child(3) {
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: orbit-pulse 950ms ease-in-out infinite 240ms;
+}
+
+@keyframes orbit-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes orbit-pulse {
+  0%,
+  100% {
+    transform: scale(1) translateX(-50%);
+  }
+  50% {
+    transform: scale(1.4) translateX(-50%);
+  }
+}
+
 /**
  * Base typography. This is not applied to elements which have an ancestor with a Tailwind text class.
  */

@@ -1,7 +1,9 @@
 import { Button } from '../ui/button';
 import { Bell, LogOut, Moon, Sun } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router';
+import { useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
+import { ConfirmDialog } from '../ui/confirm-dialog';
 
 const pageLabels: Record<string, string> = {
   '/admin': 'Dashboard',
@@ -15,8 +17,10 @@ export function AdminHeader() {
   const navigate = useNavigate();
   const location = useLocation();
   const { isDark, toggleTheme } = useTheme();
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const handleLogout = () => {
+    localStorage.removeItem('token');
     navigate('/');
   };
 
@@ -65,15 +69,29 @@ export function AdminHeader() {
             </div>
           </div>
 
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={handleLogout}
-            style={{ color: 'var(--muted-foreground)' }}
-            className="hover:opacity-75"
-          >
-            <LogOut className="w-5 h-5" />
-          </Button>
+          <>
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={() => setShowConfirm(true)}
+              style={{ color: 'var(--muted-foreground)' }}
+              className="hover:opacity-75"
+            >
+              <LogOut className="w-5 h-5" />
+            </Button>
+
+            <ConfirmDialog
+              open={showConfirm}
+              title="Confirm Logout"
+              description="Are you sure you want to log out?"
+              onCancel={() => setShowConfirm(false)}
+              onConfirm={() => {
+                setShowConfirm(false);
+                handleLogout();
+              }}
+              confirmText="Log out"
+            />
+          </>
         </div>
       </div>
     </header>

@@ -16,8 +16,12 @@ export const LoadingProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
       {loading && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-          <div className="p-6 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center">
-            <div className="w-16 h-16 border-4 border-white border-t-transparent rounded-full animate-spin" />
+          <div className="p-6 rounded-2xl bg-background/40 backdrop-blur-md flex items-center justify-center shadow-lg">
+            <div className="orbit-loader">
+              <div className="orbit-loader-dot" />
+              <div className="orbit-loader-dot" />
+              <div className="orbit-loader-dot" />
+            </div>
           </div>
         </div>
       )}
