@@ -90,7 +90,7 @@ export  function CustomModal({
   return createPortal(
     <div
       className="fixed inset-0"
-      style={{ zIndex: 1000000 }}
+      style={{ zIndex: 40 }}
       role="dialog"
       aria-modal="true"
     >
