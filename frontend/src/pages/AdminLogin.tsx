@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
-import { Lock, ArrowLeft } from 'lucide-react';
+import { Lock, ArrowLeft, Loader2 } from 'lucide-react';
 import { Link } from 'react-router';
 import { useLoading } from '../components/ui/loading';
 
@@ -17,7 +17,6 @@ export function AdminLogin() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setLoading(true);
 
     try {
       const res = await fetch('http://127.0.0.1:8000/auth/login', {
@@ -41,6 +40,8 @@ export function AdminLogin() {
       }
 
       localStorage.setItem('token', token);
+      setLoading(true);
+      await new Promise((r) => setTimeout(r, 500));
       navigate('/admin');
     } catch (err: any) {
       setError(err?.message || 'Network error during login');
@@ -51,27 +52,29 @@ export function AdminLogin() {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center px-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center px-6">
       <div className="w-full max-w-md">
         {/* Back button */}
-        <Link to="/" className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-8 transition-colors">
+        <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8 transition-colors">
           <ArrowLeft className="w-4 h-4" />
           <span className="text-sm">Back to Home</span>
         </Link>
 
         {/* Login card */}
-        <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 p-8">
+        <div className="bg-card rounded-3xl shadow-xl shadow-black/5 dark:shadow-black/20 p-8">
           <div className="text-center mb-8">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-teal-500 flex items-center justify-center mx-auto mb-4">
               <Lock className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-gray-900 mb-2">
+            <h1 className="text-foreground mb-2">
               Admin Login
             </h1>
-            <p className="text-gray-600 text-sm">
+            <p className="text-muted-foreground text-sm">
               Access the knowledge management dashboard
             </p>
           </div>
+
+          
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
@@ -114,13 +117,13 @@ export function AdminLogin() {
           </form>
 
           <div className="mt-6 text-center">
-            <a href="#" className="text-sm text-gray-500 hover:text-gray-700">
+            <a href="#" className="text-sm text-muted-foreground hover:text-foreground">
               Forgot password?
             </a>
           </div>
         </div>
 
-        <p className="text-center text-sm text-gray-500 mt-6">
+        <p className="text-center text-sm text-muted-foreground mt-6">
           Demo credentials: Any email/password combination
         </p>
       </div>

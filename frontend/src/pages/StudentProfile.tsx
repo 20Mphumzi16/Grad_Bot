@@ -167,7 +167,7 @@ export function StudentProfile() {
       </div>
 
       {/* Profile picture section */}
-      <Card className="p-6 border-gray-200">
+      <Card className="p-6 border-border">
         <div className="flex items-center gap-6">
           <div className="relative">
             <Avatar className="w-24 h-24">
@@ -180,12 +180,12 @@ export function StudentProfile() {
               size="icon" 
               className="absolute bottom-0 right-0 rounded-full w-8 h-8 bg-white border-2 border-gray-200 hover:bg-gray-50"
             >
-              <Camera className="w-4 h-4 text-gray-600" />
+              <Camera className="w-4 h-4 text-muted-foreground" />
             </Button>
           </div>
           <div className="flex-1">
-            <h3 className="text-gray-900 mb-1">Profile Picture</h3>
-            <p className="text-sm text-gray-600 mb-3">
+            <h3 style={{ color: 'var(--foreground)' }} className="mb-1">Profile Picture</h3>
+            <p style={{ color: 'var(--muted-foreground)' }} className="text-sm mb-3">
               Upload a photo to personalize your profile
             </p>
             <div className="flex items-center gap-3">
@@ -201,17 +201,17 @@ export function StudentProfile() {
       </Card>
 
       {/* Personal Information */}
-      <Card className="p-6 border-gray-200">
+      <Card className="p-6 border-border">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-teal-500 flex items-center justify-center">
             <User className="w-5 h-5 text-white" />
           </div>
-          <h3 className="text-gray-900">Personal Information</h3>
+          <h3 className="text-foreground">Personal Information</h3>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="firstName">First Name</Label>
+            <Label htmlFor="firstName" style={{ color: 'var(--foreground)' }}>First Name</Label>
             <Input
               id="firstName"
               value={formData.firstName}
@@ -222,7 +222,7 @@ export function StudentProfile() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="lastName">Last Name</Label>
+            <Label htmlFor="lastName" style={{ color: 'var(--foreground)' }}>Last Name</Label>
             <Input
               id="lastName"
               value={formData.lastName}
@@ -233,7 +233,7 @@ export function StudentProfile() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email" style={{ color: 'var(--foreground)' }}>Email</Label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <Input
@@ -248,7 +248,7 @@ export function StudentProfile() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="phone">Phone</Label>
+            <Label htmlFor="phone" style={{ color: 'var(--foreground)' }}>Phone</Label>
             <div className="relative">
               <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <Input
@@ -262,7 +262,7 @@ export function StudentProfile() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="location">Location</Label>
+            <Label htmlFor="location" style={{ color: 'var(--foreground)' }}>Location</Label>
             <div className="relative">
               <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <Input
@@ -276,7 +276,7 @@ export function StudentProfile() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="department">Department</Label>
+            <Label htmlFor="department" style={{ color: 'var(--foreground)' }}>Department</Label>
             <div className="relative">
               <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <Input
@@ -290,7 +290,7 @@ export function StudentProfile() {
           </div>
 
           <div className="space-y-2 md:col-span-2">
-            <Label htmlFor="bio">Bio</Label>
+            <Label htmlFor="bio" style={{ color: 'var(--foreground)' }}>Bio</Label>
             <Textarea
               id="bio"
               value={formData.bio}
@@ -305,12 +305,12 @@ export function StudentProfile() {
       </Card>
 
       {/* Programme Information */}
-      <Card className="p-6 border-gray-200">
-        <h3 className="text-gray-900 mb-6">Programme Information</h3>
+      <Card className="p-6 border-border">
+        <h3 className="text-foreground mb-6">Programme Information</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="startDate">Start Date</Label>
+            <Label htmlFor="startDate" style={{ color: 'var(--foreground)' }}>Start Date</Label>
             <Input
               id="startDate"
               type="date"
@@ -322,7 +322,7 @@ export function StudentProfile() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="interests">Areas of Interest</Label>
+            <Label htmlFor="interests" style={{ color: 'var(--foreground)' }}>Areas of Interest</Label>
             <Input
               id="interests"
               value={formData.interests}
@@ -336,12 +336,12 @@ export function StudentProfile() {
       </Card>
 
       {/* Social Links */}
-      <Card className="p-6 border-gray-200">
-        <h3 className="text-gray-900 mb-6">Social Links</h3>
+      <Card className="p-6 border-border">
+        <h3 className="text-foreground mb-6">Social Links</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="linkedin">LinkedIn</Label>
+            <Label htmlFor="linkedin" style={{ color: 'var(--foreground)' }}>LinkedIn</Label>
             <Input
               id="linkedin"
               value={formData.linkedin}
@@ -353,7 +353,7 @@ export function StudentProfile() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="github">GitHub</Label>
+            <Label htmlFor="github" style={{ color: 'var(--foreground)' }}>GitHub</Label>
             <Input
               id="github"
               value={formData.github}
@@ -367,14 +367,14 @@ export function StudentProfile() {
       </Card>
 
       {/* Preferences */}
-      <Card className="p-6 border-gray-200">
-        <h3 className="text-gray-900 mb-6">Preferences</h3>
+      <Card className="p-6 border-border">
+        <h3 className="text-foreground mb-6">Preferences</h3>
 
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
               <Label>Email Notifications</Label>
-              <p className="text-sm text-gray-500">Receive email updates about your programme</p>
+              <p className="text-sm text-muted-foreground">Receive email updates about your programme</p>
             </div>
             <input type="checkbox" defaultChecked className="rounded" />
           </div>
@@ -382,7 +382,7 @@ export function StudentProfile() {
           <div className="flex items-center justify-between">
             <div>
               <Label>Weekly Digest</Label>
-              <p className="text-sm text-gray-500">Get a weekly summary of your progress</p>
+              <p className="text-sm text-muted-foreground">Get a weekly summary of your progress</p>
             </div>
             <input type="checkbox" defaultChecked className="rounded" />
           </div>
@@ -390,7 +390,7 @@ export function StudentProfile() {
           <div className="flex items-center justify-between">
             <div>
               <Label>Milestone Reminders</Label>
-              <p className="text-sm text-gray-500">Reminders for upcoming milestones and tasks</p>
+              <p className="text-sm text-muted-foreground">Reminders for upcoming milestones and tasks</p>
             </div>
             <input type="checkbox" defaultChecked className="rounded" />
           </div>

@@ -315,11 +315,7 @@ setCategories(data);
   return (
     <div className="pt-8 space-y-8">
       {/* Page header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-gray-900 mb-2">Document Management</h1>
-          <p className="text-gray-600">Upload and manage knowledge base documents</p>
-        </div>
+      <div className="flex items-center justify-end">
         <Button 
           onClick={() => setIsDialogOpen(true)}
           className="bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 rounded-xl"
@@ -338,7 +334,7 @@ setCategories(data);
             </div>
           </div>
           <p className="text-gray-600 text-sm mb-1">Total Documents</p>
-          <p className="text-gray-900 text-2xl font-semibold">{documents.length}</p>
+          <p style={{ color: 'var(--foreground)' }} className="text-2xl font-semibold">{documents.length}</p>
         </Card>
         <Card className="p-6 border-gray-200">
           <div className="flex items-start justify-between mb-4">
@@ -347,7 +343,7 @@ setCategories(data);
             </div>
           </div>
           <p className="text-gray-600 text-sm mb-1">Processed</p>
-          <p className="text-gray-900 text-2xl font-semibold">
+          <p style={{ color: 'var(--foreground)' }} className="text-2xl font-semibold">
             {documents.filter((d) => d.status === 'processed').length}
           </p>
         </Card>
@@ -358,7 +354,7 @@ setCategories(data);
             </div>
           </div>
           <p className="text-gray-600 text-sm mb-1">Processing</p>
-          <p className="text-gray-900 text-2xl font-semibold">
+          <p style={{ color: 'var(--foreground)' }} className="text-2xl font-semibold">
             {documents.filter((d) => d.status === 'processing').length}
           </p>
         </Card>
@@ -369,7 +365,7 @@ setCategories(data);
             </div>
           </div>
           <p className="text-gray-600 text-sm mb-1">Total Chunks</p>
-          <p className="text-gray-900 text-2xl font-semibold">
+          <p style={{ color: 'var(--foreground)' }} className="text-2xl font-semibold">
             {documents.reduce((sum, d) => sum + (d.chunks || 0), 0).toLocaleString()}
           </p>
         </Card>
@@ -419,7 +415,7 @@ setCategories(data);
           {showFilters && (
             <div className="flex items-center gap-4 border-t pt-4">
               <div className="flex-1">
-                <Label className="text-sm text-gray-600 mb-2 block">Filter by Status</Label>
+                <Label className="text-sm mb-2 block">Filter by Status</Label>
                 <Select value={filterStatus} onValueChange={(val: SetStateAction<string>) => setFilterStatus(val === 'all' ? '' : val)}>
                  
                   <SelectTrigger className="rounded-xl">
@@ -435,7 +431,7 @@ setCategories(data);
               </div>
 
               <div className="flex-1">
-                <Label className="text-sm text-gray-600 mb-2 block">Filter by Category</Label>
+                <Label className="text-sm mb-2 block">Filter by Category</Label>
                 <Select value={filterCategory} onValueChange={(val: SetStateAction<string>) => setFilterCategory(val === 'all' ? '' : val)}>
                   <SelectTrigger className="rounded-xl">
                     <SelectValue placeholder="All Categories" />
@@ -473,26 +469,26 @@ setCategories(data);
           <table className="w-full">
             <thead className="border-b border-gray-200">
               <tr>
-                <th className="text-left p-6 text-sm text-gray-600">Document Name</th>
-                <th className="text-left p-6 text-sm text-gray-600">Category</th>
-                <th className="text-left p-6 text-sm text-gray-600">Status</th>
-                <th className="text-left p-6 text-sm text-gray-600">Chunks</th>
-                <th className="text-left p-6 text-sm text-gray-600">Size (Mb)</th>
-                <th className="text-left p-6 text-sm text-gray-600">Upload Date</th>
-                <th className="text-left p-6 text-sm text-gray-600">Actions</th>
+                <th className="text-left p-6 text-sm text-muted-foreground">Document Name</th>
+                <th className="text-left p-6 text-sm text-muted-foreground">Category</th>
+                <th className="text-left p-6 text-sm text-muted-foreground">Status</th>
+                <th className="text-left p-6 text-sm text-muted-foreground">Chunks</th>
+                <th className="text-left p-6 text-sm text-muted-foreground">Size (Mb)</th>
+                <th className="text-left p-6 text-sm text-muted-foreground">Upload Date</th>
+                <th className="text-left p-6 text-sm text-muted-foreground">Actions</th>
               </tr>
             </thead>
             <tbody>
               {loadingDocuments ? (
                 <tr>
                   <td className="p-6" colSpan={7}>
-                    <div className="text-center text-gray-600">Loading documents...</div>
+                    <div className="text-center text-muted-foreground">Loading documents...</div>
                   </td>
                 </tr>
               ) : filteredDocuments.length === 0 ? (
                 <tr>
                   <td className="p-6" colSpan={7}>
-                    <div className="text-center text-gray-600">{documentsError ?? (documents.length === 0 ? 'No documents found' : 'No results match your search')}</div>
+                    <div className="text-center text-muted-foreground">{documentsError ?? (documents.length === 0 ? 'No documents found' : 'No results match your search')}</div>
                   </td>
                 </tr>
               ) : (
@@ -503,7 +499,7 @@ setCategories(data);
                         <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
                           <FileText className="w-5 h-5 text-gray-600" />
                         </div>
-                        <span className="text-gray-900 text-sm">{doc.name}</span>
+                        <span style={{ color: 'var(--foreground)' }} className="text-sm">{doc.name}</span>
                       </div>
                     </td>
                     <td className="p-6">
@@ -515,7 +511,7 @@ setCategories(data);
                       {getStatusBadge(doc.status || '')}
                     </td>
                     <td className="p-6">
-                      <span className="text-gray-900 text-sm">{doc.chunks}</span>
+                      <span style={{ color: 'var(--foreground)' }} className="text-sm">{doc.chunks}</span>
                     </td>
                     <td className="p-6">
                       <span className="text-gray-600 text-sm">{formatSizeMb(doc.size)}</span>

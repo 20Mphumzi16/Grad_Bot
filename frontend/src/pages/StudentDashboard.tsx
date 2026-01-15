@@ -200,7 +200,7 @@ export function StudentDashboard() {
         {/* Upcoming milestones */}
         <Card className="p-6 border-gray-200">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-gray-900">Upcoming Milestones</h3>
+            <h3 style={{ color: 'var(--foreground)' }}>Upcoming Milestones</h3>
             <Link to="/student/timeline">
               <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700">
                 View all
@@ -242,7 +242,7 @@ export function StudentDashboard() {
         {/* Recent resources */}
         <Card className="p-6 border-gray-200">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-gray-900">Popular Resources</h3>
+            <h3 style={{ color: 'var(--foreground)' }}>Popular Resources</h3>
             <Link to="/student/resources">
               <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700">
                 View all
@@ -282,8 +282,8 @@ export function StudentDashboard() {
             <MessageSquare className="w-5 h-5 text-blue-600" />
           </div>
           <div className="flex-1">
-            <h4 className="text-gray-900 mb-1">Quick Tip</h4>
-            <p className="text-sm text-gray-600 mb-3">
+            <h4 style={{ color: 'var(--foreground)' }} className="mb-1">Quick Tip</h4>
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
               You can ask me anything about the graduate programme! Try questions like "What training is available?" or "How do I request time off?"
             </p>
             <Link to="/student/chat">

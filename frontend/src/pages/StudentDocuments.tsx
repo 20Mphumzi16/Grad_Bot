@@ -78,25 +78,19 @@ export function StudentDocuments() {
 
   return (
     <div className="pt-8 space-y-8">
-      {/* Page header */}
-      <div>
-        <h1 className="text-gray-900 mb-2">My Documents</h1>
-        <p className="text-gray-600">Access your personal documents and forms</p>
-      </div>
-
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="p-6 border-gray-200">
           <p className="text-gray-600 text-sm mb-1">Total Documents</p>
-          <p className="text-gray-900">{documents.length}</p>
+          <p style={{ color: 'var(--foreground)' }}>{documents.length}</p>
         </Card>
         <Card className="p-6 border-gray-200">
           <p className="text-gray-600 text-sm mb-1">New Documents</p>
-          <p className="text-gray-900">{documents.filter(d => d.views === 0).length}</p>
+          <p style={{ color: 'var(--foreground)' }}>{documents.filter(d => d.views === 0).length}</p>
         </Card>
         <Card className="p-6 border-gray-200">
           <p className="text-gray-600 text-sm mb-1">Viewed</p>
-          <p className="text-gray-900">{documents.filter(d => d.views > 0).length}</p>
+          <p style={{ color: 'var(--foreground)' }}>{documents.filter(d => d.views > 0).length}</p>
         </Card>
       </div>
 
@@ -112,7 +106,7 @@ export function StudentDocuments() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between mb-2">
                   <div>
-                    <h3 className="text-gray-900 mb-1">{doc.file_name}</h3>
+                    <h3 style={{ color: 'var(--foreground)' }} className="mb-1">{doc.file_name}</h3>
                     <div className="flex items-center gap-3 text-sm text-gray-500">
                       <span className="flex items-center gap-1">
                         <Calendar className="w-3 h-3" />

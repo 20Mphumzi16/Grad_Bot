@@ -1,44 +1,97 @@
 import { Button } from '../ui/button';
-import { Bell, LogOut } from 'lucide-react';
-import { useNavigate } from 'react-router';
+import { Bell, LogOut, Moon, Sun } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router';
+import { useState } from 'react';
+import { useTheme } from '../../context/ThemeContext';
+import { ConfirmDialog } from '../ui/confirm-dialog';
+
+const pageLabels: Record<string, string> = {
+  '/admin': 'Dashboard',
+  '/admin/documents': 'Documents',
+  '/admin/conversations': 'Conversations',
+  '/admin/analytics': 'Analytics',
+  '/admin/settings': 'Settings',
+};
 
 export function AdminHeader() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { isDark, toggleTheme } = useTheme();
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const handleLogout = () => {
+    localStorage.removeItem('token');
     navigate('/');
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-40 h-16">
+    <header 
+      className="fixed top-0 left-0 right-0 border-b z-40 h-16"
+      style={{
+        backgroundColor: 'var(--background)',
+        borderColor: 'var(--border)',
+        color: 'var(--foreground)'
+      }}
+    >
       <div className="h-full px-6 flex items-center justify-between">
         <div className="flex items-center gap-3 ml-64">
-          <h1 className="text-gray-900">Admin Dashboard</h1>
+          <h1>{pageLabels[location.pathname] || 'Admin Dashboard'}</h1>
         </div>
 
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" className="relative">
-            <Bell className="w-5 h-5 text-gray-600" />
+            <Bell 
+              className="w-5 h-5"
+              style={{ color: 'var(--muted-foreground)' }}
+            />
             <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full" />
           </Button>
 
-          <div className="h-8 w-px bg-gray-200" />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleTheme}
+            style={{ color: 'var(--muted-foreground)' }}
+            className="hover:opacity-75"
+          >
+            {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          </Button>
+
+          <div 
+            className="h-8 w-px"
+            style={{ backgroundColor: 'var(--border)' }}
+          />
 
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-teal-500" />
             <div className="text-sm">
-              <p className="text-gray-900">Admin User</p>
+              <p style={{ color: 'var(--foreground)' }}>Admin User</p>
             </div>
           </div>
 
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={handleLogout}
-            className="text-gray-600 hover:text-gray-900"
-          >
-            <LogOut className="w-5 h-5" />
-          </Button>
+          <>
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={() => setShowConfirm(true)}
+              style={{ color: 'var(--muted-foreground)' }}
+              className="hover:opacity-75"
+            >
+              <LogOut className="w-5 h-5" />
+            </Button>
+
+            <ConfirmDialog
+              open={showConfirm}
+              title="Confirm Logout"
+              description="Are you sure you want to log out?"
+              onCancel={() => setShowConfirm(false)}
+              onConfirm={() => {
+                setShowConfirm(false);
+                handleLogout();
+              }}
+              confirmText="Log out"
+            />
+          </>
         </div>
       </div>
     </header>

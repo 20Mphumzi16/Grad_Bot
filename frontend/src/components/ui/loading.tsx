@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 type LoadingContextType = {
   loading: boolean;
@@ -14,13 +15,46 @@ export const LoadingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     <LoadingContext.Provider value={{ loading, setLoading }}>
       {children}
 
-      {loading && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-          <div className="p-6 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center">
-            <div className="w-16 h-16 border-4 border-white border-t-transparent rounded-full animate-spin" />
-          </div>
-        </div>
-      )}
+      {loading &&
+        createPortal(
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              width: '100vw',
+              height: '100vh',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'rgba(0,0,0,0.25)',
+              zIndex: 2147483647,
+              transform: 'translateZ(0)'
+            }}
+          >
+            <div className="matrix-loader" style={{ width: '2cm', height: '2cm' }}>
+              <div className="matrix-loader-cell"></div>
+              <div className="matrix-loader-cell"></div>
+              <div className="matrix-loader-cell"></div>
+              <div className="matrix-loader-cell"></div>
+              <div className="matrix-loader-cell"></div>
+              <div className="matrix-loader-cell"></div>
+              <div className="matrix-loader-cell"></div>
+              <div className="matrix-loader-cell"></div>
+              <div className="matrix-loader-cell"></div>
+              <div className="matrix-loader-cell"></div>
+              <div className="matrix-loader-cell"></div>
+              <div className="matrix-loader-cell"></div>
+              <div className="matrix-loader-cell"></div>
+              <div className="matrix-loader-cell"></div>
+              <div className="matrix-loader-cell"></div>
+              <div className="matrix-loader-cell"></div>
+            </div>
+          </div>,
+          document.body
+        )}
     </LoadingContext.Provider>
   );
 };
