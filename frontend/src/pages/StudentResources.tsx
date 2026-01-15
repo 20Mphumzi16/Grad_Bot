@@ -58,7 +58,7 @@ export function StudentResources() {
 
   const handleView = async (id: string) => {
     try {
-      const res = await fetch(`http://127.0.0.1:8000/documents/${id}/download`);
+      const res = await fetch(`http://127.0.0.1:8000/documents/${id}/view`);
       const data = await res.json();
       window.open(data.url, '_blank');
     } catch (err) {
