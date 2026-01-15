@@ -12,6 +12,6 @@
         <App />
       </LoadingProvider>
     </ThemeProvider>
-  import { Toaster } from "./components/ui/sonner";
 
   
+  )

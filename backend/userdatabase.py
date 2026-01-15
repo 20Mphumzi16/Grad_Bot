@@ -21,27 +21,6 @@ def user_exists(email: str) -> bool:
     ).data
     return bool(user)
 
-# def new_user(email, role, first_name, last_name, password, phone=""):
-#     if user_exists(email):
-#         return [None, "User already exists"]
-
-#     hashed_password = password_hashing(password)
-
-#     response = (
-#         supabase.table("User")
-#         .insert({
-#             "email": email,
-#             "role": role,
-#             "first_name": first_name,
-#             "last_name": last_name,
-#             "phone": phone,
-#             "hashed_pass": hashed_password
-#         })
-#         .execute()
-#     ).data
-
-#     return response
-
 def get_user(email: str, password: str):
     user = {}
     hashed_pass = password_hashing(password)
@@ -167,4 +146,3 @@ def new_user(email, role, first_name, last_name, password, phone=""):
     ).data
     
     return response
- 

@@ -1,4 +1,5 @@
 import { useState, useEffect, SetStateAction } from 'react';
+import { useLocation } from 'react-router';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -30,15 +31,20 @@ import {
   ArrowUpDown
 } from 'lucide-react';
 import { Badge } from '../components/ui/badge';
+import { useLoading } from '../components/ui/loading';
 
 export function AdminDocuments() {
+  const location = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('');
   const [filterCategory, setFilterCategory] = useState<string>('');
   const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState<'name' | 'date'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(() => {
+    const params = new URLSearchParams(location.search);
+    return params.get('upload') === 'true';
+  });
   const [fileName, setFileName] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
@@ -54,10 +60,12 @@ export function AdminDocuments() {
 
   const [documents, setDocuments] = useState<Array<{ id: string | number; name: string; status?: string; uploadedAt?: string; size?: string; chunks?: number; category?: string }>>([]);
   const [loadingDocuments, setLoadingDocuments] = useState(false);
+  const { setLoading } = useLoading();
  
 
   const fetchDocuments = async () => {
     setLoadingDocuments(true);
+    setLoading(true);
     setDocumentsError(null);
     try {
       const res = await fetch('http://127.0.0.1:8000/documents/get-documents');
@@ -84,6 +92,7 @@ export function AdminDocuments() {
       setDocuments([]);
     } finally {
       setLoadingDocuments(false);
+      setLoading(false);
     }
   };
 
@@ -244,8 +253,22 @@ export function AdminDocuments() {
       const data = await res.json().catch(() => null);
       const url = data?.url ?? data;
       if (!url) throw new Error('No download URL returned');
-      // open in new tab
-      window.open(url, '_blank');
+      
+      const fileRes = await fetch(url);
+      if (!fileRes.ok) throw new Error(`HTTP ${fileRes.status}`);
+      const blob = await fileRes.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      if (filename) {
+        link.download = filename;
+      }
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      window.URL.revokeObjectURL(blobUrl);
     } catch (err: any) {
       setDocumentsError(err?.message ?? 'Failed to download document');
     }
@@ -640,6 +663,7 @@ setCategories(data);
       id="filename"
       value={fileName}
       onChange={(e) => setFileName(e.target.value)}
+      className="rounded-lg border border-gray-300 dark:border-gray-500 bg-input-background dark:bg-input/30"
     />
   </div>
 
@@ -650,7 +674,7 @@ setCategories(data);
       id="description"
       value={description}
       onChange={(e) => setDescription(e.target.value)}
-      className="min-h-[80px]"
+      className="min-h-[80px] rounded-lg border border-gray-300 dark:border-gray-500 bg-input-background dark:bg-input/30"
     />
   </div>
 
@@ -658,7 +682,7 @@ setCategories(data);
   <div className="space-y-2">
     <Label>Category</Label>
     <Select value={category} onValueChange={setCategory}>
-      <SelectTrigger>
+      <SelectTrigger className="rounded-lg border border-gray-300 dark:border-gray-500 bg-input-background dark:bg-input/30">
         <SelectValue placeholder="Select a category" />
       </SelectTrigger>
       <SelectContent>
@@ -684,7 +708,7 @@ setCategories(data);
   {/* File Upload */}
   <div className="space-y-2">
     <Label>Select File</Label>
-    <div className="border-2 border-dashed rounded-lg p-6 text-center">
+    <div className="border-2 border-dashed rounded-lg p-6 text-center border-gray-300 dark:border-gray-500">
       <input
         id="file"
         type="file"

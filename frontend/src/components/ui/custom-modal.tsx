@@ -1,4 +1,5 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 interface CustomModalProps {
   open: boolean;
@@ -17,25 +18,38 @@ export  function CustomModal({
 }: CustomModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   const previouslyFocused = useRef<HTMLElement | null>(null);
+  const [overlayVisible, setOverlayVisible] = useState(false);
+  const [contentVisible, setContentVisible] = useState(false);
+  const [exiting, setExiting] = useState(false);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      document.body.style.overflow = "";
+      previouslyFocused.current?.focus();
+      setOverlayVisible(false);
+      setContentVisible(false);
+      setExiting(false);
+      return;
+    }
 
-    // Save previously focused element
     previouslyFocused.current = document.activeElement as HTMLElement;
-
-    // Lock body scroll
     document.body.style.overflow = "hidden";
 
-    // Focus first focusable element
-    const focusable = modalRef.current?.querySelector<HTMLElement>(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    );
-    focusable?.focus();
+    setExiting(false);
+    setOverlayVisible(false);
+    setContentVisible(false);
+
+    const t1 = window.setTimeout(() => setOverlayVisible(true), 40);
+    const t2 = window.setTimeout(() => setContentVisible(true), 120);
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        onClose();
+        setExiting(true);
+        setOverlayVisible(false);
+        setContentVisible(false);
+        window.setTimeout(() => {
+          onClose();
+        }, 260);
       }
 
       if (e.key === "Tab") {
@@ -60,31 +74,69 @@ export  function CustomModal({
     document.addEventListener("keydown", handleKeyDown);
 
     return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
       document.body.style.overflow = "";
       document.removeEventListener("keydown", handleKeyDown);
       previouslyFocused.current?.focus();
+      setOverlayVisible(false);
+      setContentVisible(false);
+      setExiting(false);
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop */}
+  return createPortal(
+    <div
+      className="fixed inset-0"
+      style={{ zIndex: 40 }}
+      role="dialog"
+      aria-modal="true"
+    >
       <div
-        className="absolute inset-0 bg-black/50"
-        onClick={onClose}
+        className="absolute inset-0"
+        style={{
+          backgroundColor: "rgba(0,0,0,0.6)",
+          backdropFilter: "blur(12px)",
+          opacity: overlayVisible && !exiting ? 1 : 0,
+          transition: "opacity 260ms cubic-bezier(0.22, 0.61, 0.36, 1)",
+        }}
+        onClick={() => {
+          setExiting(true);
+          setOverlayVisible(false);
+          setContentVisible(false);
+          window.setTimeout(() => {
+            onClose();
+          }, 260);
+        }}
       />
 
-      {/* Modal */}
       <div
         ref={modalRef}
-        role="dialog"
-        aria-modal="true"
-        className="relative z-10 w-full max-w-md rounded-xl bg-white p-6 shadow-lg"
+        className="fixed"
+        style={{
+          top: "50%",
+          left: "50%",
+          width: "100%",
+          maxWidth: "32rem",
+          padding: "1.5rem",
+          borderRadius: "0.75rem",
+          boxShadow: "0 16px 48px rgba(0,0,0,0.24)",
+          backgroundColor: "var(--background)",
+          color: "var(--foreground)",
+          border: "1px solid var(--border)",
+          opacity: contentVisible && !exiting ? 1 : 0,
+          transform: contentVisible && !exiting
+            ? "translate(-50%, -50%) scale(1)"
+            : "translate(-50%, -50%) scale(0.96)",
+          transformOrigin: "50% 50%",
+          transition:
+            "opacity 260ms cubic-bezier(0.22, 0.61, 0.36, 1), transform 300ms cubic-bezier(0.22, 0.61, 0.36, 1)",
+        }}
       >
         {title && (
-          <h2 className="mb-2 text-lg font-semibold text-gray-900">
+          <h2 className="mb-2 text-lg font-semibold">
             {title}
           </h2>
         )}
@@ -97,6 +149,7 @@ export  function CustomModal({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

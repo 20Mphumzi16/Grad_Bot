@@ -90,7 +90,10 @@ export function AdminDashboard() {
     <div className="pt-8 space-y-8">
       {/* Page header */}
       <div className="flex items-center justify-end">
-        <Button className="bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 rounded-xl">
+        <Button 
+          className="bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 rounded-xl"
+          onClick={() => navigate('/admin/documents?upload=true')}
+        >
           <Upload className="w-4 h-4 mr-2" />
           Upload Document
         </Button>

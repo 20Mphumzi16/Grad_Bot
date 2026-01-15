@@ -140,17 +140,14 @@ export function StudentProfile() {
       {/* Page header */}
       <div className="flex items-center justify-between">
         <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-gray-900 mb-2">My Profile</h1>
-            {loading && (
-              <div
-                role="status"
-                aria-label="Loading profile"
-                className="w-5 h-5 border-2 border-gray-300 border-t-transparent rounded-full animate-spin"
-              />
-            )}
-          </div>
-          <p className="text-gray-600">Manage your personal information and preferences</p>
+          {loading && (
+            <div
+              role="status"
+              aria-label="Loading profile"
+              className="w-5 h-5 mb-1 border-2 border-gray-300 border-t-transparent rounded-full animate-spin"
+            />
+          )}
+          <p className="text-muted-foreground">Manage your personal information and preferences</p>
         </div>
         <Button
           onClick={handleSave}
