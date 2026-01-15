@@ -84,9 +84,9 @@ export function ConfirmDialog({
           padding: '1.5rem',
           borderRadius: '0.5rem',
           boxShadow: '0 16px 48px rgba(0,0,0,0.24)',
-          backgroundColor: '#ffffff',
-          color: '#111111',
-          border: '1px solid #e5e7eb',
+          backgroundColor: 'var(--background)',
+          color: 'var(--foreground)',
+          border: '1px solid var(--border)',
           zIndex: 1000001,
           opacity: contentVisible && !exiting ? 1 : 0,
           transformOrigin: '50% 50%',
@@ -101,7 +101,7 @@ export function ConfirmDialog({
           {title}
         </h3>
         {description && (
-          <p style={{ fontSize: '0.875rem', color: '#374151', marginBottom: '1rem' }}>
+          <p style={{ fontSize: '0.875rem', color: 'var(--muted-foreground)', marginBottom: '1rem' }}>
             {description}
           </p>
         )}

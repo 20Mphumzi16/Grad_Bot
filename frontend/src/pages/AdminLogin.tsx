@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
-import { Lock, ArrowLeft } from 'lucide-react';
+import { Lock, ArrowLeft, Loader2 } from 'lucide-react';
 import { Link } from 'react-router';
 import { useLoading } from '../components/ui/loading';
 
@@ -17,7 +17,6 @@ export function AdminLogin() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setLoading(true);
 
     try {
       const res = await fetch('http://127.0.0.1:8000/auth/login', {
@@ -41,6 +40,8 @@ export function AdminLogin() {
       }
 
       localStorage.setItem('token', token);
+      setLoading(true);
+      await new Promise((r) => setTimeout(r, 500));
       navigate('/admin');
     } catch (err: any) {
       setError(err?.message || 'Network error during login');
@@ -72,6 +73,8 @@ export function AdminLogin() {
               Access the knowledge management dashboard
             </p>
           </div>
+
+          
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">

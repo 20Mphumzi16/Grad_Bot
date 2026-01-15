@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
-import { GraduationCap, ArrowLeft } from 'lucide-react';
+import { GraduationCap, ArrowLeft, Loader2 } from 'lucide-react';
 import { Link } from 'react-router';
 import { useLoading } from '../components/ui/loading';
 
@@ -17,8 +17,6 @@ export function StudentLogin() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setLoading(true);
-    const start = Date.now();
 
     try {
       const res = await fetch('http://127.0.0.1:8000/auth/login', {
@@ -42,12 +40,8 @@ export function StudentLogin() {
       }
 
       localStorage.setItem('token', token);
-     const elapsed = Date.now() - start;
-  if (elapsed < 500) {
-    await new Promise(r => setTimeout(r, 500 - elapsed));
-  }
-
-
+      setLoading(true);
+      await new Promise(r => setTimeout(r, 500));
       navigate('/student');
     } catch (err: any) {
       setError(err?.message || 'Network error during login');
@@ -78,6 +72,8 @@ export function StudentLogin() {
               Access your graduate programme assistant
             </p>
           </div>
+
+          
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
