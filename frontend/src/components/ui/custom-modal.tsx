@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 interface CustomModalProps {
@@ -18,25 +18,38 @@ export  function CustomModal({
 }: CustomModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   const previouslyFocused = useRef<HTMLElement | null>(null);
+  const [overlayVisible, setOverlayVisible] = useState(false);
+  const [contentVisible, setContentVisible] = useState(false);
+  const [exiting, setExiting] = useState(false);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      document.body.style.overflow = "";
+      previouslyFocused.current?.focus();
+      setOverlayVisible(false);
+      setContentVisible(false);
+      setExiting(false);
+      return;
+    }
 
-    // Save previously focused element
     previouslyFocused.current = document.activeElement as HTMLElement;
-
-    // Lock body scroll
     document.body.style.overflow = "hidden";
 
-    // Focus first focusable element
-    const focusable = modalRef.current?.querySelector<HTMLElement>(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    );
-    focusable?.focus();
+    setExiting(false);
+    setOverlayVisible(false);
+    setContentVisible(false);
+
+    const t1 = window.setTimeout(() => setOverlayVisible(true), 40);
+    const t2 = window.setTimeout(() => setContentVisible(true), 120);
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        onClose();
+        setExiting(true);
+        setOverlayVisible(false);
+        setContentVisible(false);
+        window.setTimeout(() => {
+          onClose();
+        }, 260);
       }
 
       if (e.key === "Tab") {
@@ -61,11 +74,16 @@ export  function CustomModal({
     document.addEventListener("keydown", handleKeyDown);
 
     return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
       document.body.style.overflow = "";
       document.removeEventListener("keydown", handleKeyDown);
       previouslyFocused.current?.focus();
+      setOverlayVisible(false);
+      setContentVisible(false);
+      setExiting(false);
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) return null;
 
@@ -81,8 +99,17 @@ export  function CustomModal({
         style={{
           backgroundColor: "rgba(0,0,0,0.6)",
           backdropFilter: "blur(12px)",
+          opacity: overlayVisible && !exiting ? 1 : 0,
+          transition: "opacity 260ms cubic-bezier(0.22, 0.61, 0.36, 1)",
         }}
-        onClick={onClose}
+        onClick={() => {
+          setExiting(true);
+          setOverlayVisible(false);
+          setContentVisible(false);
+          window.setTimeout(() => {
+            onClose();
+          }, 260);
+        }}
       />
 
       <div
@@ -99,7 +126,13 @@ export  function CustomModal({
           backgroundColor: "var(--background)",
           color: "var(--foreground)",
           border: "1px solid var(--border)",
-          transform: "translate(-50%, -50%)",
+          opacity: contentVisible && !exiting ? 1 : 0,
+          transform: contentVisible && !exiting
+            ? "translate(-50%, -50%) scale(1)"
+            : "translate(-50%, -50%) scale(0.96)",
+          transformOrigin: "50% 50%",
+          transition:
+            "opacity 260ms cubic-bezier(0.22, 0.61, 0.36, 1), transform 300ms cubic-bezier(0.22, 0.61, 0.36, 1)",
         }}
       >
         {title && (

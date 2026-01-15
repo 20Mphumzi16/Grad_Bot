@@ -663,6 +663,7 @@ setCategories(data);
       id="filename"
       value={fileName}
       onChange={(e) => setFileName(e.target.value)}
+      className="rounded-lg border border-gray-300 dark:border-gray-500 bg-input-background dark:bg-input/30"
     />
   </div>
 
@@ -673,7 +674,7 @@ setCategories(data);
       id="description"
       value={description}
       onChange={(e) => setDescription(e.target.value)}
-      className="min-h-[80px]"
+      className="min-h-[80px] rounded-lg border border-gray-300 dark:border-gray-500 bg-input-background dark:bg-input/30"
     />
   </div>
 
@@ -681,7 +682,7 @@ setCategories(data);
   <div className="space-y-2">
     <Label>Category</Label>
     <Select value={category} onValueChange={setCategory}>
-      <SelectTrigger>
+      <SelectTrigger className="rounded-lg border border-gray-300 dark:border-gray-500 bg-input-background dark:bg-input/30">
         <SelectValue placeholder="Select a category" />
       </SelectTrigger>
       <SelectContent>
@@ -707,7 +708,7 @@ setCategories(data);
   {/* File Upload */}
   <div className="space-y-2">
     <Label>Select File</Label>
-    <div className="border-2 border-dashed rounded-lg p-6 text-center">
+    <div className="border-2 border-dashed rounded-lg p-6 text-center border-gray-300 dark:border-gray-500">
       <input
         id="file"
         type="file"
