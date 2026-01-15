@@ -37,6 +37,12 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* Login Page Gradients */
+  --admin-login-from: #f9fafb;
+  --admin-login-to: #f3f4f6;
+  --student-login-from: #eff6ff;
+  --student-login-to: #f0fdfa;
 }
 
 .dark {
@@ -76,6 +82,12 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: #4b5563;
   --sidebar-ring: oklch(0.439 0 0);
+
+  /* Login Page Gradients - Dark Mode */
+  --admin-login-from: #0f172a;
+  --admin-login-to: #1e293b;
+  --student-login-from: #0f172a;
+  --student-login-to: #1e293b;
 }
 
 @theme inline {

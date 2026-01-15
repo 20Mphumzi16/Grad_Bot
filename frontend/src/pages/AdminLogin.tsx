@@ -6,13 +6,16 @@ import { Label } from '../components/ui/label';
 import { Lock, ArrowLeft, Loader2 } from 'lucide-react';
 import { Link } from 'react-router';
 import { useLoading } from '../components/ui/loading';
+import { AnimatePresence } from 'framer-motion';
+import { PageTransition } from '../components/ui/PageTransition';
 
 export function AdminLogin() {
- const navigate = useNavigate();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { loading, setLoading } = useLoading();
   const [error, setError] = useState<string | null>(null);
+  const [show, setShow] = useState(true);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,10 +55,20 @@ export function AdminLogin() {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center px-6">
-      <div className="w-full max-w-md">
+    <AnimatePresence mode="wait">
+      {show && (
+        <PageTransition className="min-h-screen bg-gradient-to-br from-[var(--admin-login-from)] to-[var(--admin-login-to)] flex items-center justify-center px-6">
+          <div className="w-full max-w-md">
         {/* Back button */}
-        <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8 transition-colors">
+        <Link 
+          to="/" 
+          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8 transition-colors"
+          onClick={(e) => {
+            e.preventDefault();
+            setShow(false);
+            window.setTimeout(() => navigate('/'), 300);
+          }}
+        >
           <ArrowLeft className="w-4 h-4" />
           <span className="text-sm">Back to Home</span>
         </Link>
@@ -126,7 +139,9 @@ export function AdminLogin() {
         <p className="text-center text-sm text-muted-foreground mt-6">
           Demo credentials: Any email/password combination
         </p>
-      </div>
-    </div>
+          </div>
+        </PageTransition>
+      )}
+    </AnimatePresence>
   );
 }
