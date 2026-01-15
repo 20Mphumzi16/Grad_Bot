@@ -1,4 +1,5 @@
 import { useState, useEffect, SetStateAction } from 'react';
+import { useLocation } from 'react-router';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -33,13 +34,17 @@ import { Badge } from '../components/ui/badge';
 import { useLoading } from '../components/ui/loading';
 
 export function AdminDocuments() {
+  const location = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('');
   const [filterCategory, setFilterCategory] = useState<string>('');
   const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState<'name' | 'date'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(() => {
+    const params = new URLSearchParams(location.search);
+    return params.get('upload') === 'true';
+  });
   const [fileName, setFileName] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');

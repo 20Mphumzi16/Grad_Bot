@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 
 interface CustomModalProps {
   open: boolean;
@@ -68,23 +69,41 @@ export  function CustomModal({
 
   if (!open) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop */}
+  return createPortal(
+    <div
+      className="fixed inset-0"
+      style={{ zIndex: 1000000 }}
+      role="dialog"
+      aria-modal="true"
+    >
       <div
-        className="absolute inset-0 bg-black/50"
+        className="absolute inset-0"
+        style={{
+          backgroundColor: "rgba(0,0,0,0.6)",
+          backdropFilter: "blur(12px)",
+        }}
         onClick={onClose}
       />
 
-      {/* Modal */}
       <div
         ref={modalRef}
-        role="dialog"
-        aria-modal="true"
-        className="relative z-10 w-full max-w-md rounded-xl bg-white p-6 shadow-lg"
+        className="fixed"
+        style={{
+          top: "50%",
+          left: "50%",
+          width: "100%",
+          maxWidth: "32rem",
+          padding: "1.5rem",
+          borderRadius: "0.75rem",
+          boxShadow: "0 16px 48px rgba(0,0,0,0.24)",
+          backgroundColor: "var(--background)",
+          color: "var(--foreground)",
+          border: "1px solid var(--border)",
+          transform: "translate(-50%, -50%)",
+        }}
       >
         {title && (
-          <h2 className="mb-2 text-lg font-semibold text-gray-900">
+          <h2 className="mb-2 text-lg font-semibold">
             {title}
           </h2>
         )}
@@ -97,6 +116,7 @@ export  function CustomModal({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
