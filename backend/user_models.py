@@ -31,6 +31,15 @@ class UserResponse(BaseModel):
     linkedin_link: str | None
     github_link: str | None
 
+class GraduateResponse(BaseModel):
+    id: str
+    first_name: str
+    last_name: str
+    role: str
+    email: str
+    phone: str | None
+    progress: int | None = None
+
     
 class UserUpdateRequest(BaseModel):
     id: UUID

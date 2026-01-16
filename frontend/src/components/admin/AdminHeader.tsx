@@ -8,6 +8,7 @@ import { ConfirmDialog } from '../ui/confirm-dialog';
 const pageLabels: Record<string, string> = {
   '/admin': 'Dashboard',
   '/admin/documents': 'Documents',
+  '/admin/users': 'User Management',
   '/admin/conversations': 'Conversations',
   '/admin/analytics': 'Analytics',
   '/admin/settings': 'Settings',

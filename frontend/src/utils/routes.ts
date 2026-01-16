@@ -5,6 +5,7 @@ import { AdminDashboard } from "../pages/AdminDashboard";
 import { AdminDocuments } from "../pages/AdminDocuments";
 import { AdminConversations } from "../pages/AdminConversations";
 import { AdminAnalytics } from "../pages/AdminAnalytics";
+import { AdminUserManagement } from "../pages/AdminUserManagement";
 import { AdminSettings } from "../pages/AdminSettings";
 import { AdminLayout } from "../components/admin/AdminLayout";
 import { StudentLogin } from "../pages/StudentLogin";
@@ -36,6 +37,10 @@ export const router = createBrowserRouter([
       {
         path: "documents",
         Component: AdminDocuments,
+      },
+      {
+        path: "users",
+        Component: AdminUserManagement,
       },
       {
         path: "conversations",

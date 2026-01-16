@@ -1,9 +1,10 @@
-import { LayoutDashboard, FileText, BarChart3, Settings, MessageSquare } from 'lucide-react';
+import { LayoutDashboard, FileText, BarChart3, Settings, MessageSquare, Users } from 'lucide-react';
 import { Link, useLocation } from 'react-router';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
   { icon: FileText, label: 'Documents', path: '/admin/documents' },
+  { icon: Users, label: 'User Management', path: '/admin/users' },
   { icon: MessageSquare, label: 'Conversations', path: '/admin/conversations' },
   { icon: BarChart3, label: 'Analytics', path: '/admin/analytics' },
   { icon: Settings, label: 'Settings', path: '/admin/settings' },

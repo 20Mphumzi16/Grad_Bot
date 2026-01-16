@@ -98,6 +98,54 @@ def update_user(user):
         .eq("id", user_id)
         .execute()
     ).data
+
+def get_all_graduates():
+    # 1. Get all profiles with role 'Graduate'
+    profiles = (
+        supabase.table("profile")
+        .select("*")
+        .eq("role", "Graduate")
+        .execute()
+    ).data
+
+    graduates = []
+    
+    for profile in profiles:
+        user_id = profile["id"]
+        
+        # 2. Get email from User table
+        user_data = (
+            supabase.table("User")
+            .select("email")
+            .eq("id", user_id)
+            .execute()
+        ).data
+        
+        email = user_data[0]["email"] if user_data else ""
+        
+        # 3. Get phone from contact table
+        contact_data = (
+            supabase.table("contact")
+            .select("phone")
+            .eq("id", user_id)
+            .execute()
+        ).data
+        
+        phone = contact_data[0]["phone"] if contact_data else ""
+        
+        # 4. Construct graduate object
+        grad = {
+            "id": user_id,
+            "first_name": profile["first_name"],
+            "last_name": profile["last_name"],
+            "role": profile["role"],
+            "email": email,
+            "phone": phone,
+            "progress": None 
+        }
+        graduates.append(grad)
+        
+    return graduates
  
     if user["role"].lower() == "graduate":
  
