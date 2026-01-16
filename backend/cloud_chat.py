@@ -1,6 +1,7 @@
 import os
 import tempfile
 import tiktoken
+from collections import defaultdict
 from pypdf import PdfReader
 from docx import Document
 from pptx import Presentation
@@ -8,18 +9,26 @@ from dotenv import load_dotenv
 from supabase import create_client, Client
 from openai import OpenAI
 
-
 load_dotenv()
 
+# Helps size text chunks based on token count
 tokenizer = tiktoken.get_encoding("cl100k_base")
 
+# Set up Supabase client
 url: str = os.getenv("SUPABASE_URL")
 key: str = os.getenv("SUPABASE_SERVICE_KEY")
 supabase: Client = create_client(url, key)
 
+# Set up OpenAI client and parameters
 client = OpenAI()
+SIMILARITY_THRESHOLD = -0.1
 
+# Locally store and process the file to extract text
 def extract_text(file_path: str) -> str:
+    """
+    Process different file types to extract text
+    """
+
     def download_from_supabase(file_path: str) -> str:
         """
         Downloads a file from Supabase Storage and returns a local file path.
@@ -61,7 +70,15 @@ def extract_text(file_path: str) -> str:
 
     raise ValueError("Unsupported file type")
 
-def chunk_text(text, chunk_size=500, overlap=100):
+# Upload: Split, embed and store text into chunks based on token count
+def embed_text(text: str) -> list[float]:
+    response = client.embeddings.create(
+        model="text-embedding-3-small",  # 1536 dims
+        input=text
+    )
+    return response.data[0].embedding
+
+def chunk_text(text, chunk_size=1000, overlap=200):
     tokens = tokenizer.encode(text)
     chunks = []
 
@@ -73,14 +90,10 @@ def chunk_text(text, chunk_size=500, overlap=100):
 
     return chunks
 
-def embed_text(text: str) -> list[float]:
-    response = client.embeddings.create(
-        model="text-embedding-3-small",  # 1536 dims
-        input=text
-    )
-    return response.data[0].embedding
-
-def index_document(document_id: str, file_path: str):
+def embed_document(document_id: str, file_path: str):
+    """
+    Extracts text from the document, chunks it, embeds each chunk,
+    """
     text = extract_text(file_path)
     chunks = chunk_text(text)
 
@@ -103,7 +116,8 @@ def index_document(document_id: str, file_path: str):
     res = supabase.table("embeddings").insert(rows).execute()
     return res
 
-def retrieve_context(query_embedding, limit=5):
+# Answer: Retrieve and format relevant chunks for citation in chat response
+def retrieve_chunks(query_embedding, limit=50):
     response = supabase.rpc(
         "match_embeddings",
         {
@@ -112,21 +126,107 @@ def retrieve_context(query_embedding, limit=5):
         }
     ).execute()
 
-    return "\n\n".join(r["content"] for r in response.data)
+    for r in response.data:
+        print(f"Document ID: {r['document_id']}, Similarity: {r['similarity']}")
 
+    # Filter by similarity threshold
+    filtered = [
+        r for r in response.data
+        if r["similarity"] >= SIMILARITY_THRESHOLD
+    ]
+
+    return filtered
+
+def group_chunks_by_document(chunks, max_chunks_per_doc=3):
+    grouped = defaultdict(list)
+
+    # Group chunks
+    for c in chunks:
+        grouped[c["document_id"]].append(c)
+
+    merged_docs = []
+
+    for document_id, doc_chunks in grouped.items():
+        # Sort by similarity (descending)
+        doc_chunks.sort(key=lambda x: x["similarity"], reverse=True)
+
+        # Keep top N chunks per document
+        selected = doc_chunks[:max_chunks_per_doc]
+
+        merged_docs.append({
+            "document_id": document_id,
+            "chunks": selected
+        })
+
+    return merged_docs
+
+def format_grouped_context(grouped_docs):
+    context_blocks = []
+
+    for doc in grouped_docs:
+        document_id = doc["document_id"]
+
+        combined_text = "\n\n".join(
+            chunk["content"] for chunk in doc["chunks"]
+        )
+
+        chunk_ids = ", ".join(
+            f"chunk-{chunk['chunk_index']}" for chunk in doc["chunks"]
+        )
+
+        context_blocks.append(
+            f"{combined_text}\n\nSource: [{document_id}#{chunk_ids}]"
+        )
+
+    return "\n\n---\n\n".join(context_blocks)
+
+# Chat function to answer questions based on document context
 def chat(question: str):
     query_embedding = embed_text(question)
-    context = retrieve_context(query_embedding)
+
+    # Retrieve + filter
+    chunks = retrieve_chunks(query_embedding)
+
+    if not chunks:
+        return "I couldn't find relevant information in the documents."
+
+    # Deduplicate & merge
+    grouped_docs = group_chunks_by_document(chunks)
+
+    # Format context
+    context = format_grouped_context(grouped_docs)
 
     completion = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
-            {"role": "system", "content": "Answer strictly using the provided context."},
-            {"role": "user", "content": f"Context:\n{context}\n\nQuestion:\n{question}"}
+            {
+                "role": "system",
+                "content": (
+                    "Answer ONLY using the provided context. "
+                    "Cite sources inline using the format [document#chunk]. "
+                    "If the answer is not in the context, say you do not know."
+                )
+            },
+            {
+                "role": "user",
+                "content": f"Context:\n{context}\n\nQuestion:\n{question}"
+            }
         ]
     )
 
     return completion.choices[0].message.content
+
+def embed_all_documents():
+    documents = supabase.table("documents").select("*").execute().data
+
+    for doc in documents:
+        document_id = doc["id"]
+        file_path = doc["file_path"]
+
+        print(f"Embedding document {document_id}...")
+
+        embed_document(document_id, file_path)
+    return True
 
 def test():
     result = supabase.table("documents").select("*").execute().data[4]
@@ -134,12 +234,12 @@ def test():
     file_path = result["file_path"]
     document_id = result["id"]
 
-    res = index_document(document_id, file_path)
+    res = embed_document(document_id, file_path)
 
     # file = extract_text(file_path)
     # print(file)
     # chunck = chunk_text(file)
     # print(chunck)
 
-chat = chat("what is the purpose?")
+chat = chat("IBM turbonomics?")
 print(chat)
