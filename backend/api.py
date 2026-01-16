@@ -6,6 +6,7 @@ from auth_routes import router as auth_router
 from main import ask_grad_question
 from document_routes import router as document_router
 from category_routes import router as category_router
+from timeline_routes import router as timeline_router
 
 
 
@@ -16,6 +17,7 @@ app = FastAPI(title="RAG Chatbot API", version="1.0.0")
 app.include_router(auth_router)
 app.include_router(document_router)
 app.include_router(category_router)
+app.include_router(timeline_router)
 # Enable CORS
 app.add_middleware(
     CORSMiddleware,

@@ -100,7 +100,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         user["github_link"] = grad["github_link"]
  
     else:
-        admin = (
+        admin = ( 
             supabase.table("admins")
             .select("*")
             .eq("id", user["id"])
