@@ -40,6 +40,15 @@ class GraduateResponse(BaseModel):
     phone: str | None
     progress: int | None = None
 
+
+class GraduateUpdateRequest(BaseModel):
+    first_name: str
+    last_name: str
+    role: str
+    email: EmailStr
+    phone: str | None = None
+    progress: int | None = None
+
     
 class UserUpdateRequest(BaseModel):
     id: UUID

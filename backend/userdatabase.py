@@ -154,6 +154,37 @@ def update_user(user):
  
     return user_id
 
+
+def update_graduate_basic(user_id: str, data: dict):
+    email_update = {}
+    if "email" in data:
+        email_update["email"] = data["email"]
+    if email_update:
+        supabase.table("User").update(email_update).eq("id", user_id).execute()
+
+    if "phone" in data:
+        supabase.table("contact").update({"phone": data["phone"]}).eq("id", user_id).execute()
+
+    profile_update = {}
+    if "first_name" in data:
+        profile_update["first_name"] = data["first_name"]
+    if "last_name" in data:
+        profile_update["last_name"] = data["last_name"]
+    if "role" in data:
+        profile_update["role"] = data["role"]
+    if profile_update:
+        supabase.table("profile").update(profile_update).eq("id", user_id).execute()
+
+    if "progress" in data:
+        supabase.table("graduates").update({"progress": data["progress"]}).eq("id", user_id).execute()
+
+    graduates = get_all_graduates()
+    for grad in graduates:
+        if str(grad["id"]) == str(user_id):
+            return grad
+    return None
+
+
 def get_all_graduates():
     try:
         graduates_rows = (
