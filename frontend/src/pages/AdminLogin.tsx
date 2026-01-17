@@ -20,6 +20,7 @@ export function AdminLogin() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setLoading(true);
 
     try {
       const res = await fetch('http://127.0.0.1:8000/auth/login', {
@@ -43,7 +44,6 @@ export function AdminLogin() {
       }
 
       localStorage.setItem('token', token);
-      setLoading(true);
       await new Promise((r) => setTimeout(r, 500));
       navigate('/admin');
     } catch (err: any) {
