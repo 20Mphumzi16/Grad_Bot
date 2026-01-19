@@ -12,6 +12,7 @@ const pageLabels: Record<string, string> = {
   '/admin/conversations': 'Conversations',
   '/admin/analytics': 'Analytics',
   '/admin/settings': 'Settings',
+  '/admin/tasks': 'Task Management',
 };
 
 export function AdminHeader() {
