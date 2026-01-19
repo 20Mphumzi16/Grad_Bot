@@ -151,12 +151,9 @@ body.logout-blur #root {
 .theme-transition,
 .theme-transition * {
   transition:
-    background-color 380ms cubic-bezier(0.22, 0.61, 0.36, 1),
-    color 380ms cubic-bezier(0.22, 0.61, 0.36, 1),
-    border-color 380ms cubic-bezier(0.22, 0.61, 0.36, 1),
-    fill 380ms cubic-bezier(0.22, 0.61, 0.36, 1),
-    stroke 380ms cubic-bezier(0.22, 0.61, 0.36, 1),
-    box-shadow 380ms cubic-bezier(0.22, 0.61, 0.36, 1);
+    background-color 220ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    color 220ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    border-color 220ms cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 .orbit-loader {

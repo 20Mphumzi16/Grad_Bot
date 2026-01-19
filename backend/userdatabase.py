@@ -23,17 +23,18 @@ def user_exists(email: str) -> bool:
 
 def get_user(email: str, password: str):
     hashed_pass = password_hashing(password)
-    log_in = (
+    rows = (
         supabase.table("User")
         .select("*")
         .eq("email", email)
         .eq("hashed_pass", hashed_pass)
         .execute()
-    ).data[0]
+    ).data
 
-    if not log_in:
-        return [None,"Invalid email or password"]
-    
+    if not rows:
+        return [None, "Invalid email or password"]
+
+    log_in = rows[0]
     id = log_in["id"]
     user = get_user_id(id)
     return user

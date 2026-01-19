@@ -9,6 +9,7 @@ import { Skeleton } from '../components/ui/skeleton';
 import { useLoading } from '../components/ui/loading';
 import { Alert, AlertDescription } from '../components/ui/alert';
 import { Label } from '../components/ui/label';
+import { Checkbox } from '../components/ui/checkbox';
 import { Search, MoreVertical, UserCircle2, AlertCircle, Plus } from 'lucide-react';
 
 type GraduateUser = {
@@ -28,6 +29,8 @@ export function AdminUserManagement() {
   const [usersError, setUsersError] = useState<string | null>(null);
   const [openMenuUserId, setOpenMenuUserId] = useState<string | number | null>(null);
   const [confirmUserId, setConfirmUserId] = useState<string | number | null>(null);
+  const [confirmDeleteAll, setConfirmDeleteAll] = useState(false);
+  const [selectedUserIds, setSelectedUserIds] = useState<(string | number)[]>([]);
   const [createForm, setCreateForm] = useState<{
     firstName: string;
     lastName: string;
@@ -66,8 +69,10 @@ export function AdminUserManagement() {
           progress: it?.progress ?? null,
         }));
         setUsers(mapped);
+        setSelectedUserIds([]);
       } else {
         setUsers([]);
+        setSelectedUserIds([]);
         setUsersError('Unexpected response format');
       }
     } catch (err: any) {
@@ -112,6 +117,53 @@ export function AdminUserManagement() {
       await fetchUsers();
     } catch (err: any) {
       setUsersError(err?.message ?? 'Failed to delete user');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    if (users.length === 0) return;
+    setLoading(true);
+    setUsersError(null);
+    try {
+      const ids = users.map((user) => user.id);
+      for (const id of ids) {
+        const res = await fetch(`http://127.0.0.1:8000/graduates/${id}`, {
+          method: 'DELETE',
+        });
+        if (!res.ok) {
+          const text = await res.text().catch(() => '');
+          throw new Error(text || `HTTP ${res.status}`);
+        }
+      }
+      await fetchUsers();
+    } catch (err: any) {
+      setUsersError(err?.message ?? 'Failed to delete users');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteSelected = async () => {
+    if (selectedUserIds.length === 0) return;
+    setLoading(true);
+    setUsersError(null);
+    try {
+      const ids = selectedUserIds;
+      for (const id of ids) {
+        const res = await fetch(`http://127.0.0.1:8000/graduates/${id}`, {
+          method: 'DELETE',
+        });
+        if (!res.ok) {
+          const text = await res.text().catch(() => '');
+          throw new Error(text || `HTTP ${res.status}`);
+        }
+      }
+      setSelectedUserIds([]);
+      await fetchUsers();
+    } catch (err: any) {
+      setUsersError(err?.message ?? 'Failed to delete users');
     } finally {
       setLoading(false);
     }
@@ -205,6 +257,8 @@ export function AdminUserManagement() {
     }
   };
 
+  const hasSelectedUsers = selectedUserIds.length > 0;
+
   return (
     <div className="pt-8 space-y-8">
       <Card className="p-6 border-gray-200">
@@ -241,6 +295,14 @@ export function AdminUserManagement() {
               <Plus className="w-4 h-4 mr-2" />
               Add
             </Button>
+            <Button
+              variant="outline"
+              className="rounded-xl border-red-200 text-red-600 hover:bg-red-50"
+              onClick={() => setConfirmDeleteAll(true)}
+              disabled={filteredUsers.length === 0}
+            >
+              {hasSelectedUsers ? 'Delete' : 'Delete all'}
+            </Button>
           </div>
         </div>
       </Card>
@@ -257,6 +319,7 @@ export function AdminUserManagement() {
           <table className="w-full">
             <thead className="border-b border-gray-200">
               <tr>
+                <th className="text-left p-6 text-sm text-muted-foreground" />
                 <th className="text-left p-6 text-sm text-muted-foreground">
                   Name
                 </th>
@@ -330,10 +393,23 @@ export function AdminUserManagement() {
                     className="border-b border-gray-100 hover:bg-white hover:text-black"
                   >
                     <td className="p-6">
+                      <Checkbox
+                        checked={selectedUserIds.includes(user.id)}
+                        onCheckedChange={(checked) =>
+                          setSelectedUserIds((prev) => {
+                            const isChecked = checked === true;
+                            if (isChecked) {
+                              if (prev.includes(user.id)) return prev;
+                              return [...prev, user.id];
+                            }
+                            return prev.filter((id) => id !== user.id);
+                          })
+                        }
+                        aria-label="Select user"
+                      />
+                    </td>
+                    <td className="p-6">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
-                          <UserCircle2 className="w-5 h-5 text-gray-600" />
-                        </div>
                         <span className="text-sm">
                           {user.firstName || '-'}
                         </span>
@@ -656,6 +732,40 @@ export function AdminUserManagement() {
       >
         <div className="text-sm text-muted-foreground">
           This action will permanently remove the user and related records.
+        </div>
+      </CustomModal>
+      <CustomModal
+        open={confirmDeleteAll}
+        onClose={() => setConfirmDeleteAll(false)}
+        title={hasSelectedUsers ? 'Delete selected users?' : 'Delete all users?'}
+        overlayOpacity={0}
+        overlayBlur={0}
+        zIndex={2147483601}
+        footer={
+          <>
+            <Button variant="outline" onClick={() => setConfirmDeleteAll(false)}>
+              No
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={async () => {
+                setConfirmDeleteAll(false);
+                if (hasSelectedUsers) {
+                  await handleDeleteSelected();
+                } else {
+                  await handleDeleteAll();
+                }
+              }}
+            >
+              Yes
+            </Button>
+          </>
+        }
+      >
+        <div className="text-sm text-muted-foreground">
+          {hasSelectedUsers
+            ? 'This will permanently remove all selected users.'
+            : 'This will permanently remove all users currently listed in the table.'}
         </div>
       </CustomModal>
     </div>

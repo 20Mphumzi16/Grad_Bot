@@ -30,8 +30,13 @@ async def update(request: UserUpdateRequest):
 @router.post("/login", response_model=TokenResponse)
 async def login(request: LoginRequest):
     result = get_user(request.email, request.password)
+
     if result is None:
-        raise HTTPException(status_code=401, detail=result[1])
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+
+    if isinstance(result, list) and result and result[0] is None:
+        message = result[1] if len(result) > 1 else "Invalid email or password"
+        raise HTTPException(status_code=401, detail=message)
 
     user = result
     token = create_access_token({
