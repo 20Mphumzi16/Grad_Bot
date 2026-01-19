@@ -8,7 +8,9 @@ import confetti from 'canvas-confetti';
 export function StudentTimeline() {
   const [milestones, setMilestones] = useState<any[]>([]);
   const { loading, setLoading } = useLoading();
+  const [error, setError] = useState<string | null>(null);
   const completedMilestonesRef = useRef<Set<string>>(new Set());
+  const milestoneRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
     const fetchMilestones = async () => {
@@ -16,6 +18,7 @@ export function StudentTimeline() {
       if (!token) return;
       setLoading(true);
       try {
+        setError(null);
         const userRes = await fetch('http://127.0.0.1:8000/auth/me', {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -36,7 +39,9 @@ export function StudentTimeline() {
             completedMilestonesRef.current.add(m.milestone_id);
           }
         });
-      } catch {
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load milestones. Your session may have expired. Please try logging in again.");
         setMilestones([]);
       } finally {
         setLoading(false);
@@ -49,7 +54,11 @@ export function StudentTimeline() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'Completed':
-        return <CheckCircle2 className="w-6 h-6 text-green-600" />;
+        return (
+          <div className="animate-in zoom-in duration-300">
+            <CheckCircle2 className="w-6 h-6 text-green-600" />
+          </div>
+        );
       case 'In-Progress':
         return <Clock className="w-6 h-6 text-orange-600" />;
       default:
@@ -66,6 +75,14 @@ export function StudentTimeline() {
       default:
         return 'border-gray-200 bg-white';
     }
+  };
+
+  const getMilestoneProgress = (milestone: any) => {
+    if (!milestone || !Array.isArray(milestone.tasks) || milestone.tasks.length === 0) {
+      return 0;
+    }
+    const completedCount = milestone.tasks.filter((t: any) => t.completed).length;
+    return (completedCount / milestone.tasks.length) * 100;
   };
 
   async function completeTask(token: string, graduateId: string, taskId: string) {
@@ -91,41 +108,88 @@ export function StudentTimeline() {
   }
 
   const handleToggleTask = async (milestoneIndex: number, taskIndex: number) => {
+    // 1. Immediate Optimistic Update
+    const previousMilestones = milestones;
+    const updated = structuredClone(milestones);
+    const milestone = updated[milestoneIndex];
+    const task = milestone.tasks[taskIndex];
+    const milestoneId = milestone.milestone_id;
+
+    task.completed = !task.completed;
+
+    // Check status
+    const allDone = milestone.tasks.every((t: any) => t.completed);
+
+    if (allDone) {
+      milestone.status = 'Completed';
+      if (!completedMilestonesRef.current.has(milestoneId)) {
+        completedMilestonesRef.current.add(milestoneId);
+        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+      }
+      
+      // Automatically start next milestone if it exists and is upcoming
+      const nextMilestoneIndex = milestoneIndex + 1;
+      if (nextMilestoneIndex < updated.length) {
+        const nextMilestone = updated[nextMilestoneIndex];
+        if (nextMilestone.status === 'Upcoming') {
+          nextMilestone.status = 'In-Progress';
+          
+          // Smooth scroll to the next milestone after a short delay
+          setTimeout(() => {
+            milestoneRefs.current[nextMilestoneIndex]?.scrollIntoView({
+              behavior: 'smooth',
+              block: 'center'
+            });
+          }, 600);
+        }
+      }
+    } else if (milestone.status === 'Completed') {
+      milestone.status = 'In-Progress';
+      completedMilestonesRef.current.delete(milestoneId);
+
+      // Revert next milestone to Upcoming if it has no progress
+      const nextMilestoneIndex = milestoneIndex + 1;
+      if (nextMilestoneIndex < updated.length) {
+        const nextMilestone = updated[nextMilestoneIndex];
+        const nextHasProgress = nextMilestone.tasks.some((t: any) => t.completed);
+        
+        if (nextMilestone.status === 'In-Progress' && !nextHasProgress) {
+          nextMilestone.status = 'Upcoming';
+        }
+      }
+    }
+
+    setMilestones(updated);
+
+    // 2. Background Sync
     const token = localStorage.getItem('token');
     if (!token) return;
 
-    const userRes = await fetch('http://127.0.0.1:8000/auth/me', {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    const user = await userRes.json();
-
-    const updated = structuredClone(milestones);
-    const task = updated[milestoneIndex].tasks[taskIndex];
-
-    task.completed = !task.completed;
-    setMilestones(updated); // optimistic UI
-
     try {
+      const userRes = await fetch('http://127.0.0.1:8000/auth/me', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const user = await userRes.json();
+
       task.completed
         ? await completeTask(token, user.id, task.task_id)
         : await uncompleteTask(token, user.id, task.task_id);
-    } catch {
-      task.completed = !task.completed;
-      setMilestones(structuredClone(updated));
-    }
-
-    const allDone = updated[milestoneIndex].tasks.every((t: any) => t.completed);
-    const milestoneId = updated[milestoneIndex].milestone_id;
-
-    if (allDone && !completedMilestonesRef.current.has(milestoneId)) {
-      completedMilestonesRef.current.add(milestoneId);
-      confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+    } catch (error) {
+      console.error("Failed to sync task", error);
+      // Revert to original state
+      setMilestones(previousMilestones);
     }
   };
 
   return (
-    <div className="pt-8 space-y-8">
-      <Card className="p-6 border-gray-200">
+    <div className="min-h-screen bg-gray-50/50 p-6">
+      <style>{`
+        .black-progress-indicator [data-slot="progress-indicator"] {
+          background-color: black !important;
+        }
+      `}</style>
+      <div className="max-w-3xl mx-auto space-y-8">
+        <Card className="p-6 border-gray-200">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="mb-1">Overall Progress</h3>
@@ -141,81 +205,100 @@ export function StudentTimeline() {
 
       <div className="relative">
         <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gray-200" />
+        
+        {error && (
+          <div className="pl-16 mb-4 text-red-600 font-medium">
+            {error}
+          </div>
+        )}
 
         <div className="space-y-8">
-          {milestones.map((milestone, index) => (
-            <div key={index} className="relative pl-16">
-              <div className="absolute left-3 top-6 -translate-x-1/2">
-                {getStatusIcon(milestone.status)}
-              </div>
+          {milestones.map((milestone, index) => {
+            const milestoneProgress = getMilestoneProgress(milestone);
+            return (
+              <div 
+                key={index} 
+                className="relative pl-16"
+                ref={el => { milestoneRefs.current[index] = el }}
+              >
+                <div className="absolute left-3 top-6 -translate-x-1/2">
+                  {getStatusIcon(milestone.status)}
+                </div>
 
-              <Card className={`p-6 ${getStatusColor(milestone.status)}`}>
-                <div className="mb-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <div>
-                      <p className="text-sm text-gray-600 mb-1">{milestone.week_label}</p>
-                      <h3>{milestone.title}</h3>
+                <Card className={`p-6 ${getStatusColor(milestone.status)}`}>
+                  <div className="mb-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div>
+                        <p className="text-sm mb-1" style={{ color: 'black' }}>{milestone.week_label}</p>
+                        <h3 className="font-semibold" style={{ color: 'black' }}>{milestone.title}</h3>
+                      </div>
+
+                      {milestone.status === 'Completed' && (
+                        <span className="text-sm text-green-600 bg-green-100 px-3 py-1 rounded-full">
+                          Completed
+                        </span>
+                      )}
+                      {milestone.status === 'In-Progress' && (
+                        <span className="text-sm text-orange-600 bg-orange-100 px-3 py-1 rounded-full">
+                          In Progress
+                        </span>
+                      )}
+                      {milestone.status === 'Upcoming' && (
+                        <span className="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
+                          Upcoming
+                        </span>
+                      )}
                     </div>
 
-                    {/* ✅ STATUS LOZENGE RESTORED */}
-                    {milestone.status === 'Completed' && (
-                      <span className="text-sm text-green-600 bg-green-100 px-3 py-1 rounded-full">
-                        Completed
-                      </span>
-                    )}
-                    {milestone.status === 'In-Progress' && (
-                      <span className="text-sm text-orange-600 bg-orange-100 px-3 py-1 rounded-full">
-                        In Progress
-                      </span>
-                    )}
-                    {milestone.status === 'Upcoming' && (
-                      <span className="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
-                        Upcoming
-                      </span>
+                    {(milestone.status === 'In-Progress' || milestone.status === 'Completed') && (
+                      <div className="mt-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm" style={{ color: 'black' }}>
+                            {milestone.status === 'Completed' ? 'Completed' : 'Progress'}
+                          </span>
+                          <span className="text-sm" style={{ color: 'black' }}>
+                            {milestoneProgress.toFixed(0)}%
+                          </span>
+                        </div>
+                        <Progress 
+                          value={milestoneProgress} 
+                          className="h-2 bg-gray-200 black-progress-indicator" 
+                        />
+                      </div>
                     )}
                   </div>
 
-                  {(milestone.status === 'In-Progress' || milestone.status === 'Completed') && (
-                    <div className="mt-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm text-gray-600">Progress</span>
-                        <span className="text-sm text-gray-900">
-                          {milestone.progress.toFixed(0)}%
+                  <div className="space-y-2">
+                    {milestone.tasks.map((task: any, taskIndex: number) => (
+                      <div
+                        key={taskIndex}
+                        onClick={() => handleToggleTask(index, taskIndex)}
+                        className="flex items-center gap-3 p-3 rounded-lg bg-white/50 cursor-pointer hover:bg-white transition"
+                      >
+                        {task.completed ? (
+                          <CheckCircle2 className="w-4 h-4 text-green-600" />
+                        ) : (
+                          <Circle className="w-4 h-4 text-gray-400" />
+                        )}
+                        <span
+                          className={`text-sm ${
+                            task.completed
+                              ? 'text-gray-500 line-through'
+                              : ''
+                          }`}
+                          style={!task.completed ? { color: 'black' } : {}}
+                        >
+                          {task.name}
                         </span>
                       </div>
-                      <Progress value={milestone.progress} className="h-2" />
-                    </div>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  {milestone.tasks.map((task: any, taskIndex: number) => (
-                    <div
-                      key={taskIndex}
-                      onClick={() => handleToggleTask(index, taskIndex)}
-                      className="flex items-center gap-3 p-3 rounded-lg bg-white/50 cursor-pointer hover:bg-white transition"
-                    >
-                      {task.completed ? (
-                        <CheckCircle2 className="w-4 h-4 text-green-600" />
-                      ) : (
-                        <Circle className="w-4 h-4 text-gray-400" />
-                      )}
-                      <span
-                        className={`text-sm ${
-                          task.completed
-                            ? 'text-gray-500 line-through'
-                            : 'text-gray-900'
-                        }`}
-                      >
-                        {task.name}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            </div>
-          ))}
+                    ))}
+                  </div>
+                </Card>
+              </div>
+            );
+          })}
         </div>
+      </div>
       </div>
     </div>
   );

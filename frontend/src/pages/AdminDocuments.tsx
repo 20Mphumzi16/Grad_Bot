@@ -6,6 +6,7 @@ import { Input } from '../components/ui/input';
 import { Textarea } from '../components/ui/textarea';
 import { Label } from '../components/ui/label';
 import { CustomModal } from "../components/ui/custom-modal";
+import { ConfirmDialog } from '../components/ui/confirm-dialog';
 
 import {
   Select,
@@ -57,6 +58,8 @@ export function AdminDocuments() {
   const [uploadSuccess, setUploadSuccess] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | number | null>(null);
   const [documentsError, setDocumentsError] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string | number; name?: string } | null>(null);
 
   const [documents, setDocuments] = useState<Array<{ id: string | number; name: string; status?: string; uploadedAt?: string; size?: string; chunks?: number; category?: string }>>([]);
   const [loadingDocuments, setLoadingDocuments] = useState(false);
@@ -275,8 +278,6 @@ export function AdminDocuments() {
   };
 
   const handleDelete = async (id: string | number) => {
-    const ok = window.confirm('Are you sure you want to delete this document?');
-    if (!ok) return;
     setDeletingId(id);
     setDocumentsError(null);
     try {
@@ -287,8 +288,8 @@ export function AdminDocuments() {
         const text = await res.text();
         throw new Error(text || `HTTP ${res.status}`);
       }
-      // refresh documents list
-      await fetchDocuments();
+      // Optimistic update: remove from local state immediately
+      setDocuments((prev) => prev.filter((doc) => String(doc.id) !== String(id)));
     } catch (err: any) {
       setDocumentsError(err?.message ?? 'Failed to delete document');
     } finally {
@@ -556,7 +557,10 @@ setCategories(data);
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8"
-                          onClick={() => handleDelete(doc.id)}
+                          onClick={() => {
+                            setDeleteTarget({ id: doc.id, name: doc.name });
+                            setDeleteDialogOpen(true);
+                          }}
                           disabled={deletingId === doc.id}
                         >
                           <Trash2 className="w-4 h-4 text-red-600" />
@@ -573,6 +577,27 @@ setCategories(data);
           </table>
         </div>
       </Card>
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        title="Delete document"
+        description={
+          deleteTarget?.name
+            ? `Are you sure you want to delete "${deleteTarget.name}"? This action cannot be undone.`
+            : 'Are you sure you want to delete this document? This action cannot be undone.'
+        }
+        onCancel={() => {
+          setDeleteDialogOpen(false);
+          setDeleteTarget(null);
+        }}
+        onConfirm={() => {
+          if (deleteTarget) {
+            handleDelete(deleteTarget.id);
+          }
+          setDeleteDialogOpen(false);
+          setDeleteTarget(null);
+        }}
+        confirmText="Delete"
+      />
 <CustomModal
   open={isDialogOpen}
   onClose={() => {
