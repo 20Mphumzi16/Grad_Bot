@@ -2,6 +2,7 @@ import hashlib
 import os
 from dotenv import load_dotenv
 from supabase import create_client, Client
+from timeline_service import calculate_graduate_progress
 
 load_dotenv()
 
@@ -212,7 +213,7 @@ def get_all_graduates():
                     "role": user["role"],
                     "email": user["email"],
                     "phone": user["phone"],
-                    "progress": grad_row.get("progress"),
+                    "progress": calculate_graduate_progress(user_id),
                 }
                 graduates.append(grad)
             except Exception as inner_e:

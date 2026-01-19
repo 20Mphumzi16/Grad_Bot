@@ -1,5 +1,5 @@
 import { Button } from '../ui/button';
-import { Bell, LogOut, Moon, Sun } from 'lucide-react';
+import { Bell, LogOut, Moon, Sun, MessageSquare, User, BookOpen, Calendar, FileText, Home } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router';
 import { useEffect, useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
@@ -12,6 +12,15 @@ const pageLabels: Record<string, string> = {
   '/student/timeline': 'My Timeline',
   '/student/documents': 'Documents',
   '/student/profile': 'Profile',
+};
+
+const pageIcons: Record<string, any> = {
+  '/student': Home,
+  '/student/chat': MessageSquare,
+  '/student/resources': BookOpen,
+  '/student/timeline': Calendar,
+  '/student/documents': FileText,
+  '/student/profile': User,
 };
 
 export function StudentHeader() {
@@ -56,6 +65,7 @@ export function StudentHeader() {
     navigate('/');
   };
 
+  const CurrentIcon = pageIcons[location.pathname];
 
   return (
     <header className="fixed top-0 left-0 right-0 border-b z-40 h-16" style={{
@@ -65,7 +75,8 @@ export function StudentHeader() {
     }}>
       <div className="h-full px-6 flex items-center justify-between">
         <div className="flex items-center gap-3 ml-64">
-          <h1 style={{ color: 'var(--foreground)' }}>{pageLabels[location.pathname] || 'My Dashboard'}</h1>
+          {CurrentIcon && <CurrentIcon className="w-6 h-6" />}
+          <h1 className="text-xl font-semibold" style={{ color: 'var(--foreground)' }}>{pageLabels[location.pathname] || 'My Dashboard'}</h1>
         </div>
 
         <div className="flex items-center gap-3">
