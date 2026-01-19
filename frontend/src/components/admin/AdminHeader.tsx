@@ -1,5 +1,5 @@
 import { Button } from '../ui/button';
-import { Bell, LogOut, Moon, Sun } from 'lucide-react';
+import { Bell, LogOut, Moon, Sun, LayoutDashboard, FileText, BarChart3, Settings, MessageSquare, Users, CheckSquare } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router';
 import { useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
@@ -12,6 +12,17 @@ const pageLabels: Record<string, string> = {
   '/admin/conversations': 'Conversations',
   '/admin/analytics': 'Analytics',
   '/admin/settings': 'Settings',
+  '/admin/tasks': 'Task Management',
+};
+
+const pageIcons: Record<string, any> = {
+  '/admin': LayoutDashboard,
+  '/admin/documents': FileText,
+  '/admin/users': Users,
+  '/admin/conversations': MessageSquare,
+  '/admin/analytics': BarChart3,
+  '/admin/settings': Settings,
+  '/admin/tasks': CheckSquare,
 };
 
 export function AdminHeader() {
@@ -25,6 +36,8 @@ export function AdminHeader() {
     navigate('/');
   };
 
+  const CurrentIcon = pageIcons[location.pathname];
+
   return (
     <header 
       className="fixed top-0 left-0 right-0 border-b z-40 h-16"
@@ -36,7 +49,8 @@ export function AdminHeader() {
     >
       <div className="h-full px-6 flex items-center justify-between">
         <div className="flex items-center gap-3 ml-64">
-          <h1>{pageLabels[location.pathname] || 'Admin Dashboard'}</h1>
+          {CurrentIcon && <CurrentIcon className="w-6 h-6" />}
+          <h1 className="text-xl font-semibold">{pageLabels[location.pathname] || 'Admin Dashboard'}</h1>
         </div>
 
         <div className="flex items-center gap-3">

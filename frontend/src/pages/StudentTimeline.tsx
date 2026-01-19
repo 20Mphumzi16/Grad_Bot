@@ -119,6 +119,7 @@ export function StudentTimeline() {
 
     // Check status
     const allDone = milestone.tasks.every((t: any) => t.completed);
+    const anyDone = milestone.tasks.some((t: any) => t.completed);
 
     if (allDone) {
       milestone.status = 'Completed';
@@ -127,34 +128,59 @@ export function StudentTimeline() {
         confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
       }
       
-      // Automatically start next milestone if it exists and is upcoming
+      // Automatically start next milestone if it exists
       const nextMilestoneIndex = milestoneIndex + 1;
       if (nextMilestoneIndex < updated.length) {
         const nextMilestone = updated[nextMilestoneIndex];
+        
         if (nextMilestone.status === 'Upcoming') {
           nextMilestone.status = 'In-Progress';
+        }
           
-          // Smooth scroll to the next milestone after a short delay
-          setTimeout(() => {
-            milestoneRefs.current[nextMilestoneIndex]?.scrollIntoView({
-              behavior: 'smooth',
-              block: 'center'
-            });
-          }, 600);
+        // Smooth scroll to the next milestone after a short delay
+        setTimeout(() => {
+          milestoneRefs.current[nextMilestoneIndex]?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }, 600);
+      }
+    } else {
+      const wasCompleted = milestone.status === 'Completed';
+
+      if (wasCompleted) {
+        completedMilestonesRef.current.delete(milestoneId);
+
+        // Revert next milestone to Upcoming if it has no progress
+        const nextMilestoneIndex = milestoneIndex + 1;
+        if (nextMilestoneIndex < updated.length) {
+          const nextMilestone = updated[nextMilestoneIndex];
+          const nextHasProgress = nextMilestone.tasks.some((t: any) => t.completed);
+          
+          if (nextMilestone.status === 'In-Progress' && !nextHasProgress) {
+            nextMilestone.status = 'Upcoming';
+          }
         }
       }
-    } else if (milestone.status === 'Completed') {
-      milestone.status = 'In-Progress';
-      completedMilestonesRef.current.delete(milestoneId);
 
-      // Revert next milestone to Upcoming if it has no progress
-      const nextMilestoneIndex = milestoneIndex + 1;
-      if (nextMilestoneIndex < updated.length) {
-        const nextMilestone = updated[nextMilestoneIndex];
-        const nextHasProgress = nextMilestone.tasks.some((t: any) => t.completed);
-        
-        if (nextMilestone.status === 'In-Progress' && !nextHasProgress) {
-          nextMilestone.status = 'Upcoming';
+      if (anyDone) {
+        milestone.status = 'In-Progress';
+      } else {
+        // No tasks completed - revert to Upcoming
+        const wasActive = wasCompleted || milestone.status === 'In-Progress';
+        milestone.status = 'Upcoming';
+
+        // Scroll back to previous milestone if we just cleared this one
+        if (wasActive) {
+          const prevMilestoneIndex = milestoneIndex - 1;
+          if (prevMilestoneIndex >= 0) {
+            setTimeout(() => {
+              milestoneRefs.current[prevMilestoneIndex]?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+              });
+            }, 600);
+          }
         }
       }
     }

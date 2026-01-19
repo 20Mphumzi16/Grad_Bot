@@ -437,7 +437,7 @@ export function AdminUserManagement() {
                     </td>
                     <td className="p-6">
                       <span className="text-sm">
-                        {user.progress ?? '-'}
+                        {user.progress != null ? `${user.progress}%` : '-'}
                       </span>
                     </td>
                     <td className="p-6">

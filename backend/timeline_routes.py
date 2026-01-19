@@ -2,9 +2,16 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 from uuid import UUID
-from timeline_service import complete_task, get_graduate_milestones_with_tasks, uncomplete_task
+from timeline_service import complete_task, get_graduate_milestones_with_tasks, uncomplete_task, get_all_milestones
 
 router = APIRouter(prefix="/timeline", tags=["Timeline"])
+
+@router.get("/all")
+async def fetch_all_milestones():
+    """
+    Fetch all milestones for admin management.
+    """
+    return get_all_milestones()
 
 @router.get("/{graduate_id}/milestones-tasks")
 async def fetch_milestones_with_tasks(graduate_id: UUID):
