@@ -232,7 +232,6 @@ export function StudentTimeline() {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="mb-1">Overall Progress</h3>
-            <p className="text-sm text-gray-600">Day 15 of 90 • First 90 Days Programme</p>
           </div>
           <div className="text-right">
             <p className="mb-1">{progressPercentage}%</p>
@@ -268,7 +267,10 @@ export function StudentTimeline() {
                   <div className="mb-4">
                     <div className="flex items-center justify-between mb-2">
                       <div>
-                        <p className="text-sm mb-1" style={{ color: 'black' }}>{milestone.week_label}</p>
+                        <p className="text-sm mb-1" style={{ color: 'black' }}>
+                          {milestone.week_label}
+                          {milestone.created_at && ` • Added ${new Date(milestone.created_at).toLocaleDateString()}`}
+                        </p>
                         <h3 className="font-semibold" style={{ color: 'black' }}>{milestone.title}</h3>
                       </div>
 

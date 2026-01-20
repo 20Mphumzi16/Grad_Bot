@@ -1,5 +1,6 @@
 import os
 import uuid
+from datetime import datetime
 from dotenv import load_dotenv
 from supabase import create_client, Client
 
@@ -16,11 +17,60 @@ async def get_graduate_milestones_with_tasks(graduate_id):
     """
     Fetch milestones with their tasks, progress, and status for a given graduate.
     """
+    try:
+        # 1. Fetch all milestones
+        milestones = supabase.table("milestones").select("*").order("display_order").execute().data
+        
+        # 2. Fetch all tasks
+        tasks = supabase.table("tasks").select("*").order("display_order").execute().data
+        
+        # 3. Fetch task progress for this graduate
+        progress_res = supabase.table("task_progress").select("task_id, completed").eq("graduate_id", graduate_id).eq("completed", True).execute()
+        completed_task_ids = {item['task_id'] for item in progress_res.data} if progress_res.data else set()
 
-    return supabase.rpc(
-        "get_graduate_timeline",
-        {"p_graduate_id": str(graduate_id)}
-    ).execute().data
+        result = []
+        for milestone in milestones:
+            m_tasks = [t for t in tasks if t["milestone_id"] == milestone["id"]]
+            
+            # Build task list with completion status
+            formatted_tasks = []
+            completed_count = 0
+            for t in m_tasks:
+                is_completed = t["id"] in completed_task_ids
+                if is_completed:
+                    completed_count += 1
+                formatted_tasks.append({
+                    "id": t["id"],
+                    "name": t["name"],
+                    "completed": is_completed,
+                    "display_order": t["display_order"]
+                })
+            
+            # Sort tasks by display_order
+            formatted_tasks.sort(key=lambda x: x["display_order"])
+            
+            # Determine Status
+            status = "Upcoming"
+            if m_tasks:
+                if completed_count == len(m_tasks):
+                    status = "Completed"
+                elif completed_count > 0:
+                    status = "In-Progress"
+            
+            result.append({
+                "milestone_id": milestone["id"],
+                "title": milestone["title"],
+                "week_label": milestone["week_label"],
+                "status": status,
+                "created_at": milestone.get("created_at"),
+                "tasks": formatted_tasks
+            })
+            
+        return result
+
+    except Exception as e:
+        print(f"Error fetching graduate timeline: {e}")
+        return []
 
 def complete_task(graduate_id: UUID, task_id: UUID):
     response = (
@@ -78,6 +128,7 @@ def get_all_milestones():
                 "title": milestone["title"],
                 "week_label": milestone["week_label"],
                 "status": milestone.get("status", "active"),
+                "created_at": milestone.get("created_at"),
                 "tasks": [{
                     "task_id": t["id"],
                     "name": t["name"],
@@ -119,7 +170,8 @@ def create_milestone_with_tasks(title: str, week_label: str, tasks: list[str]):
             "week_label": week_label,
             "display_order": next_order,
             "start_week": start_week,
-            "end_week": end_week
+            "end_week": end_week,
+            "created_at": datetime.utcnow().isoformat()
         }
         print(f"Creating milestone: {milestone_data}")
         milestone_res = supabase.table("milestones").insert(milestone_data).execute()

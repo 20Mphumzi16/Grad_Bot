@@ -354,11 +354,16 @@ export function AdminTaskManagement() {
                 milestone.status === 'completed' ? 'bg-green-50' : 'bg-gray-50'
               }`}
             >
-              <span className={`text-sm font-bold text-center whitespace-nowrap overflow-hidden text-ellipsis w-full ${
-                milestone.status === 'completed' ? 'text-green-700' : 'text-gray-500'
-              }`}>
-                {milestone.title}
-              </span>
+              <div className="flex items-center justify-center gap-1 w-full overflow-hidden">
+                <span className={`text-sm font-bold whitespace-nowrap overflow-hidden text-ellipsis ${
+                  milestone.status === 'completed' ? 'text-green-700' : 'text-gray-500'
+                }`}>
+                  {milestone.title}
+                </span>
+                {milestone.status === 'completed' && (
+                  <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
+                )}
+              </div>
               <div className={`w-full h-1.5 rounded-full ${
                 milestone.status === 'completed' ? 'bg-green-600' : 'bg-gray-300'
               }`} />
@@ -372,7 +377,10 @@ export function AdminTaskManagement() {
           <Card key={milestone.milestone_id} className="p-6 border-gray-200 relative overflow-hidden">
             <div className="flex items-start justify-between mb-6">
               <div>
-                <p className="text-sm text-muted-foreground mb-1">{milestone.week_label}</p>
+                <p className="text-sm text-muted-foreground mb-1">
+                  {milestone.week_label}
+                  {milestone.created_at && ` • Added ${new Date(milestone.created_at).toLocaleDateString()}`}
+                </p>
                 <div className="flex items-center gap-2">
                   <h3 className="text-xl font-semibold">{milestone.title}</h3>
                   {milestone.status === 'completed' && (
