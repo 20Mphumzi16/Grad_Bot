@@ -123,6 +123,7 @@ def update_user(user):
             "first_name": user["first_name"],
             "last_name": user["last_name"],
             "branch": user["branch"],
+            "emp_no": user["emp_no"],
             "department": user["department"],
             "role": user["role"]
         })
@@ -174,6 +175,10 @@ def update_graduate_basic(user_id: str, data: dict):
         profile_update["last_name"] = data["last_name"]
     if "role" in data:
         profile_update["role"] = data["role"]
+
+    if "emp_no" in data:
+        profile_update["emp_no"] = data["emp_no"]
+        
     if profile_update:
         supabase.table("profile").update(profile_update).eq("id", user_id).execute()
 

@@ -83,6 +83,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
    
     user["first_name"] = profile["first_name"]
     user["last_name"] = profile["last_name"]
+    user["emp_no"] = profile["emp_no"]
     user["role"] = profile["role"]
     user["department"] = profile["department"]
     user["branch"] = profile["branch"]

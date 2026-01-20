@@ -28,6 +28,7 @@ export function StudentProfile() {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
+    emp_no: 0,
     email: '',
     phone: '',
     location: '',
@@ -64,6 +65,7 @@ export function StudentProfile() {
 
         setFormData((prev) => ({
           ...prev,
+          emp_no: data.emp_no || prev.emp_no,
           firstName: data.first_name || data.given_name || data.firstName || prev.firstName,
           lastName: data.last_name || data.family_name || data.lastName || prev.lastName,
           email: data.email || prev.email,
@@ -98,6 +100,7 @@ export function StudentProfile() {
         user_data.last_name = formData.lastName;
         user_data.phone = formData.phone;
         user_data.department = formData.department;
+        user_data.emp_no = formData.emp_no;
         user_data.branch = formData.location;
         user_data.start_date = formData.startDate;
         user_data.bio = formData.bio;
@@ -206,8 +209,11 @@ export function StudentProfile() {
           <h3 className="text-foreground">Personal Information</h3>
         </div>
 
+        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2">
+   
+   <div className="space-y-2">
             <Label htmlFor="firstName" style={{ color: 'var(--foreground)' }}>First Name</Label>
             <Input
               id="firstName"
@@ -228,6 +234,31 @@ export function StudentProfile() {
               disabled={loading}
             />
           </div>
+                <div className="space-y-2">
+            <Label htmlFor="emp_no" style={{ color: 'var(--foreground)' }}>Employee ID</Label>
+            <Input
+              id="emp_no"
+              value={formData.emp_no}
+              onChange={(e) => handleInputChange('emp_no', e.target.value)}
+              className="rounded-xl"
+              disabled={loading}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="department" style={{ color: 'var(--foreground)' }}>Department</Label>
+            <div className="relative">
+              <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Input
+                id="department"
+                value={formData.department}
+                onChange={(e) => handleInputChange('department', e.target.value)}
+                className="pl-10 rounded-xl"
+                disabled={loading}
+              />
+            </div>
+          </div>
+
 
           <div className="space-y-2">
             <Label htmlFor="email" style={{ color: 'var(--foreground)' }}>Email</Label>
@@ -272,20 +303,7 @@ export function StudentProfile() {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="department" style={{ color: 'var(--foreground)' }}>Department</Label>
-            <div className="relative">
-              <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <Input
-                id="department"
-                value={formData.department}
-                onChange={(e) => handleInputChange('department', e.target.value)}
-                className="pl-10 rounded-xl"
-                disabled={loading}
-              />
-            </div>
-          </div>
-
+          
           <div className="space-y-2 md:col-span-2">
             <Label htmlFor="bio" style={{ color: 'var(--foreground)' }}>Bio</Label>
             <Textarea
