@@ -30,6 +30,11 @@ async def get_graduate_milestones_with_tasks(graduate_id):
 
         result = []
         for milestone in milestones:
+            # Check if milestone is assigned to specific graduate
+            assigned_to = milestone.get("graduate_id")
+            if assigned_to and str(assigned_to) != str(graduate_id):
+                continue
+
             m_tasks = [t for t in tasks if t["milestone_id"] == milestone["id"]]
             
             # Build task list with completion status
@@ -128,6 +133,7 @@ def get_all_milestones():
                 "week_label": milestone["week_label"],
                 "status": milestone.get("status", "active"),
                 "created_at": milestone.get("created_at"),
+                "graduate_id": milestone.get("graduate_id"),
                 "tasks": [{
                     "task_id": t["id"],
                     "name": t["name"],
@@ -148,66 +154,75 @@ def update_milestone_status(milestone_id: str, status: str):
         print(f"Error updating milestone status {milestone_id}: {e}")
         raise e
 
-def create_milestone_with_tasks(title: str, week_label: str, tasks: list[str]):
+def create_milestone_with_tasks(title: str, week_label: str, tasks: list[str], graduate_ids: list[UUID] | None = None):
     try:
         # 1. Parse start/end week
         nums = [int(s) for s in re.findall(r'\b\d+\b', week_label)]
         start_week = nums[0] if nums else 1
         end_week = nums[-1] if nums else start_week
 
-        # 2. Get max display_order
-        max_order_res = supabase.table("milestones").select("display_order").order("display_order", desc=True).limit(1).execute()
-        next_order = 1
-        if max_order_res.data:
-            next_order = max_order_res.data[0]["display_order"] + 1
+        # Determine target list
+        # If graduate_ids is None or Empty, we default to [None] (Global Milestone)
+        targets = graduate_ids if graduate_ids else [None]
+        created_ids = []
 
-        # 3. Insert milestone
-        milestone_id = str(uuid.uuid4())
-        milestone_data = {
-            "id": milestone_id,
-            "title": title,
-            "week_label": week_label,
-            "display_order": next_order,
-            "start_week": start_week,
-            "end_week": end_week,
-            "created_at": datetime.utcnow().isoformat()
-        }
-        print(f"Creating milestone: {milestone_data}")
-        milestone_res = supabase.table("milestones").insert(milestone_data).execute()
-        
-        # 4. Insert tasks
-        if tasks:
-            tasks_data = []
-            for idx, task_name in enumerate(tasks):
-                tasks_data.append({
-                    "id": str(uuid.uuid4()),
-                    "milestone_id": milestone_id,
-                    "name": task_name,
-                    "display_order": idx + 1,
-                    "task_type": "standard" # Default type
-                })
+        for grad_id in targets:
+            # 2. Get max display_order
+            max_order_res = supabase.table("milestones").select("display_order").order("display_order", desc=True).limit(1).execute()
+            next_order = 1
+            if max_order_res.data:
+                next_order = max_order_res.data[0]["display_order"] + 1
+
+            # 3. Insert milestone
+            milestone_id = str(uuid.uuid4())
+            milestone_data = {
+                "id": milestone_id,
+                "title": title,
+                "week_label": week_label,
+                "display_order": next_order,
+                "start_week": start_week,
+                "end_week": end_week,
+                "created_at": datetime.utcnow().isoformat(),
+                "graduate_id": str(grad_id) if grad_id else None
+            }
+            print(f"Creating milestone: {milestone_data}")
+            supabase.table("milestones").insert(milestone_data).execute()
             
-            print(f"Creating tasks: {tasks_data}")
-            supabase.table("tasks").insert(tasks_data).execute()
+            # 4. Insert tasks
+            if tasks:
+                tasks_data = []
+                for idx, task_name in enumerate(tasks):
+                    tasks_data.append({
+                        "id": str(uuid.uuid4()),
+                        "milestone_id": milestone_id,
+                        "name": task_name,
+                        "display_order": idx + 1,
+                        "task_type": "standard" # Default type
+                    })
+                
+                print(f"Creating tasks: {tasks_data}")
+                supabase.table("tasks").insert(tasks_data).execute()
             
-        return {"status": "success", "milestone_id": milestone_id}
+            created_ids.append(milestone_id)
+            
+        return {"status": "success", "milestone_ids": created_ids}
         
     except Exception as e:
         print(f"Error creating milestone: {e}")
         
-        # Rollback: Attempt to delete the milestone if task insertion failed
-        if 'milestone_id' in locals():
+        # Partial Rollback attempt (best effort)
+        if 'created_ids' in locals() and created_ids:
             try:
-                print(f"Rolling back milestone {milestone_id} due to error")
-                supabase.table("milestones").delete().eq("id", milestone_id).execute()
+                print(f"Rolling back milestones {created_ids} due to error")
+                supabase.table("milestones").delete().in_("id", created_ids).execute()
             except Exception as rollback_e:
-                print(f"Failed to rollback milestone: {rollback_e}")
+                print(f"Failed to rollback milestones: {rollback_e}")
 
         import traceback
         traceback.print_exc()
         raise e
 
-def update_milestone_with_tasks(milestone_id: str, title: str, week_label: str, tasks: list[dict]):
+def update_milestone_with_tasks(milestone_id: str, title: str, week_label: str, tasks: list[dict], graduate_id: UUID | None = None):
     try:
         # 1. Update Milestone details
         # Parse start/end week
@@ -215,12 +230,19 @@ def update_milestone_with_tasks(milestone_id: str, title: str, week_label: str, 
         start_week = nums[0] if nums else 1
         end_week = nums[-1] if nums else start_week
 
-        supabase.table("milestones").update({
+        update_data = {
             "title": title,
             "week_label": week_label,
             "start_week": start_week,
             "end_week": end_week
-        }).eq("id", milestone_id).execute()
+        }
+        
+        # Only update graduate_id if provided (or explicitly None if that's the intent, 
+        # but here we assume the payload contains the new state, so we update it)
+        # Note: If the frontend sends null, we update it to null (unassign).
+        update_data["graduate_id"] = str(graduate_id) if graduate_id else None
+
+        supabase.table("milestones").update(update_data).eq("id", milestone_id).execute()
 
         # 2. Handle Tasks
         # Get existing tasks from DB

@@ -17,7 +17,13 @@ import { useLoading } from '../components/ui/loading';
 export function StudentDashboard() {
 
   const [firstName, setFirstName] = useState<string | null>(null);
-  const [progressData, setProgressData] = useState({ total: 0, completed: 0, percentage: 0 });
+  const [progressData, setProgressData] = useState({ 
+    total: 0, 
+    completed: 0, 
+    percentage: 0,
+    totalMilestones: 0,
+    completedMilestones: 0
+  });
   const { setLoading } = useLoading();
 
   useEffect(() => {
@@ -63,11 +69,16 @@ export function StudentDashboard() {
             const percentage = overallProgress.total > 0 
               ? Math.round((overallProgress.completed / overallProgress.total) * 100) 
               : 0;
+
+            const totalMilestones = milestonesData.length;
+            const completedMilestones = milestonesData.filter((m: any) => m.status === 'Completed').length;
               
             setProgressData({
               total: overallProgress.total,
               completed: overallProgress.completed,
-              percentage: percentage
+              percentage: percentage,
+              totalMilestones,
+              completedMilestones
             });
           }
         }
@@ -211,7 +222,7 @@ export function StudentDashboard() {
           </div>
           <p className="text-gray-600 text-sm mb-1">Programme Progress</p>
           <p className="text-gray-900 mb-2">{progressData.percentage}%</p>
-          <p className="text-sm text-gray-500">Day 15 of 60</p>
+          <p className="text-sm text-green-600">{progressData.completedMilestones}/{progressData.totalMilestones} Milestones</p>
         </Card>
 
         <Card className="p-6 border-gray-200">

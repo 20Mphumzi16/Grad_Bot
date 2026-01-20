@@ -9,20 +9,24 @@ import { CheckCircle2, Circle, Edit2, Plus, Trash2, ClipboardList, Flag, Search,
 
 export function AdminTaskManagement() {
   const [milestones, setMilestones] = useState<any[]>([]);
+  const [graduates, setGraduates] = useState<any[]>([]); // Added graduates state
   const [searchTerm, setSearchTerm] = useState("");
   const { setLoading } = useLoading();
   const [error, setError] = useState<string | null>(null);
 
   // Add Milestone Modal State
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isGraduateDropdownOpen, setIsGraduateDropdownOpen] = useState(false);
   const [newMilestone, setNewMilestone] = useState<{
     title: string;
     week_label: string;
     tasks: string[];
+    graduate_ids: string[];
   }>({
     title: "",
     week_label: "",
-    tasks: []
+    tasks: [],
+    graduate_ids: []
   });
 
   // Delete Modal State
@@ -35,7 +39,14 @@ export function AdminTaskManagement() {
     title: string;
     week_label: string;
     tasks: { id?: string; name: string }[];
+    graduate_id: string | null;
   } | null>(null);
+
+  const getGraduateName = (graduateId: string | null) => {
+    if (!graduateId) return null;
+    const grad = graduates.find(g => g.id === graduateId);
+    return grad ? `${grad.first_name} ${grad.last_name}` : 'Unknown Graduate';
+  };
 
   useEffect(() => {
     const fetchMilestones = async () => {
@@ -47,6 +58,13 @@ export function AdminTaskManagement() {
         
         const data = await res.json();
         setMilestones(data);
+
+        // Fetch graduates
+        const gradRes = await fetch('http://127.0.0.1:8000/graduates/list');
+        if (gradRes.ok) {
+            const gradData = await gradRes.json();
+            setGraduates(gradData);
+        }
       } catch (err) {
         console.error(err);
         setError("Failed to load milestones.");
@@ -118,7 +136,8 @@ export function AdminTaskManagement() {
         id: milestone.milestone_id,
         title: milestone.title,
         week_label: milestone.week_label,
-        tasks: milestone.tasks.map((t: any) => ({ id: t.task_id, name: t.name }))
+        tasks: milestone.tasks.map((t: any) => ({ id: t.task_id, name: t.name })),
+        graduate_id: milestone.graduate_id || null
       });
     }
   };
@@ -181,7 +200,7 @@ export function AdminTaskManagement() {
   };
 
   const handleAddMilestone = () => {
-    setNewMilestone({ title: "", week_label: "", tasks: [] });
+    setNewMilestone({ title: "", week_label: "", tasks: [], graduate_ids: [] });
     setIsAddModalOpen(true);
   };
 
@@ -216,7 +235,8 @@ export function AdminTaskManagement() {
             body: JSON.stringify({
                 title: newMilestone.title,
                 week_label: newMilestone.week_label,
-                tasks: newMilestone.tasks.filter(t => t.trim() !== "")
+                tasks: newMilestone.tasks.filter(t => t.trim() !== ""),
+                graduate_ids: newMilestone.graduate_ids
             })
         });
 
@@ -232,6 +252,12 @@ export function AdminTaskManagement() {
             setMilestones(data);
         }
         
+        setNewMilestone({
+          title: "",
+          week_label: "",
+          tasks: [],
+          graduate_ids: []
+        });
         setIsAddModalOpen(false);
     } catch (err: any) {
         console.error(err);
@@ -380,6 +406,11 @@ export function AdminTaskManagement() {
                 <p className="text-sm text-muted-foreground mb-1">
                   {milestone.week_label}
                   {milestone.created_at && ` • Added ${new Date(milestone.created_at).toLocaleDateString()}`}
+                  {milestone.graduate_id && (
+                    <span className="block mt-1 text-blue-600 font-medium flex items-center gap-1">
+                       Assigned to: {getGraduateName(milestone.graduate_id)}
+                    </span>
+                  )}
                 </p>
                 <div className="flex items-center gap-2">
                   <h3 className="text-xl font-semibold">{milestone.title}</h3>
@@ -487,6 +518,68 @@ export function AdminTaskManagement() {
               onChange={(e) => setNewMilestone({ ...newMilestone, week_label: e.target.value })}
             />
           </div>
+
+          <div className="grid gap-2 relative">
+            <Label>Assign to Graduates</Label>
+            <div 
+              className="border rounded-md p-2 cursor-pointer bg-white flex justify-between items-center"
+              onClick={() => setIsGraduateDropdownOpen(!isGraduateDropdownOpen)}
+            >
+              <span className="text-sm text-black">
+                {newMilestone.graduate_ids.length === 0 
+                  ? "Select Graduates (Optional)" 
+                  : `${newMilestone.graduate_ids.length} Graduate(s) Selected`}
+              </span>
+              <span className="text-gray-400">▼</span>
+            </div>
+
+            {isGraduateDropdownOpen && (
+              <div className="absolute top-[75px] left-0 right-0 z-50 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto p-2">
+                <div 
+                  className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded cursor-pointer"
+                  onClick={() => {
+                    if (newMilestone.graduate_ids.length === graduates.length) {
+                        setNewMilestone({...newMilestone, graduate_ids: []});
+                    } else {
+                        setNewMilestone({...newMilestone, graduate_ids: graduates.map(g => g.id)});
+                    }
+                  }}
+                >
+                    <input 
+                        type="checkbox" 
+                        checked={newMilestone.graduate_ids.length === graduates.length && graduates.length > 0}
+                        readOnly
+                        className="pointer-events-none"
+                    />
+                    <span className="text-sm font-semibold text-black">Select All</span>
+                </div>
+                <hr className="my-1 border-gray-200" />
+                {graduates.map((grad) => (
+                  <div 
+                    key={grad.id} 
+                    className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded cursor-pointer"
+                    onClick={() => {
+                        const ids = newMilestone.graduate_ids.includes(grad.id)
+                            ? newMilestone.graduate_ids.filter(id => id !== grad.id)
+                            : [...newMilestone.graduate_ids, grad.id];
+                        setNewMilestone({ ...newMilestone, graduate_ids: ids });
+                    }}
+                  >
+                    <input 
+                      type="checkbox" 
+                      checked={newMilestone.graduate_ids.includes(grad.id)} 
+                      readOnly
+                      className="pointer-events-none"
+                    />
+                    <span className="text-sm text-black">{grad.first_name} {grad.last_name}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            <p className="text-xs text-muted-foreground">
+                Leave empty to create a Global Milestone visible to everyone. Select specific graduates to create individual copies.
+            </p>
+          </div>
           
           <div className="grid gap-2">
             <Label>Tasks</Label>
@@ -568,6 +661,23 @@ export function AdminTaskManagement() {
                 value={editingMilestone.week_label}
                 onChange={(e) => setEditingMilestone({ ...editingMilestone, week_label: e.target.value })}
                 />
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="edit-graduate">Assign to Graduate</Label>
+              <select
+                id="edit-graduate"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                value={editingMilestone.graduate_id || ""}
+                onChange={(e) => setEditingMilestone({ ...editingMilestone, graduate_id: e.target.value || null })}
+              >
+                <option value="">All Graduates</option>
+                {graduates.map((grad) => (
+                  <option key={grad.id} value={grad.id}>
+                    {grad.first_name} {grad.last_name}
+                  </option>
+                ))}
+              </select>
             </div>
             
             <div className="grid gap-2">
