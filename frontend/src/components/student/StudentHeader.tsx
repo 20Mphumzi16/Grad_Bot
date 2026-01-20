@@ -1,7 +1,8 @@
 import { Button } from '../ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Bell, LogOut, Moon, Sun, MessageSquare, User, BookOpen, Calendar, FileText, Home } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { ConfirmDialog } from '../ui/confirm-dialog';
 
@@ -29,7 +30,29 @@ export function StudentHeader() {
   const { isDark, toggleTheme } = useTheme();
   const [firstName, setFirstName] = useState<string | null>(null);
   const [lastName, setLastName] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [avatarLoading, setAvatarLoading] = useState<boolean>(false);
+  const [avatarVersion, setAvatarVersion] = useState<number>(0);
   const [showConfirm, setShowConfirm] = useState(false);
+
+  const API_BASE_URL =
+    (import.meta as any).env?.VITE_API_BASE_URL?.toString?.() || 'http://127.0.0.1:8000';
+
+  const resolveAvatarUrl = (url: string | null) => {
+    if (!url) return undefined;
+    const trimmed = url.trim();
+    if (!trimmed) return undefined;
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed;
+    if (trimmed.startsWith('/')) return `${API_BASE_URL}${trimmed}`;
+    return `${API_BASE_URL}/${trimmed}`;
+  };
+
+  const getInitials = (first: string | null, last: string | null) => {
+    const f = first?.trim()?.[0] ?? '';
+    const l = last?.trim()?.[0] ?? '';
+    const initials = `${f}${l}`.toUpperCase();
+    return initials || '?';
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -41,7 +64,6 @@ export function StudentHeader() {
           method: 'GET',
           headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
           },
         });
 
@@ -49,15 +71,60 @@ export function StudentHeader() {
         const data: any = await res.json();
 
         // Common field names returned by /auth/me
-        const f = data.first_name || data.given_name || data.firstName || data.first || (data.name ? data.name.split(' ')[0] : null);
-        const l = data.last_name || data.family_name || data.lastName || data.last || (data.name ? data.name.split(' ').slice(1).join(' ') : null);
+        const f =
+          data.first_name ||
+          data.given_name ||
+          data.firstName ||
+          data.first ||
+          (data.name ? data.name.split(' ')[0] : null);
+        const l =
+          data.last_name ||
+          data.family_name ||
+          data.lastName ||
+          data.last ||
+          (data.name ? data.name.split(' ').slice(1).join(' ') : null);
 
         if (f) setFirstName(f);
         if (l) setLastName(l);
+        if (data.avatar_url) {
+          setAvatarUrl(data.avatar_url);
+          setAvatarLoading(true);
+          setAvatarVersion((v) => v + 1);
+        }
       } catch {
         // ignore errors silently
       }
     })();
+  }, []);
+
+  // Listen for avatar updates coming from other parts of the app (e.g. StudentProfile)
+  useEffect(() => {
+    const handler = (event: Event) => {
+      const custom = event as CustomEvent<{
+        avatar_url?: string | null;
+        firstName?: string;
+        lastName?: string;
+      }>;
+
+      if (typeof custom.detail?.avatar_url !== 'undefined') {
+        setAvatarUrl(custom.detail.avatar_url ?? null);
+        if (custom.detail.avatar_url) {
+          setAvatarLoading(true);
+        }
+        setAvatarVersion((v) => v + 1);
+      }
+
+      if (custom.detail?.firstName) {
+        setFirstName(custom.detail.firstName);
+      }
+
+      if (custom.detail?.lastName) {
+        setLastName(custom.detail.lastName);
+      }
+    };
+
+    window.addEventListener('avatarUpdated', handler);
+    return () => window.removeEventListener('avatarUpdated', handler);
   }, []);
 
   const handleLogout = () => {
@@ -98,8 +165,26 @@ export function StudentHeader() {
           <div className="h-8 w-px" style={{ backgroundColor: 'var(--border)' }} />
 
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-teal-500 flex items-center justify-center text-white text-sm">
-              {firstName?.charAt(0).toUpperCase() || '?'}
+            <div className="relative w-8 h-8">
+              <Avatar className="w-8 h-8">
+                <AvatarImage
+                  src={
+                    resolveAvatarUrl(avatarUrl)
+                      ? `${resolveAvatarUrl(avatarUrl)}${resolveAvatarUrl(avatarUrl)?.includes('?') ? '&' : '?'}v=${avatarVersion}`
+                      : undefined
+                  }
+                  onLoad={() => setAvatarLoading(false)}
+                  onError={() => setAvatarLoading(false)}
+                />
+                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-teal-500 text-white text-sm">
+                  {getInitials(firstName, lastName)}
+                </AvatarFallback>
+              </Avatar>
+              {avatarLoading && (
+                <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/30">
+                  <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                </div>
+              )}
             </div>
             <div className="text-sm">
               <p style={{ color: 'var(--foreground)' }}>{firstName} {lastName}</p>

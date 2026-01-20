@@ -20,6 +20,7 @@ class TokenResponse(BaseModel):
 class UserResponse(BaseModel):
     id: UUID
     emp_no: int | None = None
+    avatar_url: str | None = None
     email: EmailStr
     role: str
     first_name: str
@@ -55,6 +56,7 @@ class UserUpdateRequest(BaseModel):
     id: UUID
     email: EmailStr
     emp_no: int | None = None
+    avatar_url: str | None = None
     role: str
     first_name: str
     last_name: str

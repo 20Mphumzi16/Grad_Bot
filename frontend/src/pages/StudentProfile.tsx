@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -25,6 +25,12 @@ const user_data: any = {
 }
 
 export function StudentProfile() {
+  const [avatar_url, setAvatarUrl] = useState<string | null>(null);
+  const [uploading_avatar, setUploadingAvatar] = useState<boolean>(false);
+  const [deleting_avatar, setDeletingAvatar] = useState<boolean>(false);
+  const [avatarVersion, setAvatarVersion] = useState<number>(0);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -42,6 +48,80 @@ export function StudentProfile() {
 
   const { loading, setLoading } = useLoading();
 
+  const API_BASE_URL =
+    (import.meta as any).env?.VITE_API_BASE_URL?.toString?.() || 'http://127.0.0.1:8000';
+
+  const getInitials = (firstName: string, lastName: string) => {
+    const firstInitial = firstName?.trim()?.[0] ?? '';
+    const lastInitial = lastName?.trim()?.[0] ?? '';
+    const initials = `${firstInitial}${lastInitial}`.toUpperCase();
+    return initials || 'NA';
+  };
+
+  const resolveAvatarUrl = (url: string | null) => {
+    if (!url) return undefined;
+    const trimmed = url.trim();
+    if (!trimmed) return undefined;
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed;
+    if (trimmed.startsWith('/')) return `${API_BASE_URL}${trimmed}`;
+    return `${API_BASE_URL}/${trimmed}`;
+  };
+
+  const refreshUser = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    const res = await fetch('http://127.0.0.1:8000/auth/me', {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text || `HTTP ${res.status}`);
+    }
+
+    const data: any = await res.json();
+
+    user_data.id = data.id;
+    user_data.role = data.role;
+
+    setFormData((prev) => {
+      const next = {
+        ...prev,
+        emp_no: data.emp_no || prev.emp_no,
+        firstName: data.first_name || data.given_name || data.firstName || prev.firstName,
+        lastName: data.last_name || data.family_name || data.lastName || prev.lastName,
+        email: data.email || prev.email,
+        phone: data.phone || prev.phone,
+        department: data.department || '',
+        location: data.branch || '',
+        startDate: data.start_date || '',
+        bio: data.bio || '',
+        interests: data.interests || prev.interests,
+        linkedin: data.linkedin_link || '',
+        github: data.github_link || '',
+      };
+
+      window.dispatchEvent(
+        new CustomEvent('avatarUpdated', {
+          detail: {
+            avatar_url: data.avatar_url || null,
+            firstName: next.firstName,
+            lastName: next.lastName,
+          },
+        }),
+      );
+
+      return next;
+    });
+
+    setAvatarUrl(data.avatar_url || null);
+    setAvatarVersion((v) => v + 1); // bust any cached avatar images
+  };
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) return;
@@ -49,35 +129,7 @@ export function StudentProfile() {
     (async () => {
       setLoading(true);
       try {
-        const res = await fetch('http://127.0.0.1:8000/auth/me', {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!res.ok) return;
-        const data: any = await res.json();
-        user_data.id = data.id;
-        user_data.role = data.role;
-        console.log('Fetched user data:', data);
-
-        setFormData((prev) => ({
-          ...prev,
-          emp_no: data.emp_no || prev.emp_no,
-          firstName: data.first_name || data.given_name || data.firstName || prev.firstName,
-          lastName: data.last_name || data.family_name || data.lastName || prev.lastName,
-          email: data.email || prev.email,
-          phone: data.phone || prev.phone,
-          department: data.department || "",
-          location: data.branch || "",
-          startDate: data.start_date || "",
-          bio: data.bio || "",
-          interests: data.interests || prev.interests,
-          linkedin: data.linkedin_link || "",
-          github: data.github_link || "",
-        }));
+        await refreshUser();
       } catch {
         // ignore fetch errors silently
       } finally {
@@ -88,6 +140,100 @@ export function StudentProfile() {
 
   const handleInputChange = (field: string, value: string) => {
     setFormData({ ...formData, [field]: value });
+  };
+
+  const handleAvatarUploadClick = () => {
+    if (uploading_avatar || deleting_avatar || loading) return;
+    fileInputRef.current?.click();
+  };
+
+  const handleAvatarFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      toast.error('You must be logged in to upload a profile photo.');
+      return;
+    }
+
+    const uploadData = new FormData();
+    uploadData.append('file', file);
+
+    setUploadingAvatar(true);
+    try {
+      const res = await fetch('http://127.0.0.1:8000/auth/upload-avatar', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: uploadData,
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || `HTTP ${res.status}`);
+      }
+
+      const data: any = await res.json();
+      if (data?.avatar_url) {
+        setAvatarUrl(data.avatar_url);
+        setAvatarVersion((v) => v + 1);
+        window.dispatchEvent(
+          new CustomEvent('avatarUpdated', {
+            detail: {
+              avatar_url: data.avatar_url,
+              firstName: formData.firstName,
+              lastName: formData.lastName,
+            },
+          }),
+        );
+      }
+
+      // Re-fetch user to ensure UI reflects backend truth (and keeps header in sync).
+      await refreshUser();
+      toast.success('Profile photo updated.');
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+      const message = error instanceof Error ? error.message : String(error);
+      toast.error(`Failed to upload profile photo: ${message}`);
+    } finally {
+      setUploadingAvatar(false);
+      // Reset input so the same file can be selected again if needed
+      event.target.value = '';
+    }
+  };
+
+  const handleRemoveAvatar = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      toast.error('You must be logged in to remove a profile photo.');
+      return;
+    }
+
+    setDeletingAvatar(true);
+    try {
+      const res = await fetch('http://127.0.0.1:8000/auth/delete-avatar', {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || `HTTP ${res.status}`);
+      }
+
+      await refreshUser(); // ensures avatar_url becomes null
+      toast.success('Profile photo removed.');
+    } catch (error) {
+      console.error('Error deleting avatar:', error);
+      const message = error instanceof Error ? error.message : String(error);
+      toast.error(`Failed to remove profile photo: ${message}`);
+    } finally {
+      setDeletingAvatar(false);
+    }
   };
 
    const handleSave = async () => {
@@ -171,17 +317,42 @@ export function StudentProfile() {
         <div className="flex items-center gap-6">
           <div className="relative">
             <Avatar className="w-24 h-24">
-              <AvatarImage src="" />
+              <AvatarImage
+                src={
+                  resolveAvatarUrl(avatar_url)
+                    ? `${resolveAvatarUrl(avatar_url)}${resolveAvatarUrl(avatar_url)?.includes('?') ? '&' : '?'}v=${avatarVersion}`
+                    : undefined
+                }
+                onError={() => toast.error('Could not load profile photo.')}
+              />
               <AvatarFallback className="text-2xl bg-gradient-to-br from-blue-500 to-teal-500 text-white">
-                JS
+                {getInitials(formData.firstName, formData.lastName)}
               </AvatarFallback>
             </Avatar>
+            {uploading_avatar && (
+              <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/30">
+                <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              </div>
+            )}
             <Button 
               size="icon" 
+              onClick={handleAvatarUploadClick}
+              disabled={uploading_avatar || loading}
               className="absolute bottom-0 right-0 rounded-full w-8 h-8 bg-white border-2 border-gray-200 hover:bg-gray-50"
             >
-              <Camera className="w-4 h-4 text-muted-foreground" />
+              {uploading_avatar ? (
+                <div className="w-3 h-3 border-2 border-gray-300 border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Camera className="w-4 h-4 text-muted-foreground" />
+              )}
             </Button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarFileChange}
+              className="hidden"
+            />
           </div>
           <div className="flex-1">
             <h3 style={{ color: 'var(--foreground)' }} className="mb-1">Profile Picture</h3>
@@ -189,11 +360,23 @@ export function StudentProfile() {
               Upload a photo to personalize your profile
             </p>
             <div className="flex items-center gap-3">
-              <Button variant="outline" size="sm" className="rounded-lg">
-                Upload Photo
+              <Button
+                variant="outline"
+                size="sm"
+                className="rounded-lg"
+                onClick={handleAvatarUploadClick}
+                disabled={uploading_avatar || deleting_avatar || loading}
+              >
+                {uploading_avatar ? 'Uploading...' : 'Upload Photo'}
               </Button>
-              <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700">
-                Remove
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleRemoveAvatar}
+                disabled={uploading_avatar || deleting_avatar || loading || !avatar_url}
+                className="text-red-600 hover:text-red-700"
+              >
+                {deleting_avatar ? 'Removing...' : 'Remove'}
               </Button>
             </div>
           </div>
