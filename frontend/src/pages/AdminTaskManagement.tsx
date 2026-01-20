@@ -38,6 +38,12 @@ export function AdminTaskManagement() {
     alert(`Mark Done clicked for milestone ${milestoneId}`);
   };
 
+  const handleDelete = (milestoneId: string) => {
+    // Placeholder for Delete functionality
+    console.log(`Delete clicked for milestone ${milestoneId}`);
+    alert(`Delete clicked for milestone ${milestoneId}`);
+  };
+
   const handleModify = (milestoneId: string) => {
     // Placeholder for Modify functionality
     console.log(`Modify clicked for milestone ${milestoneId}`);
@@ -162,6 +168,15 @@ export function AdminTaskManagement() {
                 >
                   <CheckCircle2 className="w-4 h-4" />
                   Mark Done
+                </Button>
+                <Button 
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => handleDelete(milestone.milestone_id)}
+                  className="gap-2 text-white"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Delete
                 </Button>
               </div>
             </div>
