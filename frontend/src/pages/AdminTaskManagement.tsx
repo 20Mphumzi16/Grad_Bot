@@ -344,6 +344,29 @@ export function AdminTaskManagement() {
         </div>
       )}
 
+      {/* Milestone Track Bar */}
+      {milestones.length > 0 && (
+        <div className="flex w-full gap-1 overflow-x-auto pb-2">
+          {milestones.map((milestone) => (
+            <div 
+              key={milestone.milestone_id} 
+              className={`flex-1 min-w-[120px] flex flex-col items-center gap-2 p-2 rounded-lg transition-colors ${
+                milestone.status === 'completed' ? 'bg-green-50' : 'bg-gray-50'
+              }`}
+            >
+              <span className={`text-sm font-bold text-center whitespace-nowrap overflow-hidden text-ellipsis w-full ${
+                milestone.status === 'completed' ? 'text-green-700' : 'text-gray-500'
+              }`}>
+                {milestone.title}
+              </span>
+              <div className={`w-full h-1.5 rounded-full ${
+                milestone.status === 'completed' ? 'bg-green-600' : 'bg-gray-300'
+              }`} />
+            </div>
+          ))}
+        </div>
+      )}
+
       <div className="space-y-6">
         {filteredMilestones.map((milestone) => (
           <Card key={milestone.milestone_id} className="p-6 border-gray-200 relative overflow-hidden">

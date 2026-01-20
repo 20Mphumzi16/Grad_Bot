@@ -207,6 +207,19 @@ export function StudentTimeline() {
     }
   };
 
+  const overallProgress = milestones.reduce((acc, milestone) => {
+    if (!milestone.tasks) return acc;
+    const completed = milestone.tasks.filter((t: any) => t.completed).length;
+    return {
+      total: acc.total + milestone.tasks.length,
+      completed: acc.completed + completed
+    };
+  }, { total: 0, completed: 0 });
+
+  const progressPercentage = overallProgress.total > 0 
+    ? Math.round((overallProgress.completed / overallProgress.total) * 100) 
+    : 0;
+
   return (
     <div className="min-h-screen bg-gray-50/50 p-6">
       <style>{`
@@ -222,11 +235,11 @@ export function StudentTimeline() {
             <p className="text-sm text-gray-600">Day 15 of 90 • First 90 Days Programme</p>
           </div>
           <div className="text-right">
-            <p className="mb-1">25%</p>
+            <p className="mb-1">{progressPercentage}%</p>
             <p className="text-sm text-gray-600">Complete</p>
           </div>
         </div>
-        <Progress value={25} className="h-3" />
+        <Progress value={progressPercentage} className="h-3" />
       </Card>
 
       <div className="relative">
