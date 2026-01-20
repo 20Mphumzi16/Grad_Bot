@@ -15,6 +15,7 @@ class Milestone(Base):
     display_order = Column(BigInteger, nullable=False)
     start_week = Column(Integer, nullable=False)
     end_week = Column(Integer, nullable=False)
+    status = Column(Text, default='active')
 
     tasks = relationship("Task", back_populates="milestone")
 
