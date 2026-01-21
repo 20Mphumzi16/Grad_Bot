@@ -55,7 +55,13 @@ export function StudentDocuments() {
   const handleView = async (docId: string) => {
     try {
       setViewingDocId(docId);
-      const res = await fetch(`http://127.0.0.1:8000/documents/${docId}/download`);
+      
+      // Optimistic update
+      setDocuments(prev => prev.map(doc => 
+        doc.id === docId ? { ...doc, views: (doc.views || 0) + 1 } : doc
+      ));
+
+      const res = await fetch(`http://127.0.0.1:8000/documents/${docId}/view`);
       const data = await res.json();
       window.open(data.url, '_blank'); // open in new tab
     } catch (err) {

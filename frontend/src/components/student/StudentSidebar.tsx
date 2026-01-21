@@ -1,7 +1,7 @@
 import { MessageSquare, User, BookOpen, Calendar, FileText, Home } from 'lucide-react';
 import { Link, useLocation } from 'react-router';
-import { useEffect, useState } from 'react';
 import logo from '../../assets/logo.png';
+import { useStudentNotifications } from '../../context/StudentNotificationContext';
 
 const navItems = [
   { icon: Home, label: 'Dashboard', path: '/student' },
@@ -14,82 +14,17 @@ const navItems = [
 
 export function StudentSidebar() {
   const location = useLocation();
-  const [hasNewMilestone, setHasNewMilestone] = useState(false);
-  const [milestoneCount, setMilestoneCount] = useState(0);
-  const [hasNewDocument, setHasNewDocument] = useState(false);
-  const [documentCount, setDocumentCount] = useState(0);
-  const [hasNewResource, setHasNewResource] = useState(false);
-  const [resourceCount, setResourceCount] = useState(0);
-
-  useEffect(() => {
-    const checkNotifications = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        if (!token) return;
-
-        // 1. Get User ID
-        const authRes = await fetch('http://127.0.0.1:8000/auth/me', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (!authRes.ok) return;
-        const userData = await authRes.json();
-        const graduateId = userData.id;
-
-        // 2. Get Milestones
-        const mileRes = await fetch(`http://127.0.0.1:8000/timeline/${graduateId}/milestones-tasks`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (mileRes.ok) {
-          const milestones = await mileRes.json();
-          const currentCount = milestones.length;
-          setMilestoneCount(currentCount);
-
-          const savedCount = parseInt(localStorage.getItem('grad_milestone_viewed_count') || '0', 10);
-          if (currentCount > savedCount) {
-            setHasNewMilestone(true);
-          }
-        }
-
-        // 3. Get Documents & Resources (using same source)
-        const docRes = await fetch('http://127.0.0.1:8000/documents/get-documents');
-        if (docRes.ok) {
-          const docs = await docRes.json();
-          const currentDocCount = docs.length;
-          setDocumentCount(currentDocCount);
-          setResourceCount(currentDocCount);
-
-          const savedDocCount = parseInt(localStorage.getItem('grad_document_viewed_count') || '0', 10);
-          if (currentDocCount > savedDocCount) {
-            setHasNewDocument(true);
-          }
-
-          const savedResCount = parseInt(localStorage.getItem('grad_resource_viewed_count') || '0', 10);
-          if (currentDocCount > savedResCount) {
-            setHasNewResource(true);
-          }
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    checkNotifications();
-    const interval = setInterval(checkNotifications, 60000); // Check every minute
-    return () => clearInterval(interval);
-  }, []);
+  const { hasNewMilestone, hasNewDocument, hasNewResource, markAsViewed } = useStudentNotifications();
 
   const handleLinkClick = (path: string) => {
     if (path === '/student/timeline' && hasNewMilestone) {
-      setHasNewMilestone(false);
-      localStorage.setItem('grad_milestone_viewed_count', milestoneCount.toString());
+      markAsViewed('milestone');
     }
     if (path === '/student/documents' && hasNewDocument) {
-      setHasNewDocument(false);
-      localStorage.setItem('grad_document_viewed_count', documentCount.toString());
+      markAsViewed('document');
     }
     if (path === '/student/resources' && hasNewResource) {
-      setHasNewResource(false);
-      localStorage.setItem('grad_resource_viewed_count', resourceCount.toString());
+      markAsViewed('resource');
     }
   };
 

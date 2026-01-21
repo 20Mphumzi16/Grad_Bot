@@ -5,6 +5,15 @@ import { useNavigate, useLocation } from 'react-router';
 import React, { useEffect, useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { ConfirmDialog } from '../ui/confirm-dialog';
+import { useStudentNotifications } from '../../context/StudentNotificationContext';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 const pageLabels: Record<string, string> = {
   '/student': 'Dashboard',
@@ -34,6 +43,8 @@ export function StudentHeader() {
   const [avatarLoading, setAvatarLoading] = useState<boolean>(false);
   const [avatarVersion, setAvatarVersion] = useState<number>(0);
   const [showConfirm, setShowConfirm] = useState(false);
+
+  const { notifications, markAsViewed } = useStudentNotifications();
 
   const API_BASE_URL =
     (import.meta as any).env?.VITE_API_BASE_URL?.toString?.() || 'http://127.0.0.1:8000';
@@ -132,6 +143,11 @@ export function StudentHeader() {
     navigate('/');
   };
 
+  const handleNotificationClick = (item: any) => {
+    markAsViewed(item.type);
+    navigate(item.path);
+  };
+
   const CurrentIcon = pageIcons[location.pathname];
 
   return (
@@ -147,10 +163,46 @@ export function StudentHeader() {
         </div>
 
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="w-5 h-5" style={{ color: 'var(--muted-foreground)' }} />
-            <span className="absolute top-2 right-2 w-2 h-2 bg-blue-500 rounded-full" />
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="relative">
+                <Bell className="w-5 h-5" style={{ color: 'var(--muted-foreground)' }} />
+                {notifications.length > 0 && (
+                  <span className="absolute top-2 right-2 w-2 h-2 bg-blue-500 rounded-full" />
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-80">
+              <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {notifications.length === 0 ? (
+                <div className="p-4 text-center text-sm text-muted-foreground">
+                  No new notifications
+                </div>
+              ) : (
+                <div className="max-h-[300px] overflow-y-auto">
+                  {notifications.map((item) => (
+                    <DropdownMenuItem 
+                      key={`${item.type}-${item.id}`}
+                      className="cursor-pointer flex flex-col items-start gap-1 p-3"
+                      onClick={() => handleNotificationClick(item)}
+                    >
+                      <div className="font-medium text-sm">
+                        {item.type === 'milestone' ? 'New Milestone' : 
+                         item.type === 'resource' ? 'New Resource' : 'New Document'}
+                      </div>
+                      <div className="text-xs text-muted-foreground line-clamp-2">
+                        {item.title}
+                      </div>
+                      <div className="text-[10px] text-muted-foreground mt-1">
+                        {new Date(item.created_at).toLocaleDateString()}
+                      </div>
+                    </DropdownMenuItem>
+                  ))}
+                </div>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           <Button
             variant="ghost"
