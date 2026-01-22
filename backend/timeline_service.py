@@ -37,11 +37,15 @@ async def get_graduate_milestones_with_tasks(graduate_id):
 
             m_tasks = [t for t in tasks if t["milestone_id"] == milestone["id"]]
             
+            # Check if admin marked milestone as completed
+            admin_completed = milestone.get("status") == "completed"
+
             # Build task list with completion status
             formatted_tasks = []
             completed_count = 0
             for t in m_tasks:
-                is_completed = t["id"] in completed_task_ids
+                # Task is completed if user marked it OR admin marked milestone as completed
+                is_completed = t["id"] in completed_task_ids or admin_completed
                 if is_completed:
                     completed_count += 1
                 formatted_tasks.append({
@@ -324,22 +328,52 @@ def delete_all_milestones():
 
 def calculate_graduate_progress(graduate_id: str) -> int:
     try:
-        # Total tasks in the system
-        total_tasks = supabase.table("tasks").select("*", count="exact").execute().count
+        # 1. Fetch all milestones to determine relevance and admin status
+        milestones = supabase.table("milestones").select("*").execute().data
         
-        if total_tasks == 0:
+        # 2. Fetch all tasks
+        tasks = supabase.table("tasks").select("*").execute().data
+        
+        # 3. Fetch task progress for this graduate
+        progress_res = supabase.table("task_progress").select("task_id, completed").eq("graduate_id", graduate_id).eq("completed", True).execute()
+        user_completed_task_ids = {item['task_id'] for item in progress_res.data} if progress_res.data else set()
+
+        total_relevant_tasks = 0
+        total_completed_tasks = 0
+
+        # Filter relevant milestones
+        relevant_milestones = []
+        for m in milestones:
+            # Check if milestone is assigned to specific graduate or is global (if that's the logic)
+            # Assuming logic from get_graduate_milestones_with_tasks:
+            assigned_to = m.get("graduate_id")
+            if assigned_to and str(assigned_to) != str(graduate_id):
+                continue
+            relevant_milestones.append(m)
+
+        relevant_milestone_ids = {m["id"] for m in relevant_milestones}
+        
+        # Map milestones to their status for quick lookup
+        milestone_status_map = {m["id"]: m.get("status") for m in relevant_milestones}
+
+        for task in tasks:
+            # Only consider tasks belonging to relevant milestones
+            if task["milestone_id"] not in relevant_milestone_ids:
+                continue
+            
+            total_relevant_tasks += 1
+            
+            # Check completion
+            is_user_completed = task["id"] in user_completed_task_ids
+            is_admin_completed = milestone_status_map.get(task["milestone_id"]) == "completed"
+            
+            if is_user_completed or is_admin_completed:
+                total_completed_tasks += 1
+
+        if total_relevant_tasks == 0:
             return 0
 
-        # Completed tasks for this graduate
-        completed_tasks = (
-            supabase.table("task_progress")
-            .select("*", count="exact")
-            .eq("graduate_id", graduate_id)
-            .eq("completed", True)
-            .execute()
-        ).count
-
-        return int((completed_tasks / total_tasks) * 100)
+        return int((total_completed_tasks / total_relevant_tasks) * 100)
     except Exception as e:
         print(f"Error calculating progress for {graduate_id}: {e}")
         return 0
@@ -393,7 +427,14 @@ def get_next_three_active_milestones(graduate_id: UUID):
                 formatted_tasks = []
                 progress_pct = 0
             else:
-                completed_count = sum(1 for t in m_tasks if t["id"] in completed_task_ids)
+                # Check admin status
+                admin_completed = m.get("status") == "completed"
+                
+                if admin_completed:
+                    completed_count = len(m_tasks)
+                else:
+                    completed_count = sum(1 for t in m_tasks if t["id"] in completed_task_ids)
+                
                 total_count = len(m_tasks)
                 progress_pct = int((completed_count / total_count) * 100) if total_count > 0 else 0
 
@@ -401,7 +442,7 @@ def get_next_three_active_milestones(graduate_id: UUID):
                     {
                         "task_id": t["id"],
                         "name": t["name"],
-                        "completed": t["id"] in completed_task_ids,
+                        "completed": t["id"] in completed_task_ids or admin_completed,
                         "display_order": t.get("display_order"),
                     }
                     for t in m_tasks

@@ -315,29 +315,36 @@ export function StudentTimeline() {
                   </div>
 
                   <div className="space-y-2">
-                    {milestone.tasks.map((task: any, taskIndex: number) => (
-                      <div
-                        key={taskIndex}
-                        onClick={() => handleToggleTask(index, taskIndex)}
-                        className="flex items-center gap-3 p-3 rounded-lg bg-white/50 cursor-pointer hover:bg-white transition"
-                      >
-                        {task.completed ? (
-                          <CheckCircle2 className="w-4 h-4 text-green-600" />
-                        ) : (
-                          <Circle className="w-4 h-4 text-gray-400" />
-                        )}
-                        <span
-                          className={`text-sm ${
-                            task.completed
-                              ? 'text-gray-500 line-through'
-                              : ''
+                    {milestone.tasks.map((task: any, taskIndex: number) => {
+                      const isCompleted = task.completed || milestone.admin_status === 'completed';
+                      const isDisabled = milestone.admin_status === 'completed';
+
+                      return (
+                        <div
+                          key={taskIndex}
+                          onClick={() => !isDisabled && handleToggleTask(index, taskIndex)}
+                          className={`flex items-center gap-3 p-3 rounded-lg bg-white/50 transition ${
+                            isDisabled ? 'cursor-default opacity-80' : 'cursor-pointer hover:bg-white'
                           }`}
-                          style={!task.completed ? { color: 'black' } : {}}
                         >
-                          {task.name}
-                        </span>
-                      </div>
-                    ))}
+                          {isCompleted ? (
+                            <CheckCircle2 className="w-4 h-4 text-green-600" />
+                          ) : (
+                            <Circle className="w-4 h-4 text-gray-400" />
+                          )}
+                          <span
+                            className={`text-sm ${
+                              isCompleted
+                                ? 'text-gray-500 line-through'
+                                : ''
+                            }`}
+                            style={!isCompleted ? { color: 'black' } : {}}
+                          >
+                            {task.name}
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </Card>
               </div>

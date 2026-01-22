@@ -5,6 +5,7 @@ interface NotificationItem {
   type: 'milestone' | 'document' | 'resource';
   subType?: 'new' | 'completed';
   title: string;
+  content?: string;
   created_at: string;
   path: string;
 }
@@ -103,6 +104,7 @@ export function StudentNotificationProvider({ children }: { children: ReactNode 
                type: 'milestone',
                subType: 'new',
                title: m.title,
+               content: m.tasks?.map((t: any) => t.name).join(', ') || m.week_label,
                created_at: m.created_at,
                path: '/student/timeline'
              });
@@ -116,6 +118,7 @@ export function StudentNotificationProvider({ children }: { children: ReactNode 
                 type: 'milestone',
                 subType: 'completed',
                 title: m.title,
+                content: 'All tasks completed',
                 created_at: new Date().toISOString(), // Use current time so it appears at the top
                 path: '/student/timeline'
               });
@@ -144,6 +147,7 @@ export function StudentNotificationProvider({ children }: { children: ReactNode 
                  type: 'document',
                  subType: 'new',
                  title: d.file_name,
+                 content: d.description,
                  created_at: d.created_at,
                  path: '/student/documents'
                });
@@ -165,6 +169,7 @@ export function StudentNotificationProvider({ children }: { children: ReactNode 
                      type: 'resource',
                      subType: 'new',
                      title: d.file_name,
+                     content: d.description,
                      created_at: d.created_at,
                      path: '/student/resources'
                    });

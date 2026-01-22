@@ -172,7 +172,12 @@ export function StudentHeader() {
                 )}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-80">
+            <DropdownMenuContent 
+              align="end" 
+              sideOffset={12}
+              className="w-[700px] z-[100] border shadow-md"
+              style={{ backgroundColor: isDark ? '#1f2937' : '#ffffff', color: isDark ? '#ffffff' : '#000000' }}
+            >
               <DropdownMenuLabel>Notifications</DropdownMenuLabel>
               <DropdownMenuSeparator />
               {notifications.length === 0 ? (
@@ -192,7 +197,7 @@ export function StudentHeader() {
                          item.type === 'milestone' ? 'New Milestone' : 
                          item.type === 'resource' ? 'New Resource' : 'New Document'}
                       </div>
-                      <div className="text-xs text-muted-foreground line-clamp-2">
+                      <div className="text-xs font-semibold text-foreground line-clamp-1">
                         {item.title}
                       </div>
                       <div className="text-[10px] text-muted-foreground mt-1">
