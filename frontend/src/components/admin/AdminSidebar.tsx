@@ -1,6 +1,8 @@
 import { LayoutDashboard, FileText, BarChart3, Settings, MessageSquare, Users, CheckSquare } from 'lucide-react';
 import { Link, useLocation } from 'react-router';
+import { useTheme } from '../../context/ThemeContext';
 import logo from '../../assets/logo.png';
+import logo1 from '../../assets/logo1.png';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
