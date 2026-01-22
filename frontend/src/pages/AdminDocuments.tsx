@@ -123,6 +123,7 @@ export function AdminDocuments() {
   const [documentsError, setDocumentsError] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string | number; name?: string } | null>(null);
+  const [openMenuDocId, setOpenMenuDocId] = useState<string | number | null>(null);
 
   const [documents, setDocuments] = useState<Array<{ id: string | number; name: string; status?: string; uploadedAt?: string; size?: string; chunks?: number; category?: string }>>([]);
   const [loadingDocuments, setLoadingDocuments] = useState(false);

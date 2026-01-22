@@ -88,7 +88,7 @@ function UserActionMenu({
 export function AdminUserManagement() {
   const [searchQuery, setSearchQuery] = useState('');
   const [users, setUsers] = useState<GraduateUser[]>([]);
-  const [loadingUsers, setLoadingUsers] = useState(false);
+  const [loadingUsers, setLoadingUsers] = useState(true);
   const [usersError, setUsersError] = useState<string | null>(null);
   const [openMenuUserId, setOpenMenuUserId] = useState<string | number | null>(null);
   const [confirmUserId, setConfirmUserId] = useState<string | number | null>(null);
@@ -152,9 +152,11 @@ export function AdminUserManagement() {
 
   useEffect(() => {
     if (!loadingUsers) {
+      // Small delay to ensure the table has fully rendered the data
+      // before removing the global loader overlay.
       const timeoutId = setTimeout(() => {
         setLoading(false);
-      }, 200);
+      }, 500);
       return () => clearTimeout(timeoutId);
     }
   }, [loadingUsers, setLoading]);
