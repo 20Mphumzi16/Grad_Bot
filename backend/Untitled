@@ -1,0 +1,18 @@
+# ========== Request/Response Models ==========
+class QuestionRequest(BaseModel): 
+    user_id: str
+    question: str
+
+
+class Source(BaseModel):
+    chunk_id: str
+    text: str
+    source: str
+    page: str | None = None
+
+
+class QuestionResponse(BaseModel):
+    question: str
+    answer: str
+    sources: list[Source]
+

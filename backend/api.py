@@ -3,12 +3,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from auth_routes import router as auth_router
 # 🔹 Import your core logic
-from cloudvector import chat
 from document_routes import router as document_router
 from category_routes import router as category_router
 from user_routes import router as user_router
 from timeline_routes import router as timeline_router
-
+from chat_routes import router as chat_router
 
 
 app = FastAPI(title="RAG Chatbot API", version="1.0.0")
@@ -20,6 +19,7 @@ app.include_router(document_router)
 app.include_router(category_router)
 app.include_router(user_router)
 app.include_router(timeline_router)
+app.include_router(chat_router)
 # Enable CORS
 app.add_middleware(
     CORSMiddleware,
@@ -30,7 +30,9 @@ app.add_middleware(
 )
 
 # ========== Request/Response Models ==========
-class QuestionRequest(BaseModel): question: str
+class QuestionRequest(BaseModel): 
+    user_id: str
+    question: str
 
 
 class Source(BaseModel):
@@ -56,28 +58,3 @@ async def root():
 @app.get("/health")
 async def health():
     return {"status": "healthy"}
-
-
-@app.post("/ask", response_model=QuestionResponse)
-async def ask_question(request: QuestionRequest):
-    """
-    Ask a question to the chatbot and return answer + evidence sources.
-    """
-    
-    print("Received question:", request.question)
-    try:
-        result = chat(request.question)
-
-       
-
-        return QuestionResponse(
-            question=request.question,
-            answer=result["answer"],
-            sources=result["sources"]
-        )
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Error processing question: {str(e)}"
-        )
