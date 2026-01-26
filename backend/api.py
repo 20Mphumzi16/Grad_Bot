@@ -13,6 +13,17 @@ from chat_routes import router as chat_router
 app = FastAPI(title="RAG Chatbot API", version="1.0.0")
 
 # Enable CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://resilient-pithivier-201bbe.netlify.app", 
+    "http://localhost:3000"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Enable CORS
 # 🔥 ADD THIS LINE
 app.include_router(auth_router)
 app.include_router(document_router)
@@ -20,14 +31,7 @@ app.include_router(category_router)
 app.include_router(user_router)
 app.include_router(timeline_router)
 app.include_router(chat_router)
-# Enable CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["https://resilient-pithivier-201bbe.netlify.app/", "http://localhost:3000"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+
 
 # ========== Request/Response Models ==========
 class QuestionRequest(BaseModel): 
