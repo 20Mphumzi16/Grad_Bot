@@ -19,7 +19,7 @@ export function Header() {
           </Button>
           <Link to="/student/login">
             <Button variant="ghost" className="text-gray-600 hover:text-gray-900">
-              Student Login
+              Graduate Login
             </Button>
           </Link>
           <Link to="/admin/login">

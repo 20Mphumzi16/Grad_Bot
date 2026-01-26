@@ -70,9 +70,8 @@ function DocumentActionMenu({
       {isOpen && (
         <div className="absolute right-0 top-0 mt-8 w-32 rounded-md border bg-white dark:bg-zinc-950 shadow-lg z-50">
           <button
-            className="block w-full px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2"
+            className="block w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2"
             type="button"
-            style={{ color: 'var(--foreground)' }}
             onClick={(e) => {
                 e.stopPropagation();
                 onDownload(doc.id, doc.name);
@@ -342,6 +341,27 @@ export function AdminDocuments() {
     }
   };
 
+  const handleView = async (id: string | number, filename?: string) => {
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/documents/${id}/download`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json().catch(() => null);
+      const url = data?.url ?? data;
+      if (!url) throw new Error('No download URL returned');
+      
+      const fileRes = await fetch(url);
+      if (!fileRes.ok) throw new Error(`HTTP ${fileRes.status}`);
+      const blob = await fileRes.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      
+      window.open(blobUrl, '_blank');
+      
+      setTimeout(() => window.URL.revokeObjectURL(blobUrl), 60000); 
+    } catch (err: any) {
+      setDocumentsError(err?.message ?? 'Failed to view document');
+    }
+  };
+
   const handleDelete = async (id: string | number) => {
     setDeletingId(id);
     setDocumentsError(null);
@@ -588,7 +608,12 @@ setCategories(data);
                         <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
                           <FileText className="w-5 h-5 text-gray-600" />
                         </div>
-                        <span style={{ color: 'var(--foreground)' }} className="text-sm">{doc.name}</span>
+                        <span 
+                          onClick={() => handleView(doc.id, doc.name)}
+                          className="text-sm cursor-pointer hover:text-blue-500 hover:underline transition-colors text-gray-900 dark:text-gray-100"
+                        >
+                          {doc.name}
+                        </span>
                       </div>
                     </td>
                     <td className="p-6">

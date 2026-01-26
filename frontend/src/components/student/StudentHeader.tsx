@@ -174,7 +174,7 @@ export function StudentHeader() {
             <DropdownMenuContent 
               align="end" 
               sideOffset={12}
-              className="w-[700px] z-[100] border shadow-md"
+              className="w-80 md:w-[500px] z-[100] border shadow-md"
               style={{ backgroundColor: isDark ? '#1f2937' : '#ffffff', color: isDark ? '#ffffff' : '#000000' }}
             >
               <DropdownMenuLabel>Notifications</DropdownMenuLabel>
@@ -184,20 +184,17 @@ export function StudentHeader() {
                   No new notifications
                 </div>
               ) : (
-                <div className="max-h-[300px] overflow-y-auto">
+                <div className="max-h-[300px] overflow-y-auto pr-2">
                   {notifications.map((item) => (
                     <DropdownMenuItem 
                       key={`${item.type}-${item.id}`}
                       className="cursor-pointer flex flex-col items-start gap-1 p-3"
                       onClick={() => handleNotificationClick(item)}
                     >
-                      <div className="font-medium text-sm">
+                      <div className="font-medium text-sm text-foreground line-clamp-1">
                         {item.subType === 'completed' ? 'Milestone Completed' :
                          item.type === 'milestone' ? 'New Milestone' : 
-                         item.type === 'resource' ? 'New Resource' : 'New Document'}
-                      </div>
-                      <div className="text-xs font-semibold text-foreground line-clamp-1">
-                        {item.title}
+                         item.type === 'resource' ? 'New Resource' : 'New Document'} - {item.title}
                       </div>
                       <div className="text-[10px] text-muted-foreground mt-1">
                         {new Date(item.created_at).toLocaleDateString()}

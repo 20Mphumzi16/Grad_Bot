@@ -80,7 +80,7 @@ export function StudentLogin() {
               <GraduationCap className="w-8 h-8 text-white" />
             </div>
             <h1 className="text-foreground mb-2">
-              Student Login
+              Graduate Login
             </h1>
             <p className="text-muted-foreground text-sm">
               Access your graduate programme assistant
