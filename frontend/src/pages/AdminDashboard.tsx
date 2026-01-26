@@ -14,6 +14,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { Progress } from '../components/ui/progress';
+import { API_BASE_URL } from '../utils/config';
 
 export function AdminDashboard() {
   const navigate = useNavigate();
@@ -62,7 +63,7 @@ export function AdminDashboard() {
     const fetchDocumentStats = async () => {
       setStatsLoading(true);
       try {
-        const res = await fetch('http://127.0.0.1:8000/documents/total-document-count');
+        const res = await fetch(`${API_BASE_URL}/documents/total-document-count`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
   
@@ -82,7 +83,7 @@ export function AdminDashboard() {
     const fetchRecentDocuments = async () => {
       setLoadingDocuments(true);
       try {
-        const res = await fetch('http://127.0.0.1:8000/documents/get-newest-documents');
+        const res = await fetch(`${API_BASE_URL}/documents/get-newest-documents`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
 

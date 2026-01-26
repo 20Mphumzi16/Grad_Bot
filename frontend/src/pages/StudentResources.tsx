@@ -7,6 +7,7 @@ import { Button } from '../components/ui/button';
 import { Search, BookOpen, Eye, Download, Loader2 } from 'lucide-react';
 import { Badge } from '../components/ui/badge';
 import { useLoading } from '../components/ui/loading';
+import { API_BASE_URL } from '../utils/config';
 
 interface Resource {
   id: string;
@@ -40,7 +41,7 @@ export function StudentResources() {
     const fetchResources = async () => {
       try {
         setGlobalLoading(true);
-        const res = await fetch('http://127.0.0.1:8000/documents/get-documents');
+        const res = await fetch(`${API_BASE_URL}/documents/get-documents`);
         const data: Resource[] = await res.json();
         setResources(data);
       } catch (error) {
@@ -64,7 +65,7 @@ export function StudentResources() {
   const handleView = async (id: string) => {
     try {
       setViewingDocId(id);
-      const res = await fetch(`http://127.0.0.1:8000/documents/${id}/view`);
+      const res = await fetch(`${API_BASE_URL}/documents/${id}/view`);
       const data = await res.json();
       window.open(data.url, '_blank');
     } catch (err) {
@@ -76,7 +77,7 @@ export function StudentResources() {
 
   const handleDownload = async (id: string, fileName: string) => {
     try {
-      const res = await fetch(`http://127.0.0.1:8000/documents/${id}/download`);
+      const res = await fetch(`${API_BASE_URL}/documents/${id}/download`);
       const data = await res.json();
       const url = (data as any)?.url ?? data;
       if (!url) throw new Error('No download URL returned');

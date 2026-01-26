@@ -23,7 +23,7 @@ app.include_router(chat_router)
 # Enable CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["https://resilient-pithivier-201bbe.netlify.app/", "http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

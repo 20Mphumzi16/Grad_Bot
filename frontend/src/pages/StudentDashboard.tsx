@@ -15,6 +15,7 @@ import { Progress } from '../components/ui/progress';
 import { Link } from 'react-router';
 import { useEffect, useState, } from 'react';
 import { useLoading } from '../components/ui/loading';
+import { API_BASE_URL } from '../utils/config';
 
 export function StudentDashboard() {
 
@@ -36,7 +37,7 @@ export function StudentDashboard() {
 
     (async () => {
       try {
-        const res = await fetch('http://127.0.0.1:8000/auth/me', {
+        const res = await fetch(`${API_BASE_URL}/auth/me`, {
           method: 'GET',
           headers: {
             Authorization: `Bearer ${token}`,
@@ -55,7 +56,7 @@ export function StudentDashboard() {
         // Fetch milestones for progress
         if (data.id) {
           const milestonesRes = await fetch(
-            `http://127.0.0.1:8000/timeline/${data.id}/milestones-tasks`,
+            `${API_BASE_URL}/timeline/${data.id}/milestones-tasks`,
             { headers: { Authorization: `Bearer ${token}` } }
           );
           
@@ -89,7 +90,7 @@ export function StudentDashboard() {
           // Fetch top 3 active/upcoming milestones
           try {
             const upcomingRes = await fetch(
-              `http://127.0.0.1:8000/timeline/get-3-active-milestones/${data.id}`,
+              `${API_BASE_URL}/timeline/get-3-active-milestones/${data.id}`,
               {
                 method: 'GET',
                 headers: {
@@ -137,7 +138,7 @@ export function StudentDashboard() {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://127.0.0.1:8000/documents/${docId}/view`, {
+      const res = await fetch(`${API_BASE_URL}/documents/${docId}/view`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -175,7 +176,7 @@ export function StudentDashboard() {
     const token = localStorage.getItem('token');
 
     try {
-      const res = await fetch('http://127.0.0.1:8000/documents/get-popular-documents', {
+      const res = await fetch(`${API_BASE_URL}/documents/get-popular-documents`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

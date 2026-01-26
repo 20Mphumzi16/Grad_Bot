@@ -8,6 +8,7 @@ import { Link } from 'react-router';
 import { useLoading } from '../components/ui/loading';
 import { AnimatePresence } from 'framer-motion';
 import { PageTransition } from '../components/ui/PageTransition';
+import { API_BASE_URL } from '../utils/config';
 
 export function StudentLogin() {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ export function StudentLogin() {
     setLoading(true);
 
     try {
-      const res = await fetch('http://127.0.0.1:8000/auth/login', {
+      const res = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),

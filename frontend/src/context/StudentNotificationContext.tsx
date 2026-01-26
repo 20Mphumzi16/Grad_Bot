@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { API_BASE_URL } from '../utils/config';
 
 interface NotificationItem {
   id: string;
@@ -50,7 +51,7 @@ export function StudentNotificationProvider({ children }: { children: ReactNode 
       // 1. Get User ID if not set
       let currentGradId = graduateId;
       if (!currentGradId) {
-        const authRes = await fetch('http://127.0.0.1:8000/auth/me', {
+        const authRes = await fetch(`${API_BASE_URL}/auth/me`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (!authRes.ok) return;
@@ -64,7 +65,7 @@ export function StudentNotificationProvider({ children }: { children: ReactNode 
       const newNotifications: NotificationItem[] = [];
 
       // 2. Get Milestones
-      const mileRes = await fetch(`http://127.0.0.1:8000/timeline/${currentGradId}/milestones-tasks`, {
+      const mileRes = await fetch(`${API_BASE_URL}/timeline/${currentGradId}/milestones-tasks`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -129,7 +130,7 @@ export function StudentNotificationProvider({ children }: { children: ReactNode 
       }
 
       // 3. Get Documents & Resources
-      const docRes = await fetch('http://127.0.0.1:8000/documents/get-documents');
+      const docRes = await fetch(`${API_BASE_URL}/documents/get-documents`);
       
       let docTime = 0;
       if (docRes.ok) {

@@ -7,6 +7,7 @@ import { Label } from '../components/ui/label';
 import { CustomModal } from '../components/ui/custom-modal';
 import { useLoading } from '../components/ui/loading';
 import { CheckCircle2, Circle, Edit2, Plus, Trash2, ClipboardList, Flag, Search, X } from 'lucide-react';
+import { API_BASE_URL } from '../utils/config';
 
 export function AdminTaskManagement() {
   const [milestones, setMilestones] = useState<any[]>([]);
@@ -60,14 +61,14 @@ export function AdminTaskManagement() {
       setLoading(true);
       try {
         setError(null);
-        const res = await fetch('http://127.0.0.1:8000/timeline/all');
+        const res = await fetch(`${API_BASE_URL}/timeline/all`);
         if (!res.ok) throw new Error('Failed to fetch milestones');
         
         const data = await res.json();
         setMilestones(data);
 
         // Fetch graduates
-        const gradRes = await fetch('http://127.0.0.1:8000/graduates/list');
+        const gradRes = await fetch(`${API_BASE_URL}/graduates/list`);
         if (gradRes.ok) {
             const gradData = await gradRes.json();
             setGraduates(gradData);
@@ -87,7 +88,7 @@ export function AdminTaskManagement() {
     const newStatus = currentStatus === 'completed' ? 'active' : 'completed';
     setLoading(true);
     try {
-        const res = await fetch(`http://127.0.0.1:8000/timeline/milestone/${milestoneId}/status`, {
+        const res = await fetch(`${API_BASE_URL}/timeline/milestone/${milestoneId}/status`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status: newStatus })
@@ -95,7 +96,7 @@ export function AdminTaskManagement() {
         if (!res.ok) throw new Error("Failed to update status");
         
         // Refresh
-        const refreshRes = await fetch('http://127.0.0.1:8000/timeline/all');
+        const refreshRes = await fetch(`${API_BASE_URL}/timeline/all`);
         if (refreshRes.ok) {
             const data = await refreshRes.json();
             setMilestones(data);
@@ -116,13 +117,13 @@ export function AdminTaskManagement() {
     if (!milestoneToDelete) return;
     setLoading(true);
     try {
-        const res = await fetch(`http://127.0.0.1:8000/timeline/milestone/${milestoneToDelete}`, {
+        const res = await fetch(`${API_BASE_URL}/timeline/milestone/${milestoneToDelete}`, {
             method: 'DELETE'
         });
         if (!res.ok) throw new Error("Failed to delete milestone");
         
         // Refresh
-        const refreshRes = await fetch('http://127.0.0.1:8000/timeline/all');
+        const refreshRes = await fetch(`${API_BASE_URL}/timeline/all`);
         if (refreshRes.ok) {
             const data = await refreshRes.json();
             setMilestones(data);
@@ -180,7 +181,7 @@ export function AdminTaskManagement() {
 
     setLoading(true);
     try {
-      const res = await fetch(`http://127.0.0.1:8000/timeline/milestone/${editingMilestone.id}`, {
+      const res = await fetch(`${API_BASE_URL}/timeline/milestone/${editingMilestone.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -194,7 +195,7 @@ export function AdminTaskManagement() {
       if (!res.ok) throw new Error("Failed to update milestone");
 
       // Refresh
-      const refreshRes = await fetch('http://127.0.0.1:8000/timeline/all');
+      const refreshRes = await fetch(`${API_BASE_URL}/timeline/all`);
       if (refreshRes.ok) {
           const data = await refreshRes.json();
           setMilestones(data);
@@ -236,7 +237,7 @@ export function AdminTaskManagement() {
     
     setLoading(true);
     try {
-        const res = await fetch('http://127.0.0.1:8000/timeline/milestone', {
+        const res = await fetch(`${API_BASE_URL}/timeline/milestone`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -255,7 +256,7 @@ export function AdminTaskManagement() {
         }
 
         // Refresh list
-        const refreshRes = await fetch('http://127.0.0.1:8000/timeline/all');
+        const refreshRes = await fetch(`${API_BASE_URL}/timeline/all`);
         if (refreshRes.ok) {
             const data = await refreshRes.json();
             setMilestones(data);
@@ -283,7 +284,7 @@ export function AdminTaskManagement() {
   const confirmDeleteAll = async () => {
     setLoading(true);
     try {
-        const res = await fetch('http://127.0.0.1:8000/timeline/all', {
+        const res = await fetch(`${API_BASE_URL}/timeline/all`, {
             method: 'DELETE'
         });
         if (!res.ok) throw new Error("Failed to delete all milestones");

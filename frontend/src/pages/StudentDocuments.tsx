@@ -7,6 +7,7 @@ import { FileText, Download, Eye, Calendar, Loader2 } from 'lucide-react';
 import { Badge } from '../components/ui/badge';
 import { useLoading } from '../components/ui/loading';
 import { useStudentNotifications } from '../context/StudentNotificationContext';
+import { API_BASE_URL } from '../utils/config';
 
 interface Document {
   id: string;
@@ -32,7 +33,7 @@ export function StudentDocuments() {
     const fetchDocuments = async () => {
       try {
         setGlobalLoading(true);
-        const res = await fetch('http://127.0.0.1:8000/documents/get-documents');
+        const res = await fetch(`${API_BASE_URL}/documents/get-documents`);
         const data: Document[] = await res.json();
         setDocuments(data);
       } catch (error) {
@@ -64,7 +65,7 @@ export function StudentDocuments() {
         doc.id === docId ? { ...doc, views: (doc.views || 0) + 1 } : doc
       ));
 
-      const res = await fetch(`http://127.0.0.1:8000/documents/${docId}/view`);
+      const res = await fetch(`${API_BASE_URL}/documents/${docId}/view`);
       const data = await res.json();
       window.open(data.url, '_blank'); // open in new tab
     } catch (err) {
@@ -76,7 +77,7 @@ export function StudentDocuments() {
 
   const handleDownload = async (docId: string, fileName: string) => {
     try {
-      const res = await fetch(`http://127.0.0.1:8000/documents/${docId}/download`);
+      const res = await fetch(`${API_BASE_URL}/documents/${docId}/download`);
       const data = await res.json();
       const url = (data as any)?.url ?? data;
       if (!url) throw new Error('No download URL returned');

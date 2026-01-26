@@ -16,6 +16,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
 import { useLoading } from '../components/ui/loading';
 import { toast } from 'sonner';
+import { API_BASE_URL } from '../utils/config';
 
 
 const user_data: any = {
@@ -48,8 +49,6 @@ export function StudentProfile() {
 
   const { loading, setLoading } = useLoading();
 
-  const API_BASE_URL =
-    (import.meta as any).env?.VITE_API_BASE_URL?.toString?.() || 'http://127.0.0.1:8000';
 
   const getInitials = (firstName: string, lastName: string) => {
     const firstInitial = firstName?.trim()?.[0] ?? '';
@@ -71,7 +70,7 @@ export function StudentProfile() {
     const token = localStorage.getItem('token');
     if (!token) return;
 
-    const res = await fetch('http://127.0.0.1:8000/auth/me', {
+    const res = await fetch(`${API_BASE_URL}/auth/me`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -162,7 +161,7 @@ export function StudentProfile() {
 
     setUploadingAvatar(true);
     try {
-      const res = await fetch('http://127.0.0.1:8000/auth/upload-avatar', {
+      const res = await fetch(`${API_BASE_URL}/auth/upload-avatar`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -213,7 +212,7 @@ export function StudentProfile() {
 
     setDeletingAvatar(true);
     try {
-      const res = await fetch('http://127.0.0.1:8000/auth/delete-avatar', {
+      const res = await fetch(`${API_BASE_URL}/auth/delete-avatar`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -258,7 +257,7 @@ export function StudentProfile() {
 
         const token = localStorage.getItem('token');
 
-      const res = await fetch('http://127.0.0.1:8000/auth/update', {
+      const res = await fetch(`${API_BASE_URL}/auth/update`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

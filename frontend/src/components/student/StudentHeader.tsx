@@ -6,6 +6,7 @@ import React, { useEffect, useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { ConfirmDialog } from '../ui/confirm-dialog';
 import { useStudentNotifications } from '../../context/StudentNotificationContext';
+import { API_BASE_URL } from '../../utils/config';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -46,8 +47,6 @@ export function StudentHeader() {
 
   const { notifications, markAsViewed } = useStudentNotifications();
 
-  const API_BASE_URL =
-    (import.meta as any).env?.VITE_API_BASE_URL?.toString?.() || 'http://127.0.0.1:8000';
 
   const resolveAvatarUrl = (url: string | null) => {
     if (!url) return undefined;
@@ -71,7 +70,7 @@ export function StudentHeader() {
 
     (async () => {
       try {
-        const res = await fetch('http://127.0.0.1:8000/auth/me', {
+        const res = await fetch(`${API_BASE_URL}/auth/me`, {
           method: 'GET',
           headers: {
             Authorization: `Bearer ${token}`,

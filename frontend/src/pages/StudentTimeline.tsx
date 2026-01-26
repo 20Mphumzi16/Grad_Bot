@@ -4,6 +4,7 @@ import { CheckCircle2, Circle, Clock } from 'lucide-react';
 import { Progress } from '../components/ui/progress';
 import { useLoading } from '../components/ui/loading';
 import confetti from 'canvas-confetti';
+import { API_BASE_URL } from '../utils/config';
 
 export function StudentTimeline() {
   const [milestones, setMilestones] = useState<any[]>([]);
@@ -19,14 +20,14 @@ export function StudentTimeline() {
       setLoading(true);
       try {
         setError(null);
-        const userRes = await fetch('http://127.0.0.1:8000/auth/me', {
+        const userRes = await fetch(`${API_BASE_URL}/auth/me`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (!userRes.ok) throw new Error('Failed to fetch user');
         const user = await userRes.json();
 
         const res = await fetch(
-          `http://127.0.0.1:8000/timeline/${user.id}/milestones-tasks`,
+          `${API_BASE_URL}/timeline/${user.id}/milestones-tasks`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         if (!res.ok) throw new Error('Failed to fetch milestones');
@@ -86,7 +87,7 @@ export function StudentTimeline() {
   };
 
   async function completeTask(token: string, graduateId: string, taskId: string) {
-    await fetch('http://127.0.0.1:8000/timeline/tasks/complete', {
+    await fetch(`${API_BASE_URL}/timeline/tasks/complete`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -97,7 +98,7 @@ export function StudentTimeline() {
   }
 
   async function uncompleteTask(token: string, graduateId: string, taskId: string) {
-    await fetch('http://127.0.0.1:8000/timeline/tasks/uncomplete', {
+    await fetch(`${API_BASE_URL}/timeline/tasks/uncomplete`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -192,7 +193,7 @@ export function StudentTimeline() {
     if (!token) return;
 
     try {
-      const userRes = await fetch('http://127.0.0.1:8000/auth/me', {
+      const userRes = await fetch(`${API_BASE_URL}/auth/me`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const user = await userRes.json();

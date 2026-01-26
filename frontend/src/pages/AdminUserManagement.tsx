@@ -12,6 +12,7 @@ import { Alert, AlertDescription } from '../components/ui/alert';
 import { Label } from '../components/ui/label';
 import { Checkbox } from '../components/ui/checkbox';
 import { Search, MoreVertical, UserCircle2, AlertCircle, Plus } from 'lucide-react';
+import { API_BASE_URL } from '../utils/config';
 
 type GraduateUser = {
   id: string | number;
@@ -117,7 +118,7 @@ export function AdminUserManagement() {
     setLoading(true);
     setUsersError(null);
     try {
-      const res = await fetch(`http://127.0.0.1:8000/graduates/list?t=${new Date().getTime()}`);
+      const res = await fetch(`${API_BASE_URL}/graduates/list?t=${new Date().getTime()}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
 
@@ -177,7 +178,7 @@ export function AdminUserManagement() {
   const handleDelete = async (id: string | number) => {
     setLoading(true);
     try {
-      const res = await fetch(`http://127.0.0.1:8000/graduates/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/graduates/${id}`, {
         method: 'DELETE',
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -196,7 +197,7 @@ export function AdminUserManagement() {
     try {
       const ids = users.map((user) => user.id);
       for (const id of ids) {
-        const res = await fetch(`http://127.0.0.1:8000/graduates/${id}`, {
+        const res = await fetch(`${API_BASE_URL}/graduates/${id}`, {
           method: 'DELETE',
         });
         if (!res.ok) {
@@ -219,7 +220,7 @@ export function AdminUserManagement() {
     try {
       const ids = selectedUserIds;
       for (const id of ids) {
-        const res = await fetch(`http://127.0.0.1:8000/graduates/${id}`, {
+        const res = await fetch(`${API_BASE_URL}/graduates/${id}`, {
           method: 'DELETE',
         });
         if (!res.ok) {
@@ -241,7 +242,7 @@ export function AdminUserManagement() {
     setLoading(true);
     setUsersError(null);
     try {
-      const res = await fetch('http://127.0.0.1:8000/auth/register', {
+      const res = await fetch(`${API_BASE_URL}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -293,7 +294,7 @@ export function AdminUserManagement() {
     if (!editingUser || !editForm) return;
     setLoading(true);
     try {
-      const res = await fetch('http://127.0.0.1:8000/auth/update', {
+      const res = await fetch(`${API_BASE_URL}/auth/update`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

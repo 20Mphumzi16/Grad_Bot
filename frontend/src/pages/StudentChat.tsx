@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
+import { API_BASE_URL } from '../utils/config';
 import {
   Send,
   FileText,
@@ -103,7 +104,7 @@ export function StudentChat() {
 
     (async () => {
       try {
-        const res = await fetch('http://127.0.0.1:8000/auth/me', {
+        const res = await fetch(`${API_BASE_URL}/auth/me`, {
           method: 'GET',
           headers: {
             Authorization: `Bearer ${token}`,
@@ -138,7 +139,7 @@ export function StudentChat() {
  
     (async () => {
       try {
-        const res = await fetch(`http://127.0.0.1:8000/chat/get-history/${id}`);
+        const res = await fetch(`${API_BASE_URL}/chat/get-history/${id}`);
         if (!res.ok) return;
 
         const data: ChatHistoryMessage[] = await res.json();
@@ -204,7 +205,7 @@ export function StudentChat() {
     const id = JSON.parse(atob(token.split('.')[1])).user_id; 
 
     try {
-      const response = await fetch("http://localhost:8000/chat/ask", {
+      const response = await fetch(`${API_BASE_URL}/chat/ask`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

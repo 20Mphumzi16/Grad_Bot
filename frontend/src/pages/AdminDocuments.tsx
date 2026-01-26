@@ -8,6 +8,7 @@ import { Textarea } from '../components/ui/textarea';
 import { Label } from '../components/ui/label';
 import { CustomModal } from "../components/ui/custom-modal";
 import { ConfirmDialog } from '../components/ui/confirm-dialog';
+import { API_BASE_URL } from '../utils/config';
 
 import {
   Select,
@@ -135,7 +136,7 @@ export function AdminDocuments() {
     setLoading(true);
     setDocumentsError(null);
     try {
-      const res = await fetch('http://127.0.0.1:8000/documents/get-documents');
+      const res = await fetch(`${API_BASE_URL}/documents/get-documents`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
 
@@ -279,7 +280,7 @@ export function AdminDocuments() {
         file: selectedFile.name,
       });
 
-      const res = await fetch('http://127.0.0.1:8000/documents/create', {
+      const res = await fetch(`${API_BASE_URL}/documents/create`, {
         method: 'POST',
         body: form,
       });
@@ -315,7 +316,7 @@ export function AdminDocuments() {
 
   const handleDownload = async (id: string | number, filename?: string) => {
     try {
-      const res = await fetch(`http://127.0.0.1:8000/documents/${id}/download`);
+      const res = await fetch(`${API_BASE_URL}/documents/${id}/download`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json().catch(() => null);
       const url = data?.url ?? data;
@@ -345,7 +346,7 @@ export function AdminDocuments() {
     setDeletingId(id);
     setDocumentsError(null);
     try {
-      const res = await fetch(`http://127.0.0.1:8000/documents/delete/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/documents/delete/${id}`, {
         method: 'DELETE',
       });
       if (!res.ok) {
@@ -366,7 +367,7 @@ export function AdminDocuments() {
       setLoadingCategories(true);
       setCategoriesError(null);
       try {
-        const res = await fetch('http://127.0.0.1:8000/categories/list');
+        const res = await fetch(`${API_BASE_URL}/categories/list`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
 
