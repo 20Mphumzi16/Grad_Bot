@@ -3,7 +3,7 @@ import tempfile
 import tiktoken
 from datetime import datetime
 from pypdf import PdfReader
-# from docx import Document
+from docx import Document
 from pptx import Presentation
 from supabase import create_client
 from openai import OpenAI
@@ -66,9 +66,9 @@ def extract_text(file_path: str) -> str:
         reader = PdfReader(local_path)
         return "\n".join(page.extract_text() or "" for page in reader.pages)
  
-    # if local_path.endswith(".docx"):
-    #     doc = Document(local_path)
-    #     return "\n".join(p.text for p in doc.paragraphs)
+    if local_path.endswith(".docx"):
+        doc = Document(local_path)
+        return "\n".join(p.text for p in doc.paragraphs)
  
     if local_path.endswith(".pptx"):
         prs = Presentation(local_path)
@@ -101,9 +101,13 @@ def chunk_text(text, chunk_size=CHUNCK_SIZE, overlap=CHUNCK_OVERLAP):
  
     return chunks
  
-def index_document(document_id: str, local_path: str):
-    text = extract_text(local_path)
+def index_document(document_id: str, file_path: str):
+
+    print("embedding doc: ",file_path)
+
+    text = extract_text(file_path)
     chunks = chunk_text(text)
+   
  
     # 1. Delete old chunks
     supabase.table("document_chunks") \
@@ -120,7 +124,7 @@ def index_document(document_id: str, local_path: str):
             "content": chunk,
             "embedding": embed_text(chunk),
         })
- 
+
     r = supabase.table("document_chunks").insert(rows).execute()
  
 #/ Batch embedding
@@ -303,9 +307,11 @@ def get_chat_id(user_id):
         .select("id")
         .eq("user_id", user_id)
         .execute()
-        ).data[0]["id"]
+        ).data
    
-    return chat_id
+    if not chat_id: return None
+        
+    return chat_id[0]["id"]
  
 def new_chat(user_id):
     chat_id = (
@@ -334,22 +340,20 @@ def new_chat_on_token(user_id):
  
 ## Chat function to answer questions based on document context
 def chat(user_id, question):
- 
+    chat_existed = False
     local_time = datetime.now().strftime('%I:%M:%S %p')
- 
+
     chat_id = get_chat_id(user_id)
- 
+    
     if not chat_id:
         chat_id = new_chat(user_id)
+        previous_questions = []
+    else:
+        previous_questions = question_history(chat_id)
  
     ##QUESTIONS
     #/ improve question
-    previous_questions = question_history(chat_id)
-    print("previous_questions: ",previous_questions)
- 
     rewritten_question = rewrite_query(previous_questions, question)
-    print("question: ",question)
-    print("rewritten_question: ",rewritten_question)
  
     #/ store question
     question_tokens = len(tokenizer.encode(question))
@@ -383,7 +387,6 @@ def chat(user_id, question):
     #/ get chat history
     chat_history = context_history(chat_id)
  
-    print("\n chat_history: ", chat_history)
     if TEST: print("\n context_text: ", context_text)
     if TEST: print("\n question: ", question)
     input = messages(chat_history, context_text, question)
@@ -420,5 +423,4 @@ def chat(user_id, question):
     return message
 
  
-
-
+embed_all()
