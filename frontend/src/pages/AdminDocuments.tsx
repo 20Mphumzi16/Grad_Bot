@@ -69,9 +69,8 @@ function DocumentActionMenu({
       {isOpen && (
         <div className="absolute right-0 top-0 mt-8 w-32 rounded-md border bg-white dark:bg-zinc-950 shadow-lg z-50">
           <button
-            className="block w-full px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2"
+            className="block w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2"
             type="button"
-            style={{ color: 'var(--foreground)' }}
             onClick={(e) => {
                 e.stopPropagation();
                 onDownload(doc.id, doc.name);
