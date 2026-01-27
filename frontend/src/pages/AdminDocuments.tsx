@@ -31,7 +31,8 @@ import {
   Loader2,
   Zap,
   Package,
-  ArrowUpDown
+  ArrowUpDown,
+  Edit
 } from 'lucide-react';
 import { Badge } from '../components/ui/badge';
 import { useLoading } from '../components/ui/loading';
@@ -42,6 +43,7 @@ function DocumentActionMenu({
   onToggle,
   onClose,
   onDownload,
+  onEdit,
   onDelete
 }: {
   doc: { id: string | number; name: string };
@@ -49,6 +51,7 @@ function DocumentActionMenu({
   onToggle: () => void;
   onClose: () => void;
   onDownload: (id: string | number, name: string) => void;
+  onEdit: (id: string | number, name: string) => void;
   onDelete: (id: string | number, name: string) => void;
 }) {
   const ref = useClickOutside<HTMLDivElement>(() => onClose(), isOpen);
@@ -79,6 +82,17 @@ function DocumentActionMenu({
             }}
           >
             <Download className="w-4 h-4" /> Download
+          </button>
+          <button
+            className="block w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2"
+            type="button"
+            onClick={(e) => {
+                e.stopPropagation();
+                onEdit(doc.id, doc.name);
+                onClose();
+            }}
+          >
+            <Edit className="w-4 h-4" /> Edit
           </button>
           <button
             className="block w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2"
@@ -578,32 +592,32 @@ setCategories(data);
           <table className="w-full">
             <thead className="border-b border-gray-200">
               <tr>
-                <th className="text-left p-6 text-sm text-muted-foreground">Document Name</th>
-                <th className="text-left p-6 text-sm text-muted-foreground">Category</th>
-                <th className="text-left p-6 text-sm text-muted-foreground">Status</th>
-                <th className="text-left p-6 text-sm text-muted-foreground">Chunks</th>
-                <th className="text-left p-6 text-sm text-muted-foreground">Size (Mb)</th>
-                <th className="text-left p-6 text-sm text-muted-foreground">Upload Date</th>
-                <th className="text-left p-6 text-sm text-muted-foreground">Actions</th>
+                <th className="text-left p-4 text-sm text-muted-foreground">Document Name</th>
+                <th className="text-left p-4 text-sm text-muted-foreground">Category</th>
+                <th className="text-left p-4 text-sm text-muted-foreground">Status</th>
+                <th className="text-left p-4 text-sm text-muted-foreground">Chunks</th>
+                <th className="text-left p-4 text-sm text-muted-foreground">Size (Mb)</th>
+                <th className="text-left p-4 text-sm text-muted-foreground">Upload Date</th>
+                <th className="text-left p-4 text-sm text-muted-foreground">Actions</th>
               </tr>
             </thead>
             <tbody>
               {loadingDocuments ? (
                 <tr>
-                  <td className="p-6" colSpan={7}>
+                  <td className="p-4" colSpan={7}>
                     <div className="text-center text-muted-foreground">Loading documents...</div>
                   </td>
                 </tr>
               ) : filteredDocuments.length === 0 ? (
                 <tr>
-                  <td className="p-6" colSpan={7}>
+                  <td className="p-4" colSpan={7}>
                     <div className="text-center text-muted-foreground">{documentsError ?? (documents.length === 0 ? 'No documents found' : 'No results match your search')}</div>
                   </td>
                 </tr>
               ) : (
                 filteredDocuments.map((doc) => (
                   <tr key={doc.id} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="p-6">
+                    <td className="p-4">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
                           <FileText className="w-5 h-5 text-gray-600" />
@@ -611,29 +625,32 @@ setCategories(data);
                         <span 
                           onClick={() => handleView(doc.id, doc.name)}
                           className="text-sm cursor-pointer hover:text-blue-500 hover:underline transition-colors text-gray-900 dark:text-gray-100"
+                          title={doc.name}
                         >
                           {doc.name}
                         </span>
                       </div>
                     </td>
-                    <td className="p-6">
-                      <Badge variant="outline" className="rounded-lg">
-                        {getCategoryName(doc.category)}
+                    <td className="p-4">
+                      <Badge variant="outline" className="rounded-lg max-w-[150px]" title={getCategoryName(doc.category)}>
+                        <span className="truncate">
+                          {getCategoryName(doc.category)}
+                        </span>
                       </Badge>
                     </td>
-                    <td className="p-6">
+                    <td className="p-4">
                       {getStatusBadge(doc.status || '')}
                     </td>
-                    <td className="p-6">
+                    <td className="p-4">
                       <span style={{ color: 'var(--foreground)' }} className="text-sm">{doc.chunks}</span>
                     </td>
-                    <td className="p-6">
+                    <td className="p-4">
                       <span className="text-gray-600 text-sm">{formatSizeMb(doc.size)}</span>
                     </td>
-                    <td className="p-6">
+                    <td className="p-4">
                       <span className="text-gray-600 text-sm">{doc.uploadedAt}</span>
                     </td>
-                    <td className="p-6">
+                    <td className="p-4">
                       <div className="flex items-center gap-2">
                         <DocumentActionMenu
                           doc={doc}
@@ -641,6 +658,9 @@ setCategories(data);
                           onToggle={() => setOpenMenuDocId(current => current === doc.id ? null : doc.id)}
                           onClose={() => setOpenMenuDocId(null)}
                           onDownload={handleDownload}
+                          onEdit={(id, name) => {
+                            console.log("Edit requested for", id, name);
+                          }}
                           onDelete={(id, name) => {
                             setDeleteTarget({ id, name });
                             setDeleteDialogOpen(true);

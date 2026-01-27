@@ -34,7 +34,7 @@ export const LoadingProvider: React.FC<{ children: React.ReactNode }> = ({ child
               transform: 'translateZ(0)'
             }}
           >
-            <div className="matrix-loader" style={{ width: '2cm', height: '2cm' }}>
+            <div className="matrix-loader">
               <div className="matrix-loader-cell"></div>
               <div className="matrix-loader-cell"></div>
               <div className="matrix-loader-cell"></div>
