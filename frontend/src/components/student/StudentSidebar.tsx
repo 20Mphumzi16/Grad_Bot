@@ -1,9 +1,9 @@
 import { MessageSquare, User, BookOpen, Calendar, FileText, Home } from 'lucide-react';
 import { Link, useLocation } from 'react-router';
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 import logo from '../../assets/logo.png';
 import logo1 from '../../assets/logo1.png';
-import { useStudentNotifications } from '../../context/StudentNotificationContext';
+import { useStudentNotifications } from '@/context/StudentNotificationContext';
 
 const navItems = [
   { icon: Home, label: 'Dashboard', path: '/student' },
