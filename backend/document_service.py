@@ -3,6 +3,7 @@ import uuid
 from fastapi import UploadFile
 from dotenv import load_dotenv
 from supabase import create_client, Client
+from cloud_chat import download_from_supabase, index_document
 
 load_dotenv()
 
@@ -55,6 +56,8 @@ def upload_document(
 
     if not result.data:
         raise Exception("Failed to insert document metadata")
+    
+    index_document(document_id, file_path)
 
     return result.data[0]
 
