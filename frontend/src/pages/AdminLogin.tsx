@@ -37,6 +37,12 @@ export function AdminLogin() {
       }
 
       const data = await res.json();
+
+      if (data.status === 'FIRST_LOGIN_REQUIRED') {
+        navigate('/activate-account', { state: { email: data.email, user_id: data.user_id } });
+        return;
+      }
+
       const token = data.token || data.access || data.access_token;
 
       if (!token) {

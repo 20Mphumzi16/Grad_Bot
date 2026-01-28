@@ -60,6 +60,13 @@ def get_user_id(id):
         print("Logged in user data:", log_in)
     
         user["email"] = log_in["email"]
+        flag = log_in.get("must_reset_password", False)
+        if isinstance(flag, str):
+            user["must_reset_password"] = flag.strip().lower() in ("true", "1", "t", "yes", "y")
+        elif isinstance(flag, (int, bool)):
+            user["must_reset_password"] = bool(flag)
+        else:
+            user["must_reset_password"] = False
     
         profile_res = (
             supabase.table("profile")
