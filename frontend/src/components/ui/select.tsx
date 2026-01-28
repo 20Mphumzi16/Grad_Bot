@@ -65,12 +65,12 @@ function SelectContent({
       <SelectPrimitive.Content
         data-slot="select-content"
         className={cn(
-          "relative z-50 max-h-(--radix-select-content-available-height) min-w-[8rem] overflow-x-hidden overflow-y-auto rounded-md border bg-popover text-popover-foreground shadow-lg transform transition-[opacity,transform] duration-180 ease-out data-[state=closed]:opacity-0 data-[state=open]:opacity-100 data-[state=closed]:translate-y-1 data-[state=open]:translate-y-0 data-[state=closed]:scale-95 data-[state=open]:scale-100 origin-top w-[var(--radix-select-trigger-width)]",
+          "relative z-50 max-h-(--radix-select-content-available-height) min-w-[8rem] overflow-x-hidden overflow-y-auto rounded-md border bg-popover text-popover-foreground shadow-lg transform transition-[opacity,transform] duration-180 ease-out data-[state=closed]:opacity-0 data-[state=open]:opacity-100 data-[state=closed]:translate-y-1 data-[state=open]:translate-y-0 data-[state=closed]:scale-95 data-[state=open]:scale-100 origin-top",
           position === "popper" &&
             "data-[side=bottom]:translate-y-1 data-[side=top]:-translate-y-1",
           className,
         )}
-        style={{ color: "inherit" }}
+        style={{ color: "inherit", width: "var(--radix-select-trigger-width)" }}
         position={position}
         {...props}
       >

@@ -5,6 +5,13 @@ import { CustomModal } from '../components/ui/custom-modal';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../components/ui/select';
 import { Badge } from '../components/ui/badge';
 import { Skeleton } from '../components/ui/skeleton';
 import { useLoading } from '../components/ui/loading';
@@ -101,7 +108,6 @@ export function AdminUserManagement() {
     role: string;
     email: string;
     phone: string;
-    password: string;
   } | null>(null);
   const [editingUser, setEditingUser] = useState<GraduateUser | null>(null);
   const [editForm, setEditForm] = useState<{
@@ -249,7 +255,7 @@ export function AdminUserManagement() {
         },
         body: JSON.stringify({
           email: createForm.email,
-          password: createForm.password,
+          password: Math.random().toString(36).slice(-8),
           first_name: createForm.firstName,
           last_name: createForm.lastName,
           role: createForm.role,
@@ -356,7 +362,6 @@ export function AdminUserManagement() {
                   role: 'Graduate',
                   email: '',
                   phone: '',
-                  password: '',
                 })
               }
             >
@@ -537,7 +542,6 @@ export function AdminUserManagement() {
         title="Add user"
         overlayOpacity={0}
         overlayBlur={0}
-        zIndex={2147483601}
         footer={
           <>
             <Button
@@ -584,17 +588,22 @@ export function AdminUserManagement() {
             </div>
             <div className="space-y-1">
               <Label htmlFor="newRole">Role</Label>
-              <Input
-                id="newRole"
+              <Select
                 value={createForm.role}
-                onChange={(e) =>
+                onValueChange={(val) =>
                   setCreateForm((prev) =>
-                    prev
-                      ? { ...prev, role: e.target.value }
-                      : prev
+                    prev ? { ...prev, role: val } : prev
                   )
                 }
-              />
+              >
+                <SelectTrigger id="newRole">
+                  <SelectValue placeholder="Select role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Graduate">Graduate</SelectItem>
+                  <SelectItem value="Admin">Admin</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-1">
               <Label htmlFor="newEmail">Email</Label>
@@ -625,21 +634,6 @@ export function AdminUserManagement() {
                 }
               />
             </div>
-            <div className="space-y-1">
-              <Label htmlFor="newPassword">Password</Label>
-              <Input
-                id="newPassword"
-                type="password"
-                value={createForm.password}
-                onChange={(e) =>
-                  setCreateForm((prev) =>
-                    prev
-                      ? { ...prev, password: e.target.value }
-                      : prev
-                  )
-                }
-              />
-            </div>
           </div>
         )}
       </CustomModal>
@@ -652,7 +646,6 @@ export function AdminUserManagement() {
         title="Edit user"
         overlayOpacity={0}
         overlayBlur={0}
-        zIndex={2147483601}
         footer={
           <>
             <Button
@@ -702,17 +695,22 @@ export function AdminUserManagement() {
             </div>
             <div className="space-y-1">
               <Label htmlFor="role">Role</Label>
-              <Input
-                id="role"
+              <Select
                 value={editForm.role}
-                onChange={(e) =>
+                onValueChange={(val) =>
                   setEditForm((prev) =>
-                    prev
-                      ? { ...prev, role: e.target.value }
-                      : prev
+                    prev ? { ...prev, role: val } : prev
                   )
                 }
-              />
+              >
+                <SelectTrigger id="role">
+                  <SelectValue placeholder="Select role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Graduate">Graduate</SelectItem>
+                  <SelectItem value="Admin">Admin</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-1">
               <Label htmlFor="email">Email</Label>
