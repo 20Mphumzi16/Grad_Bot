@@ -1,18 +1,13 @@
 import os
-import smtplib
-from email.message import EmailMessage
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 from dotenv import load_dotenv
 from supabase import create_client, Client
 
 load_dotenv()
 
-SMTP_HOST = os.getenv("SMTP_HOST")
-SMTP_PORT = int(os.getenv("SMTP_PORT", 587))
-SMTP_USER = os.getenv("SMTP_USER")
-SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
-SMTP_FROM = os.getenv("SMTP_FROM")
+SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
+SENDGRID_FROM = os.getenv('SENDGRID_FROM')
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
@@ -21,25 +16,26 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 
 def send_otp_email(to_email: str, otp: str):
-    msg = EmailMessage()
-    msg["Subject"] = "Your verification code"
-    msg["From"] = SMTP_FROM
-    msg["To"] = to_email
-    msg.set_content(
-        f"""
-Your verification code is:
-
-{otp}
-
-This code expires in 10 minutes.
-If you did not request this, ignore this email.
-"""
+    html_content = f"""
+    <p>Your verification code is:</p>
+    <h2>{otp}</h2>
+    <p>This code expires in 10 minutes.<br>
+    If you did not request this, ignore this email.</p>
+    """
+    
+    message = Mail(
+        from_email=SENDGRID_FROM,
+        to_emails=to_email,
+        subject="Your verification code",
+        html_content=html_content
     )
 
-    with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
-        server.starttls()
-        server.login(SMTP_USER, SMTP_PASSWORD)
-        server.send_message(msg)
+    try:
+        sg = SendGridAPIClient(SENDGRID_API_KEY)
+        response = sg.send(message)
+        print(f"OTP sent to {to_email}. Status: {response.status_code}")
+    except Exception as e:
+        print(f"Error sending OTP to {to_email}: {e}")
 
 def get_all_graduate_emails():
     """Fetch emails of all users with role 'graduate'"""
@@ -73,11 +69,10 @@ def get_graduate_email_by_id(graduate_id: str):
 
 def send_email(to_emails: list[str], subject: str, body: str):
     """
-    Send an email to a list of recipients.
+    Send an email to a list of recipients using SendGrid.
     """
-    print("Email config: host, user, password, from \n",SMTP_HOST, SMTP_USER, SMTP_PASSWORD, SMTP_FROM )
-    if not (SMTP_HOST and SMTP_USER and SMTP_PASSWORD and SMTP_FROM):
-        print("⚠️ Email configuration missing. Skipping email send.")
+    if not (SENDGRID_API_KEY and SENDGRID_FROM):
+        print("⚠️ SendGrid configuration missing. Skipping email send.")
         print(f"Would have sent email to {len(to_emails)} recipients: {subject}")
         return
 
@@ -90,34 +85,23 @@ def send_email(to_emails: list[str], subject: str, body: str):
         # unique_emails = list(set(to_emails))
         unique_emails = to_emails
         
-        # Connect to SMTP server
-        server = smtplib.SMTP(SMTP_HOST, int(SMTP_PORT))
-        server.starttls()
-        server.login(SMTP_USER, SMTP_PASSWORD)
-
-        # Send individual emails (to hide other recipients) or use BCC
-        # For simplicity and privacy, let's send individually or BCC. 
-        # BCC is better for bulk if supported, but loop is safer for errors.
-        
-        # Actually, let's just send one email with BCC if the list is long, 
-        # or individual if it's small.
-        # Let's iterate for now to be safe.
-        
         print(f"Sending email '{subject}' to {len(unique_emails)} recipients...")
 
+        sg = SendGridAPIClient(SENDGRID_API_KEY)
+
         for email_addr in unique_emails:
-            msg = MIMEMultipart()
-            msg['From'] = SMTP_FROM
-            msg['To'] = email_addr
-            msg['Subject'] = subject
-
             print("sending to: ", email_addr)
+            
+            message = Mail(
+                from_email=SENDGRID_FROM,
+                to_emails=email_addr,
+                subject=subject,
+                html_content=body
+            )
+            
+            response = sg.send(message)
+            print(f"Sent to {email_addr}. Status: {response.status_code}")
 
-            msg.attach(MIMEText(body, 'html')) # Support HTML for nicer notifications
-
-            server.sendmail(SMTP_FROM, email_addr, msg.as_string())
-
-        server.quit()
         print("✅ Emails sent successfully.")
 
     except Exception as e:
