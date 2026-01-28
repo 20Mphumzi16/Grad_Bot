@@ -8,6 +8,7 @@ from category_routes import router as category_router
 from user_routes import router as user_router
 from timeline_routes import router as timeline_router
 from chat_routes import router as chat_router
+from otp_routes import router as otp_router
 
 
 app = FastAPI(title="RAG Chatbot API", version="1.0.0")
@@ -15,8 +16,7 @@ app = FastAPI(title="RAG Chatbot API", version="1.0.0")
 # Enable CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://resilient-pithivier-201bbe.netlify.app", 
-    "http://localhost:3000"
+    allow_origins=["*"
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -31,6 +31,7 @@ app.include_router(category_router)
 app.include_router(user_router)
 app.include_router(timeline_router)
 app.include_router(chat_router)
+app.include_router(otp_router)
 
 
 # ========== Request/Response Models ==========

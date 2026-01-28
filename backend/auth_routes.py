@@ -4,7 +4,8 @@ from fastapi import APIRouter, HTTPException, Depends,UploadFile, File
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError
 from user_models  import *
-from user_models import RegisterRequest, LoginRequest, TokenResponse, UserResponse, UserUpdateRequest
+from user_models import RegisterRequest, LoginRequest, TokenResponse, UserResponse, UserUpdateRequest,FirstLoginResponse
+from typing import Union
 
 from userdatabase import new_user, get_user, supabase, update_user
 from jwt_utils import create_access_token, decode_token
@@ -27,8 +28,10 @@ async def register(request: RegisterRequest):
 async def update(request: UserUpdateRequest):
     updated_user = update_user(request.model_dump())
     return updated_user
-
-@router.post("/login", response_model=TokenResponse)
+@router.post(
+    "/login",
+    response_model=Union[TokenResponse, FirstLoginResponse]
+)
 async def login(request: LoginRequest):
     result = get_user(request.email, request.password)
 
@@ -38,8 +41,22 @@ async def login(request: LoginRequest):
     if isinstance(result, list) and result and result[0] is None:
         message = result[1] if len(result) > 1 else "Invalid email or password"
         raise HTTPException(status_code=401, detail=message)
-
+    
     user = result
+
+    flag = user.get("must_reset_password", False)
+    should_reset = (
+        (flag is True) or
+        (isinstance(flag, int) and flag == 1) or
+        (isinstance(flag, str) and flag.strip().lower() in ("true", "1", "t", "yes", "y"))
+    )
+    if should_reset:
+        return FirstLoginResponse(
+            status="FIRST_LOGIN_REQUIRED",
+            user_id=user["id"],
+            email=user["email"],
+    )
+
     token = create_access_token({
         "sub": user["email"],
         "role": user["role"],

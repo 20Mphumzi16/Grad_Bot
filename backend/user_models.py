@@ -1,5 +1,11 @@
 from pydantic import BaseModel, EmailStr
 from uuid import UUID
+from typing import Literal
+
+class FirstLoginResponse(BaseModel):
+    status: Literal["FIRST_LOGIN_REQUIRED"]
+    user_id: UUID
+    email: str
 
 class RegisterRequest(BaseModel):
     email: EmailStr
