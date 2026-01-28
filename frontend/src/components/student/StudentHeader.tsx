@@ -5,8 +5,9 @@ import { useNavigate, useLocation } from 'react-router';
 import React, { useEffect, useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { ConfirmDialog } from '../ui/confirm-dialog';
-import { useStudentNotifications } from '../../context/StudentNotificationContext';
-import { API_BASE_URL } from '../../utils/config';
+import { useStudentNotifications } from '@/context/StudentNotificationContext';
+import { ScrollArea } from '../ui/scroll-area';
+import { API_BASE_URL } from '@/utils/config';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -46,8 +47,12 @@ export function StudentHeader() {
   const [showConfirm, setShowConfirm] = useState(false);
 
   const { notifications, markAsViewed } = useStudentNotifications();
+  const [showAllNotifications, setShowAllNotifications] = useState(false);
+  const INITIAL_VISIBLE_COUNT = 3;
 
-
+  const visibleNotifications = showAllNotifications
+    ? notifications
+    : notifications.slice(0, INITIAL_VISIBLE_COUNT);
   const resolveAvatarUrl = (url: string | null) => {
     if (!url) return undefined;
     const trimmed = url.trim();
@@ -162,7 +167,7 @@ export function StudentHeader() {
         </div>
 
         <div className="flex items-center gap-3">
-          <DropdownMenu>
+          <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="relative">
                 <Bell className="w-5 h-5" style={{ color: 'var(--muted-foreground)' }} />
@@ -174,8 +179,8 @@ export function StudentHeader() {
             <DropdownMenuContent 
               align="end" 
               sideOffset={12}
-              className="w-80 md:w-[500px] z-[100] border shadow-md"
-              style={{ backgroundColor: isDark ? '#1f2937' : '#ffffff', color: isDark ? '#ffffff' : '#000000' }}
+              className="w-80 md:w-96 max-w-80 md:max-w-96 z-[100] border shadow-md animate-rolldown overflow-hidden"
+              style={{ width: '24rem', maxWidth: '24rem', backgroundColor: isDark ? '#1f2937' : '#ffffff', color: isDark ? '#ffffff' : '#000000' }}
             >
               <DropdownMenuLabel>Notifications</DropdownMenuLabel>
               <DropdownMenuSeparator />
@@ -184,23 +189,65 @@ export function StudentHeader() {
                   No new notifications
                 </div>
               ) : (
-                <div className="max-h-[300px] overflow-y-auto pr-2">
-                  {notifications.map((item) => (
-                    <DropdownMenuItem 
-                      key={`${item.type}-${item.id}`}
-                      className="cursor-pointer flex flex-col items-start gap-1 p-3"
-                      onClick={() => handleNotificationClick(item)}
-                    >
-                      <div className="font-medium text-sm text-foreground line-clamp-1">
-                        {item.subType === 'completed' ? 'Milestone Completed' :
-                         item.type === 'milestone' ? 'New Milestone' : 
-                         item.type === 'resource' ? 'New Resource' : 'New Document'} - {item.title}
+                <div className="flex flex-col w-full">
+                  {showAllNotifications ? (
+                    <div className="max-h-[350px] w-full max-w-full overflow-y-auto custom-scrollbar">
+                      <div className="flex flex-col w-full max-w-full">
+                        {notifications.map((item) => (
+                          <DropdownMenuItem 
+                            key={`${item.type}-${item.id}`}
+                            className="cursor-pointer flex flex-col items-start gap-1 p-3 border-b last:border-0 w-full max-w-full min-w-0 overflow-hidden"
+                            onClick={() => handleNotificationClick(item)}
+                          >
+                            <div className="font-medium text-sm text-foreground w-full truncate">
+                              {item.subType === 'completed' ? 'Milestone Completed' :
+                               item.type === 'milestone' ? 'New Milestone' : 
+                               item.type === 'resource' ? 'New Resource' : 'New Document'} - {item.title}
+                            </div>
+                            <div className="text-[10px] text-muted-foreground mt-1">
+                              {new Date(item.created_at).toLocaleDateString()}
+                            </div>
+                          </DropdownMenuItem>
+                        ))}
                       </div>
-                      <div className="text-[10px] text-muted-foreground mt-1">
-                        {new Date(item.created_at).toLocaleDateString()}
-                      </div>
-                    </DropdownMenuItem>
-                  ))}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col w-full">
+                      {visibleNotifications.map((item) => (
+                        <DropdownMenuItem 
+                          key={`${item.type}-${item.id}`}
+                          className="cursor-pointer flex flex-col items-start gap-1 p-3 border-b last:border-0 w-full"
+                          onClick={() => handleNotificationClick(item)}
+                        >
+                          <div className="font-medium text-sm text-foreground w-full truncate">
+                            {item.subType === 'completed' ? 'Milestone Completed' :
+                             item.type === 'milestone' ? 'New Milestone' : 
+                             item.type === 'resource' ? 'New Resource' : 'New Document'} - {item.title}
+                          </div>
+                          <div className="text-[10px] text-muted-foreground mt-1">
+                            {new Date(item.created_at).toLocaleDateString()}
+                          </div>
+                        </DropdownMenuItem>
+                      ))}
+                    </div>
+                  )}
+                  {notifications.length > INITIAL_VISIBLE_COUNT && (
+                    <div className="p-2 border-t text-center">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="w-full text-xs h-8"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setShowAllNotifications(!showAllNotifications);
+                        }}
+                      >
+                        {showAllNotifications
+                          ? 'Show Less'
+                          : `See More (${notifications.length - INITIAL_VISIBLE_COUNT} more)`}
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
             </DropdownMenuContent>

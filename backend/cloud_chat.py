@@ -421,6 +421,3 @@ def chat(user_id, question):
     message = {"answer": answer, "question": question, "sources": sources, "chat_id": chat_id}
  
     return message
-
- 
-embed_all()

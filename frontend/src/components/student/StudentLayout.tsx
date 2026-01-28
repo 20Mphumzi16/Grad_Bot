@@ -3,7 +3,7 @@ import { StudentSidebar } from './StudentSidebar';
 import { StudentHeader } from './StudentHeader';
 import { AnimatePresence } from 'framer-motion';
 import { PageTransition } from '../ui/PageTransition';
-import { StudentNotificationProvider } from '../../context/StudentNotificationContext';
+import { StudentNotificationProvider } from '@/context/StudentNotificationContext';
 
 export function StudentLayout() {
   const location = useLocation();

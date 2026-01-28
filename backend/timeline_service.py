@@ -3,6 +3,7 @@ import uuid
 from datetime import datetime
 from dotenv import load_dotenv
 from supabase import create_client, Client
+from email_service import send_email, get_all_graduate_emails, get_graduate_email_by_id
 
 load_dotenv()
 
@@ -153,6 +154,34 @@ def get_all_milestones():
 def update_milestone_status(milestone_id: str, status: str):
     try:
         supabase.table("milestones").update({"status": status}).eq("id", milestone_id).execute()
+        
+        # Send Email Notification on Completion
+        if status == 'completed':
+            try:
+                # Fetch milestone details to know who to email
+                m_res = supabase.table("milestones").select("title, graduate_id").eq("id", milestone_id).single().execute()
+                if m_res.data:
+                    title = m_res.data['title']
+                    grad_id = m_res.data['graduate_id']
+                    
+                    subject = f"Milestone Completed: {title}"
+                    body = f"""
+                    <h2>Milestone Completed</h2>
+                    <p>The milestone <strong>{title}</strong> has been marked as completed.</p>
+                    <p>Log in to view your progress: <a href="http://localhost:5173/student/timeline">View Timeline</a></p>
+                    """
+                    
+                    if grad_id:
+                        email = get_graduate_email_by_id(str(grad_id))
+                        if email:
+                            send_email([email], subject, body)
+                    else:
+                        emails = get_all_graduate_emails()
+                        if emails:
+                            send_email(emails, subject, body)
+            except Exception as e:
+                print(f"Error sending completion notification: {e}")
+
         return {"status": "success"}
     except Exception as e:
         print(f"Error updating milestone status {milestone_id}: {e}")
@@ -206,6 +235,29 @@ def create_milestone_with_tasks(title: str, week_label: str, tasks: list[str], g
                 
                 print(f"Creating tasks: {tasks_data}")
                 supabase.table("tasks").insert(tasks_data).execute()
+
+            # Send Email Notification
+            try:
+                subject = f"New Milestone: {title}"
+                body = f"""
+                <h2>New Milestone Assigned</h2>
+                <p>A new milestone <strong>{title}</strong> ({week_label}) has been assigned to you.</p>
+                <p>Tasks included: {len(tasks) if tasks else 0}</p>
+                <p>Log in to view it: <a href="http://localhost:5173/student/timeline">View Timeline</a></p>
+                """
+                
+                if grad_id:
+                    # Specific graduate
+                    email = get_graduate_email_by_id(str(grad_id))
+                    if email:
+                        send_email([email], subject, body)
+                else:
+                    # Global milestone - send to all
+                    emails = get_all_graduate_emails()
+                    if emails:
+                        send_email(emails, subject, body)
+            except Exception as e:
+                print(f"Error sending milestone notification: {e}")
             
             created_ids.append(milestone_id)
             

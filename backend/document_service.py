@@ -4,6 +4,7 @@ from fastapi import UploadFile
 from dotenv import load_dotenv
 from supabase import create_client, Client
 from cloud_chat import download_from_supabase, index_document
+from email_service import send_email, get_all_graduate_emails
 
 load_dotenv()
 
@@ -58,6 +59,21 @@ def upload_document(
         raise Exception("Failed to insert document metadata")
     
     index_document(document_id, file_path)
+
+    # Send Email Notification ke la 
+    try:
+        emails = get_all_graduate_emails()
+        if emails:
+            subject = f"New Document: {file_name}"
+            body = f"""
+            <h2>New Document Uploaded</h2>
+            <p>A new document <strong>{file_name}</strong> has been uploaded to the Grad Bot.</p>
+            <p>Description: {description or 'No description provided'}</p>
+            <p>Log in to view it: <a href="http://localhost:5173/student/documents">View Documents</a></p>
+            """
+            send_email(emails, subject, body)
+    except Exception as e:
+        print(f"Error sending document notification: {e}")
 
     return result.data[0]
 
