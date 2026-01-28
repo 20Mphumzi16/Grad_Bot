@@ -18,7 +18,7 @@ import { useLoading } from '../components/ui/loading';
 import { Alert, AlertDescription } from '../components/ui/alert';
 import { Label } from '../components/ui/label';
 import { Checkbox } from '../components/ui/checkbox';
-import { Search, MoreVertical, UserCircle2, AlertCircle, Plus } from 'lucide-react';
+import { Search, MoreVertical, UserCircle2, AlertCircle, Plus, Filter } from 'lucide-react';
 import { API_BASE_URL } from '../utils/config';
 
 type GraduateUser = {
@@ -95,6 +95,8 @@ function UserActionMenu({
 
 export function AdminUserManagement() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
+  const [filterRole, setFilterRole] = useState('all');
   const [users, setUsers] = useState<GraduateUser[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [usersError, setUsersError] = useState<string | null>(null);
@@ -171,12 +173,15 @@ export function AdminUserManagement() {
   const filteredUsers = users.filter((user) => {
     const query = searchQuery.toLowerCase();
     const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
-    return (
+    const matchesSearch =
       fullName.includes(query) ||
       user.role.toLowerCase().includes(query) ||
       user.email.toLowerCase().includes(query) ||
-      user.phone.toLowerCase().includes(query)
-    );
+      user.phone.toLowerCase().includes(query);
+    
+    const matchesRole = filterRole === 'all' || user.role === filterRole;
+    
+    return matchesSearch && matchesRole;
   });
 
 
@@ -347,6 +352,14 @@ export function AdminUserManagement() {
             />
           </div>
           <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              className="rounded-xl"
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              <Filter className="w-4 h-4 mr-2" />
+              Filter
+            </Button>
             <div className="inline-flex items-center gap-2 rounded-xl px-3 py-2 bg-primary text-primary-foreground">
               <UserCircle2 className="w-4 h-4" />
               <span className="text-sm font-medium">
@@ -378,6 +391,33 @@ export function AdminUserManagement() {
             </Button>
           </div>
         </div>
+        {showFilters && (
+          <div className="flex items-center gap-4 border-t pt-4 mt-4">
+            <div className="flex-1">
+              <Label className="text-sm mb-2 block">Filter by Role</Label>
+              <Select value={filterRole} onValueChange={setFilterRole}>
+                <SelectTrigger className="rounded-xl">
+                  <SelectValue placeholder="All Roles" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Roles</SelectItem>
+                  <SelectItem value="Graduate">Graduate</SelectItem>
+                  <SelectItem value="Admin">Admin</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <Button
+              variant="outline"
+              className="rounded-xl mt-6"
+              onClick={() => {
+                setFilterRole('all');
+                setSearchQuery('');
+              }}
+            >
+              Clear Filters
+            </Button>
+          </div>
+        )}
       </Card>
       
       {usersError && (
