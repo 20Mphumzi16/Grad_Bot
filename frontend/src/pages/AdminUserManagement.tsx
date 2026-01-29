@@ -111,6 +111,8 @@ export function AdminUserManagement() {
     email: string;
     phone: string;
   } | null>(null);
+  const [createFormTouched, setCreateFormTouched] = useState<Record<string, boolean>>({});
+
   const [editingUser, setEditingUser] = useState<GraduateUser | null>(null);
   const [editForm, setEditForm] = useState<{
     firstName: string;
@@ -248,8 +250,38 @@ export function AdminUserManagement() {
     }
   };
 
+  const getFieldError = (field: string, value: string) => {
+    if (!value?.trim()) return 'This field is required';
+    
+    switch (field) {
+      case 'email':
+        const emailLower = value.toLowerCase();
+        if (!emailLower.endsWith('@gmail.com') && !emailLower.endsWith('@datacentrix.co.za')) {
+          return 'Email must be @gmail.com or @datacentrix.co.za';
+        }
+        break;
+      case 'phone':
+        if (!/^0\d{9}$/.test(value)) {
+          return 'Phone must be 10 digits and start with 0';
+        }
+        break;
+    }
+    return null;
+  };
+
+  const isCreateFormValid = () => {
+    if (!createForm) return false;
+    const { firstName, lastName, role, email, phone } = createForm;
+    
+    return !getFieldError('firstName', firstName) &&
+           !getFieldError('lastName', lastName) &&
+           !getFieldError('role', role) &&
+           !getFieldError('email', email) &&
+           !getFieldError('phone', phone);
+  };
+
   const handleCreate = async () => {
-    if (!createForm) return;
+    if (!createForm || !isCreateFormValid()) return;
     setLoading(true);
     setUsersError(null);
     try {
@@ -380,15 +412,16 @@ export function AdminUserManagement() {
             </div>
             <Button
               className="rounded-xl"
-              onClick={() =>
+              onClick={() => {
                 setCreateForm({
                   firstName: '',
                   lastName: '',
-                  role: 'Graduate',
+                  role: '',
                   email: '',
                   phone: '',
-                })
-              }
+                });
+                setCreateFormTouched({});
+              }}
             >
               <Plus className="w-4 h-4 mr-2" />
               Add
@@ -602,7 +635,7 @@ export function AdminUserManagement() {
             >
               Cancel
             </Button>
-            <Button onClick={handleCreate}>
+            <Button onClick={handleCreate} disabled={!isCreateFormValid()}>
               Create
             </Button>
           </>
@@ -611,10 +644,17 @@ export function AdminUserManagement() {
         {createForm && (
           <div className="space-y-4">
             <div className="space-y-1">
-              <Label htmlFor="newFirstName">First name</Label>
+              <Label 
+                htmlFor="newFirstName"
+                className={createFormTouched.firstName && getFieldError('firstName', createForm.firstName) ? 'text-red-500' : ''}
+              >
+                First name
+              </Label>
               <Input
                 id="newFirstName"
                 value={createForm.firstName}
+                aria-invalid={!!(createFormTouched.firstName && getFieldError('firstName', createForm.firstName))}
+                onBlur={() => setCreateFormTouched(prev => ({ ...prev, firstName: true }))}
                 onChange={(e) =>
                   setCreateForm((prev) =>
                     prev
@@ -623,12 +663,22 @@ export function AdminUserManagement() {
                   )
                 }
               />
+              {createFormTouched.firstName && getFieldError('firstName', createForm.firstName) && (
+                <p className="text-xs text-red-500">{getFieldError('firstName', createForm.firstName)}</p>
+              )}
             </div>
             <div className="space-y-1">
-              <Label htmlFor="newLastName">Last name</Label>
+              <Label 
+                htmlFor="newLastName"
+                className={createFormTouched.lastName && getFieldError('lastName', createForm.lastName) ? 'text-red-500' : ''}
+              >
+                Last name
+              </Label>
               <Input
                 id="newLastName"
                 value={createForm.lastName}
+                aria-invalid={!!(createFormTouched.lastName && getFieldError('lastName', createForm.lastName))}
+                onBlur={() => setCreateFormTouched(prev => ({ ...prev, lastName: true }))}
                 onChange={(e) =>
                   setCreateForm((prev) =>
                     prev
@@ -637,9 +687,17 @@ export function AdminUserManagement() {
                   )
                 }
               />
+              {createFormTouched.lastName && getFieldError('lastName', createForm.lastName) && (
+                <p className="text-xs text-red-500">{getFieldError('lastName', createForm.lastName)}</p>
+              )}
             </div>
             <div className="space-y-1">
-              <Label htmlFor="newRole">Role</Label>
+              <Label 
+                htmlFor="newRole"
+                className={createFormTouched.role && getFieldError('role', createForm.role) ? 'text-red-500' : ''}
+              >
+                Role
+              </Label>
               <Select
                 value={createForm.role}
                 onValueChange={(val) =>
@@ -648,7 +706,11 @@ export function AdminUserManagement() {
                   )
                 }
               >
-                <SelectTrigger id="newRole">
+                <SelectTrigger
+                  id="newRole"
+                  aria-invalid={!!(createFormTouched.role && getFieldError('role', createForm.role))}
+                  onBlur={() => setCreateFormTouched(prev => ({ ...prev, role: true }))}
+                >
                   <SelectValue placeholder="Select role" />
                 </SelectTrigger>
                 <SelectContent>
@@ -656,13 +718,23 @@ export function AdminUserManagement() {
                   <SelectItem value="Admin">Admin</SelectItem>
                 </SelectContent>
               </Select>
+              {createFormTouched.role && getFieldError('role', createForm.role) && (
+                <p className="text-xs text-red-500">{getFieldError('role', createForm.role)}</p>
+              )}
             </div>
             <div className="space-y-1">
-              <Label htmlFor="newEmail">Email</Label>
+              <Label 
+                htmlFor="newEmail"
+                className={createFormTouched.email && getFieldError('email', createForm.email) ? 'text-red-500' : ''}
+              >
+                Email
+              </Label>
               <Input
                 id="newEmail"
                 type="email"
                 value={createForm.email}
+                aria-invalid={!!(createFormTouched.email && getFieldError('email', createForm.email))}
+                onBlur={() => setCreateFormTouched(prev => ({ ...prev, email: true }))}
                 onChange={(e) =>
                   setCreateForm((prev) =>
                     prev
@@ -671,12 +743,24 @@ export function AdminUserManagement() {
                   )
                 }
               />
+              {createFormTouched.email && getFieldError('email', createForm.email) && (
+                <p className="text-xs text-red-500">{getFieldError('email', createForm.email)}</p>
+              )}
             </div>
             <div className="space-y-1">
-              <Label htmlFor="newPhone">Phone</Label>
+              <Label 
+                htmlFor="newPhone"
+                className={createFormTouched.phone && getFieldError('phone', createForm.phone) ? 'text-red-500' : ''}
+              >
+                Phone
+              </Label>
               <Input
                 id="newPhone"
                 value={createForm.phone}
+                maxLength={10}
+                placeholder="0..."
+                aria-invalid={!!(createFormTouched.phone && getFieldError('phone', createForm.phone))}
+                onBlur={() => setCreateFormTouched(prev => ({ ...prev, phone: true }))}
                 onChange={(e) =>
                   setCreateForm((prev) =>
                     prev
@@ -685,6 +769,9 @@ export function AdminUserManagement() {
                   )
                 }
               />
+              {createFormTouched.phone && getFieldError('phone', createForm.phone) && (
+                <p className="text-xs text-red-500">{getFieldError('phone', createForm.phone)}</p>
+              )}
             </div>
           </div>
         )}
