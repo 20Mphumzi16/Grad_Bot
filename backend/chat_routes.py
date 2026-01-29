@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from cloud_chat import chat, ordered_history
+from cloud_chat import chat, ordered_history, chunks_by_id
 
 
 router = APIRouter(prefix="/chat", tags=["Chat"])
@@ -22,6 +22,9 @@ class QuestionResponse(BaseModel):
     question: str
     answer: str
     sources: list[Source]
+
+class SourcesRequest(BaseModel):
+    chunks: list[str]
 
 
 @router.post("/ask")
@@ -47,3 +50,11 @@ async def ask_question(request: QuestionRequest):
 @router.get("/get-history/{user_id}")
 async def get_chat_history(user_id: str):
     return ordered_history(user_id, limit=100)
+
+@router.post("/get-chat-sources")
+async def get_chat_sources(request: SourcesRequest):
+    try:
+        sources = chunks_by_id(request.chunks)
+        return sources
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching sources: {str(e)}")
