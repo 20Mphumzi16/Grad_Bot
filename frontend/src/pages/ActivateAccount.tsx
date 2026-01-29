@@ -8,6 +8,7 @@ import { Label } from "../components/ui/label";
 import { useLoading } from "../components/ui/loading";
 import { API_BASE_URL } from "../utils/config";
 import { ShieldCheck, ArrowLeft, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function ActivateAccount() {
   const navigate = useNavigate();
@@ -89,6 +90,22 @@ export default function ActivateAccount() {
     return valid;
   };
 
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData("text").replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+    if (!pastedData) return;
+
+    const next = [...codeChars];
+    pastedData.split('').slice(0, 8).forEach((char, index) => {
+      next[index] = char;
+    });
+    setCodeChars(next);
+    
+    // Focus the next empty input or the last one
+    const nextIndex = Math.min(pastedData.length, 7);
+    inputsRef.current[nextIndex]?.focus();
+  };
+
   const handleNext = async (e: React.FormEvent) => {
     e.preventDefault();
     setServerError(null);
@@ -152,6 +169,7 @@ export default function ActivateAccount() {
           throw new Error(message);
         }
 
+        toast.success("OTP verified successfully!");
         setStep(3);
       } catch (err: any) {
         setCodeError(err.message);
@@ -332,7 +350,7 @@ function getRoleFromToken(token: string | null): string | null {
                         <Label htmlFor="activationCode">Activation Code</Label>
                         <motion.div
                           id="activationCode"
-                          className="flex items-center justify-center gap-2"
+                          className="flex items-center justify-center gap-1 sm:gap-2"
                           animate={shouldShake ? { x: [-10, 10, -10, 10, 0] } : {}}
                           transition={{ duration: 0.4 }}
                         >
@@ -346,6 +364,7 @@ function getRoleFromToken(token: string | null): string | null {
                                 inputMode="text"
                                 maxLength={1}
                                 value={codeChars[idx]}
+                                onPaste={handlePaste}
                                 onChange={(e) => {
                                   const v = e.target.value
                                     .replace(/[^A-Za-z0-9]/g, "")
@@ -379,10 +398,10 @@ function getRoleFromToken(token: string | null): string | null {
                                 }}
                                 aria-invalid={!!codeError}
                                 autoFocus={idx === 0}
-                                className="rounded-xl w-12 h-12 text-center font-mono uppercase text-lg"
+                                className="rounded-lg w-8 h-8 sm:w-10 sm:h-10 text-center font-mono uppercase text-base sm:text-lg p-0"
                               />
                               {idx === 3 && (
-                                <span className="mx-2 text-muted-foreground">
+                                <span className="mx-1 sm:mx-2 text-muted-foreground">
                                   -
                                 </span>
                               )}
