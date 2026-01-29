@@ -25,6 +25,7 @@ interface ChatHistoryMessage {
   role: 'user' | 'assistant';
   time_stamp: string;
   content: string;
+  sources?: string[] | null;
 }
 
 interface Message {
@@ -35,6 +36,15 @@ interface Message {
   timestamp: string;
 }
 
+const formatTime = (dateInput?: string | Date) => {
+  try {
+    const date = dateInput ? new Date(dateInput) : new Date();
+    if (isNaN(date.getTime())) return String(dateInput);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+  } catch (error) {
+    return String(dateInput || "");
+  }
+};
 
 export function StudentChat() {
   const [messages, setMessages] = useState<Message[]>([
@@ -42,7 +52,7 @@ export function StudentChat() {
       id: 1,
       type: 'bot',
       content: "Hello! I'm your Graduate Programme Knowledge Assistant. How can I help you today?",
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      timestamp: formatTime()
     }
   ]);
 
@@ -57,6 +67,8 @@ export function StudentChat() {
   const [isSourcesPanelOpen, setIsSourcesPanelOpen] = useState(false);
   const [activeSourcesMessageId, setActiveSourcesMessageId] = useState<number | null>(null);
   const [activeSources, setActiveSources] = useState<Source[] | null>(null);
+
+  const [isHistoryLoading, setIsHistoryLoading] = useState(true);
 
   // AUTO-SCROLL WHEN MESSAGES CHANGE (but don't break manual scrolling)
   useEffect(() => {
@@ -134,33 +146,53 @@ export function StudentChat() {
   useEffect(() => {
     let mounted = true;
    const token = localStorage.getItem('token');
-   if (!token) return;
+   if (!token) {
+    setIsHistoryLoading(false);
+    return;
+   }
   const id=JSON.parse(atob(token.split('.')[1])).user_id;
  
     (async () => {
       try {
         const res = await fetch(`${API_BASE_URL}/chat/get-history/${id}`);
-        if (!res.ok) return;
+        if (!res.ok) throw new Error("Failed to fetch history");
 
         const data: ChatHistoryMessage[] = await res.json();
         if (!mounted || !Array.isArray(data)) return;
 
+        const enriched = await Promise.all(
+          data.map(async (msg, index) => {
+            const baseMsg: Message = {
+              id: Date.now() + index,
+              type: msg.role === 'user' ? 'user' : 'bot',
+              content: msg.content,
+              timestamp: formatTime(msg.time_stamp)
+            };
+            if (msg.role === 'assistant' && Array.isArray(msg.sources) && msg.sources.length > 0) {
+              try {
+                const srcRes = await fetch(`${API_BASE_URL}/chat/get-chat-sources`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ chunks: msg.sources })
+                });
+                if (srcRes.ok) {
+                  const srcData: Source[] = await srcRes.json();
+                  baseMsg.sources = srcData;
+                }
+              } catch {}
+            }
+            return baseMsg;
+          })
+        );
+
         setMessages(prev => {
-          // Ensure we only append once and always after the initial greeting
           if (prev.length > 1) return prev;
-
-          const base = prev;
-          const historyMessages: Message[] = data.map((msg, index) => ({
-            id: Date.now() + index,
-            type: msg.role === 'user' ? 'user' : 'bot',
-            content: msg.content,
-            timestamp: msg.time_stamp
-          }));
-
-          return [...base, ...historyMessages];
+          return [...prev, ...enriched];
         });
       } catch (error) {
         // Fail silently; history is optional
+      } finally {
+        if (mounted) setIsHistoryLoading(false);
       }
     })();
 
@@ -183,7 +215,7 @@ export function StudentChat() {
       id: Date.now(),
       type: 'user',
       content: inputValue,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      timestamp: formatTime()
     };
 
     setMessages(prev => [...prev, userMessage]);
@@ -196,7 +228,7 @@ export function StudentChat() {
       id: Date.now() + 1,
       type: 'loading',
       content: "",
-      timestamp: ""
+      timestamp: formatTime()
     };
 
     setMessages(prev => [...prev, loadingMessage]);
@@ -224,7 +256,7 @@ export function StudentChat() {
         type: 'bot',
         content: data.answer,
         sources: data.sources, // ✅ CORRECT
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        timestamp: formatTime()
       };
 
 
@@ -239,7 +271,7 @@ export function StudentChat() {
         id: Date.now() + 2,
         type: 'bot',
         content: "Sorry, I couldn't reach the server.",
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        timestamp: formatTime()
       };
 
       setMessages(prev => [
@@ -274,6 +306,15 @@ export function StudentChat() {
               className="flex-1 overflow-y-auto p-6 space-y-6"
               onScroll={handleChatScroll}
             >
+              {isHistoryLoading && (
+                <div className="flex justify-center p-4">
+                  <div className="typing">
+                    <span className="dot"></span>
+                    <span className="dot"></span>
+                    <span className="dot"></span>
+                  </div>
+                </div>
+              )}
               {messages.map((message) => (
                 <div
                   key={message.id}

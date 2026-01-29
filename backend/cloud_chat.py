@@ -226,9 +226,8 @@ def format_citations(chunk):
     return citation
 
 def chunks_by_id(chunks: list[str]) -> list[dict]:
- 
     sources = []
- 
+
     for chunk in chunks:
         response = supabase.rpc(
             "citations",
@@ -236,12 +235,12 @@ def chunks_by_id(chunks: list[str]) -> list[dict]:
                 "p_chunk_id": chunk,
             }
         ).execute()
- 
-        source = response.data
- 
-        sources.append(format_citations(source))
- 
+
+        for source in response.data:
+            sources.append(format_citations(source))
+
     return sources
+
 
 #/ Chat history
 def ordered_history(user_id, limit=LIMIT_HISTORY):
