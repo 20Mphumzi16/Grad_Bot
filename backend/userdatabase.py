@@ -4,11 +4,16 @@ from dotenv import load_dotenv
 from supabase import create_client, Client
 from timeline_service import calculate_graduate_progress
 
+
+
 load_dotenv()
 
 url: str = os.getenv("SUPABASE_URL")
 key: str = os.getenv("SUPABASE_SERVICE_KEY")
 supabase: Client = create_client(url, key)
+default_password = str(os.getenv("DEFAULT_PASS"))
+
+
 
 def password_hashing(password: str) -> str:
     return hashlib.sha256(password.encode()).hexdigest()
@@ -331,7 +336,10 @@ def set_graduate_archived_status(user_id: str, archived: bool):
         print(f"Error setting archive status: {e}")
         raise e
  
-def new_user(email, role, first_name, last_name, password="", phone=""):
+def new_user(email, role, first_name, last_name, phone=""):
+    
+    hashed_password = password_hashing(default_password)
+
     if user_exists(email):
         return [None, "User already exists"]
   
@@ -343,7 +351,7 @@ def new_user(email, role, first_name, last_name, password="", phone=""):
             "p_first_name": first_name,
             "p_last_name": last_name,
             "p_phone": phone,
-            "p_hashed_password": password,
+            "p_hashed_password": hashed_password,
             },
         ).execute()
     ).data

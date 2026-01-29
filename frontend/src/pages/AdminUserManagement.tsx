@@ -260,7 +260,6 @@ export function AdminUserManagement() {
         },
         body: JSON.stringify({
           email: createForm.email,
-          password: "",
           first_name: createForm.firstName,
           last_name: createForm.lastName,
           role: createForm.role,
