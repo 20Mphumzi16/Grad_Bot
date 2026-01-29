@@ -529,7 +529,7 @@ def chat(user_id, question):
 
 def test():
     #embed_all()
-    user_id = "73205ea6-2afe-4407-a35e-6ea6f7260333"
+    # user_id = "73205ea6-2afe-4407-a35e-6ea6f7260333"
     question = "What is instana?"
     convo  = chat(user_id, question)
     q = convo["question"]
@@ -556,4 +556,3 @@ def test():
 
     print("\n",response.output_text.strip())
 
-test()
