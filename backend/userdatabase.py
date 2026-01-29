@@ -331,11 +331,10 @@ def set_graduate_archived_status(user_id: str, archived: bool):
         print(f"Error setting archive status: {e}")
         raise e
  
-def new_user(email, role, first_name, last_name, password, phone=""):
+def new_user(email, role, first_name, last_name, password="", phone=""):
     if user_exists(email):
         return [None, "User already exists"]
- 
-    hashed_password = password_hashing(password)
+  
  
     response = (
         supabase.rpc("new_user", {
@@ -344,7 +343,7 @@ def new_user(email, role, first_name, last_name, password, phone=""):
             "p_first_name": first_name,
             "p_last_name": last_name,
             "p_phone": phone,
-            "p_hashed_password": hashed_password,
+            "p_hashed_password": password,
             },
         ).execute()
     ).data

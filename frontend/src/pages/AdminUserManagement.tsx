@@ -260,7 +260,7 @@ export function AdminUserManagement() {
         },
         body: JSON.stringify({
           email: createForm.email,
-          password: Math.random().toString(36).slice(-8),
+          password: "",
           first_name: createForm.firstName,
           last_name: createForm.lastName,
           role: createForm.role,
