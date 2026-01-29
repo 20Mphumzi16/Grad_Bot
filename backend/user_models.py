@@ -38,6 +38,7 @@ class UserResponse(BaseModel):
     bio: str | None
     linkedin_link: str | None
     github_link: str | None
+    position: str | None = None
 
 class GraduateResponse(BaseModel):
     id: str
@@ -74,3 +75,4 @@ class UserUpdateRequest(BaseModel):
     bio: str | None
     linkedin_link: str | None
     github_link: str | None
+    position: str | None = None

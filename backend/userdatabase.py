@@ -94,6 +94,35 @@ def get_user_id(id):
         user["last_name"] = profile["last_name"]
         user["role"] = profile["role"]
         user["phone"] = contact["phone"]
+        user["avatar_url"] = profile.get("avatar_url")
+        user["emp_no"] = profile.get("emp_no")
+        user["department"] = profile.get("department")
+        user["branch"] = profile.get("branch")
+
+        if user["role"].lower() == "graduate":
+            grad_res = (
+                supabase.table("graduates")
+                .select("*")
+                .eq("id", user["id"])
+                .execute()
+            ).data
+            if grad_res:
+                grad = grad_res[0]
+                user["start_date"] = grad.get("start_date")
+                user["bio"] = grad.get("bio")
+                user["linkedin_link"] = grad.get("linkedin_link")
+                user["github_link"] = grad.get("github_link")
+                user["progress"] = grad.get("progress")
+        else:
+            admin_res = (
+                supabase.table("admins")
+                .select("*")
+                .eq("id", user["id"])
+                .execute()
+            ).data
+            if admin_res:
+                admin = admin_res[0]
+                user["position"] = admin.get("position")
     
         return user
     except Exception as e:
@@ -103,67 +132,54 @@ def get_user_id(id):
 def update_user(user):
     user_id = user["id"]
  
-    user_db = (
-        supabase.table("User")
-        .update({
-            "email": user["email"],
-        })
-        .eq("id", user_id)
-        .execute()
-    ).data
- 
-    if not user_db:
-        raise ValueError("User not found")
+    user_updates = {}
+    if user.get("email") is not None:
+        user_updates["email"] = user["email"]
 
-    contact_db = (
-        supabase.table("contact")
-        .update({
-            "phone": user["phone"]
-        })
-        .eq("id", user_id)
-        .execute()
-    ).data
+    if user_updates:
+        user_db = (
+            supabase.table("User")
+            .update(user_updates)
+            .eq("id", user_id)
+            .execute()
+        ).data
+        
+        if not user_db:
+             pass # Or raise ValueError if critical
+
+    contact_updates = {}
+    if user.get("phone") is not None:
+        contact_updates["phone"] = user["phone"]
+
+    if contact_updates:
+        supabase.table("contact").update(contact_updates).eq("id", user_id).execute()
  
-    profile_db = (
-        supabase.table("profile")
-        .update({
-            "avatar_url": user["avatar_url"],
-            "first_name": user["first_name"],
-            "last_name": user["last_name"],
-            "branch": user["branch"],
-            "emp_no": user["emp_no"],
-            "department": user["department"],
-            "role": user["role"]
-        })
-        .eq("id", user_id)
-        .execute()
-    ).data
+    profile_updates = {}
+    for field in ["avatar_url", "first_name", "last_name", "branch", "emp_no", "department", "role"]:
+        if user.get(field) is not None:
+            profile_updates[field] = user[field]
+
+    if profile_updates:
+        supabase.table("profile").update(profile_updates).eq("id", user_id).execute()
 
     if user["role"].lower() == "graduate":
- 
-        grad_db = (
-            supabase.table("graduates")
-            .update({
-                "start_date": user["start_date"],
-                "bio": user["bio"],
-                "linkedin_link": user["linkedin_link"],
-                "github_link": user["github_link"],
-            })
-            .eq("id", user_id)
-            .execute()
-        ).data
+        grad_updates = {}
+        for field in ["start_date", "bio", "linkedin_link", "github_link"]:
+             if user.get(field) is not None:
+                 grad_updates[field] = user[field]
+        
+        if grad_updates:
+            supabase.table("graduates").update(grad_updates).eq("id", user_id).execute()
  
     else:
-        admin_db = (
-            supabase.table("admins")
-            .update({
-                "position": user["position"],
-            })
-            .eq("id", user_id)
-            .execute()
-        ).data
+        admin_updates = {}
+        if user.get("position") is not None:
+            admin_updates["position"] = user["position"]
+            
+        if admin_updates:
+            supabase.table("admins").update(admin_updates).eq("id", user_id).execute()
  
-    return user_id
+    return get_user_id(user_id)
 
 
 def update_graduate_basic(user_id: str, data: dict):

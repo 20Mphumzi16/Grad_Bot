@@ -130,4 +130,4 @@ def send_email(to_emails: list[str], subject: str, body: str):
         print(f"❌ Error sending email: {e}")
         
 #send_email(["mxovelamxo@outlook.com","mo1motala@gmail.com"], "Testing function send", "test4")
-print(get_all_graduate_emails())
+# print(get_all_graduate_emails())

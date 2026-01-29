@@ -326,7 +326,20 @@ export function AdminUserManagement() {
         }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      await fetchUsers();
+      
+      const data = await res.json();
+      const updatedUser: GraduateUser = {
+        id: data.id,
+        firstName: data.first_name,
+        lastName: data.last_name,
+        role: data.role,
+        email: data.email,
+        phone: data.phone,
+        progress: data.progress ?? null,
+      };
+      
+      setUsers(prev => prev.map(u => String(u.id) === String(updatedUser.id) ? updatedUser : u));
+      
       setEditingUser(null);
       setEditForm(null);
     } catch (err: any) {
