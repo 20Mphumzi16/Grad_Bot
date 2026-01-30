@@ -18,6 +18,7 @@ import { StudentTimeline } from "../pages/StudentTimeline";
 import { StudentDocuments } from "../pages/StudentDocuments";
 import { StudentLayout } from "../components/student/StudentLayout";
 import ActivateAccount from "../pages/ActivateAccount";
+import ForgotPassword from "../pages/ForgotPassword";
 
 function getRoleFromToken(token: string | null): string | null {
   if (!token) return null;
@@ -77,6 +78,10 @@ export const router = createBrowserRouter([
   {
     path: "/activate-account",
     Component: ActivateAccount,
+  },
+  {
+    path: "/forgot-password",
+    Component: ForgotPassword,
   },
   {
     path: "/admin/login",

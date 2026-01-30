@@ -7,10 +7,10 @@ import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { useLoading } from "../components/ui/loading";
 import { API_BASE_URL } from "../utils/config";
-import { ShieldCheck, ArrowLeft, Loader2 } from "lucide-react";
+import { ShieldCheck, ArrowLeft, Loader2, KeyRound } from "lucide-react";
 import { toast } from "sonner";
 
-export default function ActivateAccount() {
+export default function ForgotPassword() {
   const navigate = useNavigate();
   const location = useLocation();
   const { loading, setLoading } = useLoading();
@@ -18,7 +18,7 @@ export default function ActivateAccount() {
   const [step, setStep] = useState(1);
 
   // Form State
-  const [email, setEmail] = useState(location.state?.email || "");
+  const [email, setEmail] = useState(location.state?.email?.toLowerCase() || "");
   const [codeChars, setCodeChars] = useState<string[]>(Array(8).fill(""));
   const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
   const [password, setPassword] = useState("");
@@ -113,15 +113,9 @@ export default function ActivateAccount() {
     if (step === 1) {
       if (!validateStep1()) return;
 
-      const email = location.state?.email;
-      if (!email) {
-        setServerError("Email missing. Please login again.");
-        return;
-      }
-
       setLoading(true);
       try {
-        const res = await fetch(`${API_BASE_URL}/otp/first-login/send-otp`, {
+        const res = await fetch(`${API_BASE_URL}/otp/forgot-password/send-otp`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email }),
@@ -142,16 +136,10 @@ export default function ActivateAccount() {
     } else if (step === 2) {
       if (!validateStep2()) return;
 
-      const email = location.state?.email;
-      if (!email) {
-        setServerError("If this email exists, we sent a code.");
-        return;
-      }
-
       setLoading(true);
       try {
         const otp = codeChars.join("");
-        const res = await fetch(`${API_BASE_URL}/otp/first-login/verify-otp`, {
+        const res = await fetch(`${API_BASE_URL}/otp/forgot-password/verify-otp`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, otp }),
@@ -180,6 +168,28 @@ export default function ActivateAccount() {
     }
   };
 
+  function getRoleFromToken(token: string | null): string | null {
+    if (!token) return null;
+  
+    const parts = token.split(".");
+    if (parts.length < 2) return null;
+  
+    try {
+      const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+      const json = atob(base64);
+      const payload = JSON.parse(json);
+  
+      return (
+        payload.role ||
+        payload.user_role ||
+        (Array.isArray(payload.roles) ? payload.roles[0] : null) ||
+        null
+      );
+    } catch {
+      return null;
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setServerError(null);
@@ -187,15 +197,9 @@ export default function ActivateAccount() {
 
     if (!validateStep3()) return;
 
-    const email = location.state?.email;
-    if (!email) {
-      setServerError("Email missing.");
-      return;
-    }
-
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/otp/first-login/reset-password`, {
+      const res = await fetch(`${API_BASE_URL}/otp/forgot-password/reset-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -209,7 +213,7 @@ export default function ActivateAccount() {
         if (data.access_token) {
           localStorage.setItem("token", data.access_token);
         }
-        setSuccessMessage("Your account has been activated. You can now log in.");
+        setSuccessMessage("Your password has been reset. You can now log in.");
         
         const role = getRoleFromToken(data.access_token);
         if (role === "Graduate") {
@@ -221,28 +225,6 @@ export default function ActivateAccount() {
         }
         return;
       }
-
-function getRoleFromToken(token: string | null): string | null {
-  if (!token) return null;
-
-  const parts = token.split(".");
-  if (parts.length < 2) return null;
-
-  try {
-    const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
-    const json = atob(base64);
-    const payload = JSON.parse(json);
-
-    return (
-      payload.role ||
-      payload.user_role ||
-      (Array.isArray(payload.roles) ? payload.roles[0] : null) ||
-      null
-    );
-  } catch {
-    return null;
-  }
-}
 
       const errText = await res.text();
       let message = "Failed to reset password";
@@ -287,13 +269,13 @@ function getRoleFromToken(token: string | null): string | null {
 
             <div className="bg-card rounded-3xl shadow-xl shadow-black/5 dark:shadow-black/20 p-8 min-h-[400px] flex flex-col justify-center">
               <div className="text-center mb-8">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-teal-500 flex items-center justify-center mx-auto mb-4">
-                  <ShieldCheck className="w-8 h-8 text-white" />
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mx-auto mb-4">
+                  <KeyRound className="w-8 h-8 text-white" />
                 </div>
-                <h1 className="text-foreground mb-2">Activate Account</h1>
+                <h1 className="text-foreground mb-2">Reset Password</h1>
                 <p className="text-muted-foreground text-sm">
-                  {step === 1 && "Step 1: Enter your email"}
-                  {step === 2 && "Step 2: Enter activation code"}
+                  {step === 1 && "Step 1: Enter your email to reset password"}
+                  {step === 2 && "Step 2: Enter the code sent to your email"}
                   {step === 3 && "Step 3: Set a new password"}
                 </p>
               </div>
@@ -329,7 +311,7 @@ function getRoleFromToken(token: string | null): string | null {
                       </div>
                       <Button
                         type="submit"
-                        className="w-full bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 rounded-xl"
+                        className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 rounded-xl"
                       >
                         Continue
                       </Button>
@@ -347,7 +329,7 @@ function getRoleFromToken(token: string | null): string | null {
                       className="space-y-6"
                     >
                       <div className="space-y-2">
-                        <Label htmlFor="activationCode">Activation Code</Label>
+                        <Label htmlFor="activationCode">Verification Code</Label>
                         <motion.div
                           id="activationCode"
                           className="flex items-center justify-center gap-1 sm:gap-2"
@@ -416,7 +398,7 @@ function getRoleFromToken(token: string | null): string | null {
                       </div>
                       <Button
                         type="submit"
-                        className="w-full bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 rounded-xl"
+                        className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 rounded-xl"
                       >
                         Continue
                       </Button>
@@ -424,9 +406,11 @@ function getRoleFromToken(token: string | null): string | null {
                         <button
                           type="button"
                           className="text-sm text-muted-foreground hover:text-foreground"
-                          onClick={() => {}}
+                          onClick={() => {
+                            setStep(1); // Go back to resend
+                          }}
                         >
-                          Resend activation code
+                          Change Email / Resend Code
                         </button>
                       </div>
                     </motion.div>
@@ -480,15 +464,15 @@ function getRoleFromToken(token: string | null): string | null {
                       <Button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 rounded-xl"
+                        className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 rounded-xl"
                       >
                         {loading ? (
                           <>
                             <Loader2 className="animate-spin" />
-                            Activating...
+                            Resetting...
                           </>
                         ) : (
-                          "Activate Account"
+                          "Reset Password"
                         )}
                       </Button>
                     </motion.div>

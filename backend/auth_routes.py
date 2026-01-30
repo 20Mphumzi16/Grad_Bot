@@ -54,7 +54,6 @@ async def login(request: LoginRequest):
     if should_reset:
         return FirstLoginResponse(
             status="FIRST_LOGIN_REQUIRED",
-            user_id=user["id"],
             email=user["email"],
     )
 
