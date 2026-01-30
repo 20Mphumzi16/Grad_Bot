@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from cloud_chat import chat, ordered_history
+from cloud_chat import chat, ordered_history, get_user_message_count
 
 
 router = APIRouter(prefix="/chat", tags=["Chat"])
@@ -47,3 +47,11 @@ async def ask_question(request: QuestionRequest):
 @router.get("/get-history/{user_id}")
 async def get_chat_history(user_id: str):
     return ordered_history(user_id, limit=100)
+
+@router.get("/count/{user_id}")
+async def get_message_count(user_id: str):
+    try:
+        count = get_user_message_count(user_id)
+        return {"count": count}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

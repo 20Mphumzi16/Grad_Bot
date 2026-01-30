@@ -10,9 +10,10 @@ from typing import Union
 from userdatabase import new_user, get_user, supabase, update_user
 from jwt_utils import create_access_token, decode_token
 from uuid import UUID
+from dependencies import get_current_user, oauth2_scheme
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+
 
 @router.post("/register")
 async def register(request: RegisterRequest):
@@ -64,79 +65,6 @@ async def login(request: LoginRequest):
     })
 
     return {"access_token": token}
-
-def get_current_user(token: str = Depends(oauth2_scheme)):
-    try:
-        payload = decode_token(token)
-        email = payload.get("sub")
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
-   
-   
-    user = {}
- 
-    log_in = (
-        supabase.table("User")
-        .select("*")
-        .eq("email", email)
-        .execute()
-    ).data[0]
- 
-    user["id"] = log_in["id"]
-    user["email"] = log_in["email"]
- 
-    profile = (
-        supabase.table("profile")
-        .select("*")
-        .eq("id", user["id"])
-        .execute()
-    ).data[0]
- 
-    contact = (
-        supabase.table("contact")
-        .select("*")
-        .eq("id", user["id"])
-        .execute()
-    ).data[0]
-   
-    user["avatar_url"] = profile["avatar_url"]
-    user["first_name"] = profile["first_name"]
-    user["last_name"] = profile["last_name"]
-    user["emp_no"] = profile["emp_no"]
-    user["role"] = profile["role"]
-    user["department"] = profile["department"]
-    user["branch"] = profile["branch"]
-    user["phone"] = contact["phone"]
-
- 
-    if user["role"].lower() == "graduate":
-        print('hit 1')
- 
-        grad = (
-            supabase.table("graduates")
-            .select("*")
-            .eq("id", user["id"])
-            .execute()
-        ).data[0]
- 
-        user["start_date"] = grad["start_date"]
-        user["bio"] = grad["bio"]
-        user["linkedin_link"] = grad["linkedin_link"]
-        user["github_link"] = grad["github_link"]
- 
-    else:
-        admin = ( 
-            supabase.table("admins")
-            .select("*")
-            .eq("id", user["id"])
-            .execute()
-        ).data[0]
-        user["position"] = admin["position"]
-   
-    print(user)
-    return user
- 
- 
 
 @router.get("/me", response_model=UserResponse)
 async def me(current_user: dict = Depends(get_current_user)):

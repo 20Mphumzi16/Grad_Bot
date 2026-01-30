@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Depends
 from document_service import delete_document, upload_document
 from document_models import DocumentResponse
 from uuid import UUID
@@ -6,6 +6,8 @@ import os
 from dotenv import load_dotenv
 from supabase import create_client, Client
 from datetime import datetime, timedelta, timezone
+from dependencies import get_current_user
+
 load_dotenv()
 
 url: str = os.getenv("SUPABASE_URL")
@@ -61,7 +63,7 @@ def download_document(document_id: UUID):
     return {"url": signed_url["signedURL"]}
 
 @router.get("/{document_id}/view")
-def download_document(document_id: UUID):
+def view_document(document_id: UUID, user: dict = Depends(get_current_user)):
     doc = supabase.table("documents") \
         .select("file_path") \
         .eq("id", str(document_id)) \
@@ -75,8 +77,33 @@ def download_document(document_id: UUID):
         .create_signed_url(doc.data["file_path"], 60)
     
     increment_views(document_id)
+    track_user_view(user["id"], document_id)
 
     return {"url": signed_url["signedURL"]}
+
+def track_user_view(user_id, document_id: UUID):
+    try:
+        supabase.table("user_document_views").upsert({
+            "user_id": str(user_id),
+            "document_id": str(document_id),
+            "viewed_at": datetime.now(timezone.utc).isoformat()
+        }).execute()
+    except Exception as e:
+        print(f"Error tracking user view: {e}")
+
+@router.get("/count-views/{user_id}")
+def get_user_view_count(user_id: UUID):
+    try:
+        count = supabase.table("user_document_views") \
+            .select("*", count="exact") \
+            .eq("user_id", str(user_id)) \
+            .execute() \
+            .count
+        return {"count": count or 0}
+    except Exception as e:
+        # If table doesn't exist yet, return 0
+        print(f"Error getting view count: {e}")
+        return {"count": 0}
 
 def increment_views(document_id: UUID):
     # Read current views value

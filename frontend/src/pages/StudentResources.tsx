@@ -65,7 +65,13 @@ export function StudentResources() {
   const handleView = async (id: string) => {
     try {
       setViewingDocId(id);
-      const res = await fetch(`${API_BASE_URL}/documents/${id}/view`);
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_BASE_URL}/documents/${id}/view`, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
       const data = await res.json();
       window.open(data.url, '_blank');
     } catch (err) {
