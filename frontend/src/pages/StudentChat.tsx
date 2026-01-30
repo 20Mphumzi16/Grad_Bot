@@ -377,7 +377,7 @@ export function StudentChat() {
                         <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-blue-500 to-teal-500 flex items-center justify-center">
                           <Sparkles className="w-3 h-3 text-white" />
                         </div>
-                        <span className="text-xs text-gray-500">Knowledge Assistant</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">Knowledge Assistant</span>
                       </div>
                     )}
 
@@ -424,7 +424,7 @@ export function StudentChat() {
                         <button
                           type="button"
                           onClick={() => handleSourcesClick(message)}
-                          className="mt-2 text-xs text-blue-600 hover:text-blue-700 hover:underline"
+                          className="mt-2 text-xs text-blue-600 hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
                         >
                           Sources · {message.sources.length}
                         </button>
@@ -433,7 +433,7 @@ export function StudentChat() {
                     {/* BOT FOOTER */}
                     {message.type === 'bot' && (
                       <div className="flex items-center gap-3 mt-2">
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-gray-500 dark:text-white">
                           {message.timestamp}
                         </span>
                      
@@ -443,7 +443,7 @@ export function StudentChat() {
                     {/* USER FOOTER */}
                     {message.type === 'user' && (
                       <div className="flex justify-end mt-2">
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-gray-500 dark:text-white">
                           {message.timestamp}
                         </span>
                       </div>
