@@ -34,148 +34,163 @@ export function StudentDashboard() {
   const [statsLoading, setStatsLoading] = useState(true);
   const { setLoading } = useLoading();
 
-  useEffect(() => {
+  const fetchDashboardData = async (retryCount = 0) => {
     const token = localStorage.getItem('token');
-    if (!token) return;
+    if (!token) {
+      setStatsLoading(false);
+      return;
+    }
 
-    (async () => {
-      try {
-        const res = await fetch(`${API_BASE_URL}/auth/me`, {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
+    try {
+      const res = await fetch(`${API_BASE_URL}/auth/me`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to fetch user');
+      }
+      
+      const data: any = await res.json();
+
+      // Common field names returned by /auth/me
+      const f = data.first_name || data.given_name || data.firstName || data.first || (data.name ? data.name.split(' ')[0] : null);
+
+      if (f) setFirstName(f);
+
+      // Fetch milestones for progress
+      if (data.id) {
+        // Fetch milestones
+        const milestonesRes = await fetch(
+          `${API_BASE_URL}/timeline/${data.id}/milestones-tasks`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        
+        if (!milestonesRes.ok) {
+          throw new Error('Failed to fetch milestones');
+        }
+
+        const milestonesData = await milestonesRes.json();
+        const overallProgress = milestonesData.reduce((acc: any, milestone: any) => {
+          if (!milestone.tasks) return acc;
+          const completed = milestone.tasks.filter((t: any) => t.completed).length;
+          return {
+            total: acc.total + milestone.tasks.length,
+            completed: acc.completed + completed
+          };
+        }, { total: 0, completed: 0 });
+
+        const percentage = overallProgress.total > 0 
+          ? Math.round((overallProgress.completed / overallProgress.total) * 100) 
+          : 0;
+
+        const totalMilestones = milestonesData.length;
+        const completedMilestones = milestonesData.filter((m: any) => m.status === 'Completed').length;
+          
+        setProgressData({
+          total: overallProgress.total,
+          completed: overallProgress.completed,
+          percentage: percentage,
+          totalMilestones,
+          completedMilestones
         });
 
-        if (!res.ok) return;
-        const data: any = await res.json();
-
-        // Common field names returned by /auth/me
-        const f = data.first_name || data.given_name || data.firstName || data.first || (data.name ? data.name.split(' ')[0] : null);
-
-        if (f) setFirstName(f);
-
-        // Fetch milestones for progress
-        if (data.id) {
-          const milestonesRes = await fetch(
-            `${API_BASE_URL}/timeline/${data.id}/milestones-tasks`,
-            { headers: { Authorization: `Bearer ${token}` } }
+        // Fetch total questions asked
+        try {
+          const chatRes = await fetch(
+            `${API_BASE_URL}/chat/count/${data.id}`,
+            {
+              method: 'GET',
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            }
           );
-          
-          if (milestonesRes.ok) {
-            const milestonesData = await milestonesRes.json();
-            const overallProgress = milestonesData.reduce((acc: any, milestone: any) => {
-              if (!milestone.tasks) return acc;
-              const completed = milestone.tasks.filter((t: any) => t.completed).length;
-              return {
-                total: acc.total + milestone.tasks.length,
-                completed: acc.completed + completed
-              };
-            }, { total: 0, completed: 0 });
-
-            const percentage = overallProgress.total > 0 
-              ? Math.round((overallProgress.completed / overallProgress.total) * 100) 
-              : 0;
-
-            const totalMilestones = milestonesData.length;
-            const completedMilestones = milestonesData.filter((m: any) => m.status === 'Completed').length;
-              
-            setProgressData({
-              total: overallProgress.total,
-              completed: overallProgress.completed,
-              percentage: percentage,
-              totalMilestones,
-              completedMilestones
-            });
+          if (chatRes.ok) {
+            const chatData = await chatRes.json();
+            setTotalQuestions(chatData.count || 0);
           }
-
-          // Fetch total questions asked
-            try {
-              const chatRes = await fetch(
-                `${API_BASE_URL}/chat/count/${data.id}`,
-                {
-                  method: 'GET',
-                  headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                  },
-                }
-              );
-              if (chatRes.ok) {
-                const chatData = await chatRes.json();
-                setTotalQuestions(chatData.count || 0);
-              }
-            } catch {
-              // ignore fetch errors
-            }
-
-            // Fetch total views
-            try {
-              const viewsRes = await fetch(
-                `${API_BASE_URL}/documents/user/${data.id}/view-count`,
-                {
-                  method: 'GET',
-                  headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                  },
-                }
-              );
-              if (viewsRes.ok) {
-                const viewsData = await viewsRes.json();
-                setTotalViews(viewsData.count || 0);
-                setViewsThisWeek(viewsData.this_week || 0);
-              }
-            } catch (error) {
-              console.error('Error fetching view count:', error);
-            }
-
-          // Fetch top 3 active/upcoming milestones
-          try {
-            const upcomingRes = await fetch(
-              `${API_BASE_URL}/timeline/get-3-active-milestones/${data.id}`,
-              {
-                method: 'GET',
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                  'Content-Type': 'application/json',
-                },
-              }
-            );
-
-            if (upcomingRes.ok) {
-              const milestones = await upcomingRes.json();
-              if (Array.isArray(milestones)) {
-                const mapped = milestones.map((m: any) => {
-                  const rawStatus = m.status || 'Upcoming';
-                  const isInProgress = /progress/i.test(String(rawStatus));
-
-                  return {
-                    title: m.title || m.name || m.milestone_title || 'Untitled milestone',
-                    dueDate: m.due_date || m.dueDate || m.deadline || 'No date',
-                    status: rawStatus,
-                    isInProgress,
-                    progress:
-                      m.progress ??
-                      m.completion_percent ??
-                      m.completionPercentage ??
-                      0,
-                  };
-                });
-                setUpcomingMilestones(mapped);
-              }
-            }
-          } catch {
-            // ignore fetch errors for upcoming milestones
-          }
+        } catch {
+          // ignore fetch errors
         }
-      } catch {
-        // ignore errors silently
-      } finally {
+
+        // Fetch total views
+        try {
+          const viewsRes = await fetch(
+            `${API_BASE_URL}/documents/user/${data.id}/view-count`,
+            {
+              method: 'GET',
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            }
+          );
+          if (viewsRes.ok) {
+            const viewsData = await viewsRes.json();
+            setTotalViews(viewsData.count || 0);
+            setViewsThisWeek(viewsData.this_week || 0);
+          }
+        } catch (error) {
+          console.error('Error fetching view count:', error);
+        }
+
+        // Fetch top 3 active/upcoming milestones
+        try {
+          const upcomingRes = await fetch(
+            `${API_BASE_URL}/timeline/get-3-active-milestones/${data.id}`,
+            {
+              method: 'GET',
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            }
+          );
+
+          if (upcomingRes.ok) {
+            const milestones = await upcomingRes.json();
+            if (Array.isArray(milestones)) {
+              const mapped = milestones.map((m: any) => {
+                const rawStatus = m.status || 'Upcoming';
+                const isInProgress = /progress/i.test(String(rawStatus));
+
+                return {
+                  title: m.title || m.name || m.milestone_title || 'Untitled milestone',
+                  dueDate: m.due_date || m.dueDate || m.deadline || 'No date',
+                  status: rawStatus,
+                  isInProgress,
+                  progress:
+                    m.progress ??
+                    m.completion_percent ??
+                    m.completionPercentage ??
+                    0,
+                };
+              });
+              setUpcomingMilestones(mapped);
+            }
+          }
+        } catch {
+          // ignore fetch errors for upcoming milestones
+        }
+      }
+      setStatsLoading(false);
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+      if (retryCount < 3) {
+        setTimeout(() => fetchDashboardData(retryCount + 1), 1000); // Retry after 1s
+      } else {
         setStatsLoading(false);
       }
-    })();
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboardData();
   }, []);
 
   const openDocument = async (docId: string) => {
