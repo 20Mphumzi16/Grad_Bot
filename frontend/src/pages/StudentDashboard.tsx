@@ -30,150 +30,167 @@ export function StudentDashboard() {
   });
   const [totalQuestions, setTotalQuestions] = useState(0);
   const [totalViews, setTotalViews] = useState(0);
+  const [viewsThisWeek, setViewsThisWeek] = useState(0);
   const [statsLoading, setStatsLoading] = useState(true);
   const { setLoading } = useLoading();
 
-  useEffect(() => {
+  const fetchDashboardData = async (retryCount = 0) => {
     const token = localStorage.getItem('token');
-    if (!token) return;
+    if (!token) {
+      setStatsLoading(false);
+      return;
+    }
 
-    (async () => {
-      try {
-        const res = await fetch(`${API_BASE_URL}/auth/me`, {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
+    try {
+      const res = await fetch(`${API_BASE_URL}/auth/me`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to fetch user');
+      }
+      
+      const data: any = await res.json();
+
+      // Common field names returned by /auth/me
+      const f = data.first_name || data.given_name || data.firstName || data.first || (data.name ? data.name.split(' ')[0] : null);
+
+      if (f) setFirstName(f);
+
+      // Fetch milestones for progress
+      if (data.id) {
+        // Fetch milestones
+        const milestonesRes = await fetch(
+          `${API_BASE_URL}/timeline/${data.id}/milestones-tasks`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        
+        if (!milestonesRes.ok) {
+          throw new Error('Failed to fetch milestones');
+        }
+
+        const milestonesData = await milestonesRes.json();
+        const overallProgress = milestonesData.reduce((acc: any, milestone: any) => {
+          if (!milestone.tasks) return acc;
+          const completed = milestone.tasks.filter((t: any) => t.completed).length;
+          return {
+            total: acc.total + milestone.tasks.length,
+            completed: acc.completed + completed
+          };
+        }, { total: 0, completed: 0 });
+
+        const percentage = overallProgress.total > 0 
+          ? Math.round((overallProgress.completed / overallProgress.total) * 100) 
+          : 0;
+
+        const totalMilestones = milestonesData.length;
+        const completedMilestones = milestonesData.filter((m: any) => m.status === 'Completed').length;
+          
+        setProgressData({
+          total: overallProgress.total,
+          completed: overallProgress.completed,
+          percentage: percentage,
+          totalMilestones,
+          completedMilestones
         });
 
-        if (!res.ok) return;
-        const data: any = await res.json();
-
-        // Common field names returned by /auth/me
-        const f = data.first_name || data.given_name || data.firstName || data.first || (data.name ? data.name.split(' ')[0] : null);
-
-        if (f) setFirstName(f);
-
-        // Fetch milestones for progress
-        if (data.id) {
-          const milestonesRes = await fetch(
-            `${API_BASE_URL}/timeline/${data.id}/milestones-tasks`,
-            { headers: { Authorization: `Bearer ${token}` } }
+        // Fetch total questions asked
+        try {
+          const chatRes = await fetch(
+            `${API_BASE_URL}/chat/count/${data.id}`,
+            {
+              method: 'GET',
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            }
           );
-          
-          if (milestonesRes.ok) {
-            const milestonesData = await milestonesRes.json();
-            const overallProgress = milestonesData.reduce((acc: any, milestone: any) => {
-              if (!milestone.tasks) return acc;
-              const completed = milestone.tasks.filter((t: any) => t.completed).length;
-              return {
-                total: acc.total + milestone.tasks.length,
-                completed: acc.completed + completed
-              };
-            }, { total: 0, completed: 0 });
-
-            const percentage = overallProgress.total > 0 
-              ? Math.round((overallProgress.completed / overallProgress.total) * 100) 
-              : 0;
-
-            const totalMilestones = milestonesData.length;
-            const completedMilestones = milestonesData.filter((m: any) => m.status === 'Completed').length;
-              
-            setProgressData({
-              total: overallProgress.total,
-              completed: overallProgress.completed,
-              percentage: percentage,
-              totalMilestones,
-              completedMilestones
-            });
+          if (chatRes.ok) {
+            const chatData = await chatRes.json();
+            setTotalQuestions(chatData.count || 0);
           }
-
-          // Fetch total questions asked
-            try {
-              const chatRes = await fetch(
-                `${API_BASE_URL}/chat/count/${data.id}`,
-                {
-                  method: 'GET',
-                  headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                  },
-                }
-              );
-              if (chatRes.ok) {
-                const chatData = await chatRes.json();
-                setTotalQuestions(chatData.count || 0);
-              }
-            } catch {
-              // ignore fetch errors
-            }
-
-            // Fetch total resources viewed
-            try {
-              const viewsRes = await fetch(
-                `${API_BASE_URL}/documents/count-views/${data.id}`,
-                {
-                  method: 'GET',
-                  headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                  },
-                }
-              );
-              if (viewsRes.ok) {
-                const viewsData = await viewsRes.json();
-                setTotalViews(viewsData.count || 0);
-              }
-            } catch {
-              // ignore fetch errors
-            }
-
-          // Fetch top 3 active/upcoming milestones
-          try {
-            const upcomingRes = await fetch(
-              `${API_BASE_URL}/timeline/get-3-active-milestones/${data.id}`,
-              {
-                method: 'GET',
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                  'Content-Type': 'application/json',
-                },
-              }
-            );
-
-            if (upcomingRes.ok) {
-              const milestones = await upcomingRes.json();
-              if (Array.isArray(milestones)) {
-                const mapped = milestones.map((m: any) => {
-                  const rawStatus = m.status || 'Upcoming';
-                  const isInProgress = /progress/i.test(String(rawStatus));
-
-                  return {
-                    title: m.title || m.name || m.milestone_title || 'Untitled milestone',
-                    dueDate: m.due_date || m.dueDate || m.deadline || 'No date',
-                    status: rawStatus,
-                    isInProgress,
-                    progress:
-                      m.progress ??
-                      m.completion_percent ??
-                      m.completionPercentage ??
-                      0,
-                  };
-                });
-                setUpcomingMilestones(mapped);
-              }
-            }
-          } catch {
-            // ignore fetch errors for upcoming milestones
-          }
+        } catch {
+          // ignore fetch errors
         }
-      } catch {
-        // ignore errors silently
-      } finally {
+
+        // Fetch total views
+        try {
+          const viewsRes = await fetch(
+            `${API_BASE_URL}/documents/user/${data.id}/view-count`,
+            {
+              method: 'GET',
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            }
+          );
+          if (viewsRes.ok) {
+            const viewsData = await viewsRes.json();
+            setTotalViews(viewsData.count || 0);
+            setViewsThisWeek(viewsData.this_week || 0);
+          }
+        } catch (error) {
+          console.error('Error fetching view count:', error);
+        }
+
+        // Fetch top 3 active/upcoming milestones
+        try {
+          const upcomingRes = await fetch(
+            `${API_BASE_URL}/timeline/get-3-active-milestones/${data.id}`,
+            {
+              method: 'GET',
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            }
+          );
+
+          if (upcomingRes.ok) {
+            const milestones = await upcomingRes.json();
+            if (Array.isArray(milestones)) {
+              const mapped = milestones.map((m: any) => {
+                const rawStatus = m.status || 'Upcoming';
+                const isInProgress = /progress/i.test(String(rawStatus));
+
+                return {
+                  title: m.title || m.name || m.milestone_title || 'Untitled milestone',
+                  dueDate: m.due_date || m.dueDate || m.deadline || 'No date',
+                  status: rawStatus,
+                  isInProgress,
+                  progress:
+                    m.progress ??
+                    m.completion_percent ??
+                    m.completionPercentage ??
+                    0,
+                };
+              });
+              setUpcomingMilestones(mapped);
+            }
+          }
+        } catch {
+          // ignore fetch errors for upcoming milestones
+        }
+      }
+      setStatsLoading(false);
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+      if (retryCount < 3) {
+        setTimeout(() => fetchDashboardData(retryCount + 1), 1000); // Retry after 1s
+      } else {
         setStatsLoading(false);
       }
-    })();
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboardData();
   }, []);
 
   const openDocument = async (docId: string) => {
@@ -281,8 +298,8 @@ export function StudentDashboard() {
               <MessageSquare className="w-6 h-6 text-white" />
             </div>
           </div>
-          <p className="text-gray-600 text-sm mb-1">Questions Asked</p>
-          <p className="text-gray-900 mb-2">
+          <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">Questions Asked</p>
+          <p className="text-gray-900 dark:text-gray-100 mb-2">
             {statsLoading ? (
               <Loader2 className="w-4 h-4 text-gray-400 gb-spinner" />
             ) : (
@@ -304,8 +321,8 @@ export function StudentDashboard() {
               <BookOpen className="w-6 h-6 text-white" />
             </div>
           </div>
-          <p className="text-gray-600 text-sm mb-1">Resources Viewed</p>
-          <p className="text-gray-900 mb-2">
+          <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">Resources Viewed</p>
+          <p className="text-gray-900 dark:text-gray-100 mb-2">
             {statsLoading ? (
               <Loader2 className="w-4 h-4 text-gray-400 gb-spinner" />
             ) : (
@@ -316,7 +333,7 @@ export function StudentDashboard() {
             {statsLoading ? (
               <Loader2 className="w-3 h-3 text-green-400 gb-spinner" />
             ) : (
-              '+3 this week'
+              `+${viewsThisWeek} this week`
             )}
           </p>
         </Card>
@@ -327,8 +344,8 @@ export function StudentDashboard() {
               <TrendingUp className="w-6 h-6 text-white" />
             </div>
           </div>
-          <p className="text-gray-600 text-sm mb-1">Programme Progress</p>
-          <p className="text-gray-900 mb-2">
+          <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">Programme Progress</p>
+          <p className="text-gray-900 dark:text-gray-100 mb-2">
             {statsLoading ? (
               <Loader2 className="w-4 h-4 text-gray-400 gb-spinner" />
             ) : (
@@ -350,8 +367,8 @@ export function StudentDashboard() {
               <CheckCircle2 className="w-6 h-6 text-white" />
             </div>
           </div>
-          <p className="text-gray-600 text-sm mb-1">Tasks Completed</p>
-          <p className="text-gray-900 mb-2">
+          <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">Tasks Completed</p>
+          <p className="text-gray-900 dark:text-gray-100 mb-2">
             {statsLoading ? (
               <Loader2 className="w-4 h-4 text-gray-400 gb-spinner" />
             ) : (
@@ -388,8 +405,8 @@ export function StudentDashboard() {
                 <div key={index} className="p-4 rounded-xl border border-gray-100 hover:border-gray-200 transition-colors">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
-                      <p className="text-gray-900 text-sm mb-1">{milestone.title}</p>
-                      <p className="text-gray-500 text-xs flex items-center gap-1">
+                      <p className="text-gray-900 dark:text-gray-100 text-sm mb-1">{milestone.title}</p>
+                      <p className="text-gray-500 dark:text-gray-400 text-xs flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
                         {milestone.dueDate}
                       </p>
@@ -433,8 +450,8 @@ export function StudentDashboard() {
                   <BookOpen className="w-5 h-5 text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-gray-900 text-sm truncate">{resource.file_name}</p>
-                  <p className="text-gray-500 text-xs">{resource.file_extension} • {resource.views} views</p>
+                  <p className="text-gray-900 dark:text-gray-100 text-sm truncate">{resource.file_name}</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-xs">{resource.file_extension} • {resource.views} views</p>
                 </div>
                 <button
                   onClick={(e) => {
