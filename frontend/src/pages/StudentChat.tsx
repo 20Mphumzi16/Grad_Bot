@@ -329,6 +329,7 @@ export function StudentChat() {
           timestamp: formatTime()
         };
         setMessages([welcomeMessage]);
+        setIsAtBottom(true);
       } else {
         console.error("Failed to reset chat");
       }
