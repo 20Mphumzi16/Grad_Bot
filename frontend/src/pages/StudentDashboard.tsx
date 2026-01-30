@@ -109,25 +109,7 @@ export function StudentDashboard() {
               // ignore fetch errors
             }
 
-            // Fetch total resources viewed
-            try {
-              const viewsRes = await fetch(
-                `${API_BASE_URL}/documents/count-views/${data.id}`,
-                {
-                  method: 'GET',
-                  headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                  },
-                }
-              );
-              if (viewsRes.ok) {
-                const viewsData = await viewsRes.json();
-                setTotalViews(viewsData.count || 0);
-              }
-            } catch {
-              // ignore fetch errors
-            }
+
 
           // Fetch top 3 active/upcoming milestones
           try {
@@ -309,7 +291,7 @@ export function StudentDashboard() {
             {statsLoading ? (
               <Loader2 className="w-4 h-4 text-gray-400 gb-spinner" />
             ) : (
-              totalViews
+              0
             )}
           </p>
           <p className="text-sm text-green-600">
