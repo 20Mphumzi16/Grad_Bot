@@ -7,15 +7,14 @@ class LoginRequest(BaseModel):
 
 
 class EmailVerifyRequest(BaseModel):
-    user_id: UUID
     email: EmailStr
 
 
 class OTPVerifyRequest(BaseModel):
-    user_id: UUID
+    email: EmailStr
     otp: str
 
 
 class ResetPasswordRequest(BaseModel):
-    user_id: UUID
+    email: EmailStr
     new_password: str

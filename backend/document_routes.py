@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Depends
 from document_service import delete_document, upload_document
 from document_models import DocumentResponse
 from uuid import UUID
@@ -6,6 +6,8 @@ import os
 from dotenv import load_dotenv
 from supabase import create_client, Client
 from datetime import datetime, timedelta, timezone
+from auth_routes import get_current_user
+
 load_dotenv()
 
 url: str = os.getenv("SUPABASE_URL")
@@ -61,7 +63,7 @@ def download_document(document_id: UUID):
     return {"url": signed_url["signedURL"]}
 
 @router.get("/{document_id}/view")
-def download_document(document_id: UUID):
+def view_document(document_id: UUID, user: dict = Depends(get_current_user)):
     doc = supabase.table("documents") \
         .select("file_path") \
         .eq("id", str(document_id)) \
@@ -76,7 +78,50 @@ def download_document(document_id: UUID):
     
     increment_views(document_id)
 
+   #track user uma ivula table
+    try:
+        if user and "id" in user:
+            supabase.table("user_document_views").upsert(
+                {
+                    "user_id": user["id"], 
+                    "document_id": str(document_id),
+                    "viewed_at": datetime.now(timezone.utc).isoformat()
+                },
+                on_conflict="user_id, document_id"
+            ).execute()
+    except Exception as e:
+        print(f"Error tracking user view: {e}")
+       
+
     return {"url": signed_url["signedURL"]}
+
+@router.get("/user/{user_id}/view-count")
+def get_user_view_count(user_id: str):
+    try:
+        res = supabase.table("user_document_views") \
+            .select("*", count="exact") \
+            .eq("user_id", user_id) \
+            .execute()
+        
+        total = res.count or 0
+
+    
+        now = datetime.now(timezone.utc)
+        start_of_week = now - timedelta(days=now.weekday())
+        start_of_week = start_of_week.replace(hour=0, minute=0, second=0, microsecond=0)
+        
+        res_week = supabase.table("user_document_views") \
+            .select("*", count="exact") \
+            .eq("user_id", user_id) \
+            .gte("viewed_at", start_of_week.isoformat()) \
+            .execute()
+            
+        this_week = res_week.count or 0
+        
+        return {"count": total, "this_week": this_week}
+    except Exception as e:
+        print(f"Error getting user view count: {e}")
+        return {"count": 0, "this_week": 0}
 
 def increment_views(document_id: UUID):
     # Read current views value

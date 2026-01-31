@@ -450,6 +450,21 @@ def new_chat_on_token(user_id):
     chat_id = new_chat(user_id)
     return chat_id
  
+def get_user_message_count(user_id):
+    chat_id = get_chat_id(user_id)
+    if not chat_id:
+        return 0
+    
+    count = (
+        supabase.table("chat_messages")
+        .select("*", count="exact")
+        .eq("chat_id", chat_id)
+        .eq("role", "user")
+        .execute()
+    ).count
+    
+    return count if count else 0
+
 ## Chat function to answer questions based on document context
 def chat(user_id, question):
  
@@ -545,7 +560,7 @@ def chat(user_id, question):
 
 def test():
     #embed_all()
-    user_id = "73205ea6-2afe-4407-a35e-6ea6f7260333"
+    # user_id = "73205ea6-2afe-4407-a35e-6ea6f7260333"
     question = "What is instana?"
     convo  = chat(user_id, question)
     q = convo["question"]

@@ -42,7 +42,7 @@ export function StudentLogin() {
       console.log(data)
 
       if (data.status === 'FIRST_LOGIN_REQUIRED') {
-        navigate('/activate-account', { state: { email: data.email, user_id: data.user_id } });
+        navigate('/activate-account', { state: { email: data.email} });
         return;
       }
 
@@ -130,9 +130,9 @@ export function StudentLogin() {
                 <input type="checkbox" className="rounded" />
                 Remember me
               </label>
-              <a href="#" className="text-blue-600 hover:text-blue-700">
+              <Link to="/forgot-password" state={{ email }} className="text-blue-600 hover:text-blue-700">
                 Forgot password?
-              </a>
+              </Link>
             </div>
 
             <Button

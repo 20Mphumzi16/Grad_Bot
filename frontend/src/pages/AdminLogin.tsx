@@ -39,7 +39,7 @@ export function AdminLogin() {
       const data = await res.json();
 
       if (data.status === 'FIRST_LOGIN_REQUIRED') {
-        navigate('/activate-account', { state: { email: data.email, user_id: data.user_id } });
+        navigate('/activate-account', { state: { email: data.email } });
         return;
       }
 
@@ -137,9 +137,9 @@ export function AdminLogin() {
           </form>
 
           <div className="mt-6 text-center">
-            <a href="#" className="text-sm text-muted-foreground hover:text-foreground">
+            <Link to="/forgot-password" state={{ email }} className="text-sm text-muted-foreground hover:text-foreground">
               Forgot password?
-            </a>
+            </Link>
           </div>
         </div>
 
