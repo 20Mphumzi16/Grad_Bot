@@ -6,7 +6,7 @@ import os
 from dotenv import load_dotenv
 from supabase import create_client, Client
 from datetime import datetime, timedelta, timezone
-from dependencies import get_current_user
+from auth_routes import get_current_user
 
 load_dotenv()
 
@@ -77,33 +77,51 @@ def view_document(document_id: UUID, user: dict = Depends(get_current_user)):
         .create_signed_url(doc.data["file_path"], 60)
     
     increment_views(document_id)
-    track_user_view(user["id"], document_id)
+
+   #track user uma ivula table
+    try:
+        if user and "id" in user:
+            supabase.table("user_document_views").upsert(
+                {
+                    "user_id": user["id"], 
+                    "document_id": str(document_id),
+                    "viewed_at": datetime.now(timezone.utc).isoformat()
+                },
+                on_conflict="user_id, document_id"
+            ).execute()
+    except Exception as e:
+        print(f"Error tracking user view: {e}")
+       
 
     return {"url": signed_url["signedURL"]}
 
-def track_user_view(user_id, document_id: UUID):
+@router.get("/user/{user_id}/view-count")
+def get_user_view_count(user_id: str):
     try:
-        supabase.table("user_document_views").upsert({
-            "user_id": str(user_id),
-            "document_id": str(document_id),
-            "viewed_at": datetime.now(timezone.utc).isoformat()
-        }).execute()
-    except Exception as e:
-        print(f"Error tracking user view: {e}")
-
-@router.get("/count-views/{user_id}")
-def get_user_view_count(user_id: UUID):
-    try:
-        count = supabase.table("user_document_views") \
+        res = supabase.table("user_document_views") \
             .select("*", count="exact") \
-            .eq("user_id", str(user_id)) \
-            .execute() \
-            .count
-        return {"count": count or 0}
+            .eq("user_id", user_id) \
+            .execute()
+        
+        total = res.count or 0
+
+    
+        now = datetime.now(timezone.utc)
+        start_of_week = now - timedelta(days=now.weekday())
+        start_of_week = start_of_week.replace(hour=0, minute=0, second=0, microsecond=0)
+        
+        res_week = supabase.table("user_document_views") \
+            .select("*", count="exact") \
+            .eq("user_id", user_id) \
+            .gte("viewed_at", start_of_week.isoformat()) \
+            .execute()
+            
+        this_week = res_week.count or 0
+        
+        return {"count": total, "this_week": this_week}
     except Exception as e:
-        # If table doesn't exist yet, return 0
-        print(f"Error getting view count: {e}")
-        return {"count": 0}
+        print(f"Error getting user view count: {e}")
+        return {"count": 0, "this_week": 0}
 
 def increment_views(document_id: UUID):
     # Read current views value

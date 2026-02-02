@@ -161,13 +161,13 @@ export function StudentResources() {
                   <Badge variant="outline" className="rounded-lg">
                     {CATEGORY_MAP[res.category_id] || 'Other'}
                   </Badge>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
                     {res.file_extension.toUpperCase()} • {(res.file_size / 1024).toFixed(2)} KB
                   </span>
                 </div>
-                <p className="text-sm text-gray-600 mb-4">{res.description}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">{res.description}</p>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1 text-xs text-gray-500">
+                  <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
                     <Eye className="w-3 h-3" />
                     <span>{res.views} views</span>
                   </div>
