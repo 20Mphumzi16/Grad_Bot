@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useClickOutside } from '../hooks/use-click-outside';
 import { CustomModal } from '../components/ui/custom-modal';
+import { GraduateProfileModal, GraduateProfile } from '../components/GraduateProfileModal';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -29,6 +30,15 @@ type GraduateUser = {
   email: string;
   phone: string;
   progress?: string | number | null;
+  avatar_url?: string | null;
+  bio?: string;
+  interests?: string;
+  linkedin_link?: string;
+  github_link?: string;
+  department?: string;
+  branch?: string;
+  start_date?: string;
+  emp_no?: string | number;
 };
 
 function UserActionMenu({ 
@@ -104,6 +114,7 @@ export function AdminUserManagement() {
   const [confirmUserId, setConfirmUserId] = useState<string | number | null>(null);
   const [confirmDeleteAll, setConfirmDeleteAll] = useState(false);
   const [selectedUserIds, setSelectedUserIds] = useState<(string | number)[]>([]);
+  const [selectedGraduate, setSelectedGraduate] = useState<GraduateUser | null>(null);
   const [createForm, setCreateForm] = useState<{
     firstName: string;
     lastName: string;
@@ -141,6 +152,15 @@ export function AdminUserManagement() {
           email: it?.email ?? '',
           phone: it?.phone ?? it?.phone_number ?? '',
           progress: it?.progress ?? null,
+          avatar_url: it?.avatar_url ?? null,
+          bio: it?.bio ?? '',
+          interests: it?.interests ?? '',
+          linkedin_link: it?.linkedin_link ?? '',
+          github_link: it?.github_link ?? '',
+          department: it?.department ?? '',
+          branch: it?.branch ?? it?.location ?? '',
+          start_date: it?.start_date ?? '',
+          emp_no: it?.emp_no ?? '',
         }));
         setUsers(mapped);
         setSelectedUserIds([]);
@@ -187,6 +207,37 @@ export function AdminUserManagement() {
   });
 
 
+
+  const handleUserClick = async (user: GraduateUser) => {
+    setSelectedGraduate(user);
+    
+    // Attempt to fetch full details
+    try {
+      const res = await fetch(`${API_BASE_URL}/graduates/${user.id}`);
+      if (res.ok) {
+        const detailedUser = await res.json();
+        setSelectedGraduate(prev => {
+          if (prev && prev.id === user.id) {
+            return {
+              ...prev,
+              avatar_url: detailedUser.avatar_url ?? detailedUser.avatarUrl ?? prev.avatar_url,
+              bio: detailedUser.bio ?? prev.bio,
+              interests: detailedUser.interests ?? prev.interests,
+              linkedin_link: detailedUser.linkedin_link ?? detailedUser.linkedinLink ?? prev.linkedin_link,
+              github_link: detailedUser.github_link ?? detailedUser.githubLink ?? prev.github_link,
+              department: detailedUser.department ?? prev.department,
+              branch: detailedUser.branch ?? detailedUser.location ?? prev.branch,
+              start_date: detailedUser.start_date ?? detailedUser.startDate ?? prev.start_date,
+              emp_no: detailedUser.emp_no ?? detailedUser.empNo ?? prev.emp_no,
+            };
+          }
+          return prev;
+        });
+      }
+    } catch (e) {
+      console.error("Failed to fetch user details", e);
+    }
+  };
 
   const handleDelete = async (id: string | number) => {
     setLoading(true);
@@ -548,9 +599,10 @@ export function AdminUserManagement() {
                 filteredUsers.map((user) => (
                   <tr
                     key={user.id}
-                    className="border-b border-gray-100 hover:bg-white hover:text-black"
+                    className="border-b border-gray-100 hover:bg-white hover:text-black cursor-pointer"
+                    onClick={() => handleUserClick(user)}
                   >
-                    <td className="p-6">
+                    <td className="p-6" onClick={(e) => e.stopPropagation()}>
                       <Checkbox
                         checked={selectedUserIds.includes(user.id)}
                         onCheckedChange={(checked) =>
@@ -598,7 +650,7 @@ export function AdminUserManagement() {
                         {user.progress != null ? `${user.progress}%` : '-'}
                       </span>
                     </td>
-                    <td className="p-6">
+                    <td className="p-6" onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center gap-2">
                         <UserActionMenu
                           user={user}
@@ -621,6 +673,13 @@ export function AdminUserManagement() {
           </table>
         </div>
       </Card>
+
+      <GraduateProfileModal
+        user={selectedGraduate}
+        isOpen={selectedGraduate != null}
+        onClose={() => setSelectedGraduate(null)}
+      />
+
       <CustomModal
         open={createForm != null}
         onClose={() => setCreateForm(null)}

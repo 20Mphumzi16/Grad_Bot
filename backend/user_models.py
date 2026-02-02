@@ -47,6 +47,14 @@ class GraduateResponse(BaseModel):
     phone: str | None
     progress: int | None = None
     archived: bool = False
+    bio: str | None = None
+    linkedin_link: str | None = None
+    github_link: str | None = None
+    interests: str | None = None
+    branch: str | None = None
+    department: str | None = None
+    start_date: str | None = None
+    avatar_url: str | None = None
 
 
 class GraduateUpdateRequest(BaseModel):
