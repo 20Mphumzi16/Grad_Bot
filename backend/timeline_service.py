@@ -168,7 +168,7 @@ def update_milestone_status(milestone_id: str, status: str):
                     body = f"""
                     <h2>Milestone Completed</h2>
                     <p>The milestone <strong>{title}</strong> has been marked as completed.</p>
-                    <p>Log in to view your progress: <a href="http://localhost:5173/student/timeline">View Timeline</a></p>
+                    <p>Log in to view your progress: <a href="https://resilient-pithivier-201bbe.netlify.app/student/timeline">View Timeline</a></p>
                     """
                     
                     if grad_id:
