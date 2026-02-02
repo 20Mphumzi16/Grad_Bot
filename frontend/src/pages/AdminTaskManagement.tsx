@@ -24,11 +24,15 @@ export function AdminTaskManagement() {
   const [newMilestone, setNewMilestone] = useState<{
     title: string;
     week_label: string;
+    start_week: string; // Keep as string for input, convert to number on save
+    end_week: string;
     tasks: string[];
     graduate_ids: string[];
   }>({
     title: "",
     week_label: "",
+    start_week: "",
+    end_week: "",
     tasks: [],
     graduate_ids: []
   });
@@ -45,6 +49,8 @@ export function AdminTaskManagement() {
     id: string;
     title: string;
     week_label: string;
+    start_week: string;
+    end_week: string;
     tasks: { id?: string; name: string }[];
     graduate_id: string | null;
     graduate_ids: string[];
@@ -144,6 +150,8 @@ export function AdminTaskManagement() {
         id: milestone.milestone_id,
         title: milestone.title,
         week_label: milestone.week_label,
+        start_week: milestone.start_week ? String(milestone.start_week) : "",
+        end_week: milestone.end_week ? String(milestone.end_week) : "",
         tasks: milestone.tasks.map((t: any) => ({ id: t.task_id, name: t.name })),
         graduate_id: milestone.graduate_id || null,
         graduate_ids: milestone.graduate_id ? [milestone.graduate_id] : []
@@ -174,19 +182,25 @@ export function AdminTaskManagement() {
 
   const handleSaveEdit = async () => {
     if (!editingMilestone) return;
-    if (!editingMilestone.title || !editingMilestone.week_label) {
-      alert("Please fill in Milestone Title and Week Label");
+    if (!editingMilestone.title || !editingMilestone.start_week || !editingMilestone.end_week) {
+      alert("Please fill in Milestone Title, Start Week, and End Week");
       return;
     }
+
+    const start = parseInt(editingMilestone.start_week);
+    const end = parseInt(editingMilestone.end_week);
+    const generatedWeekLabel = start === end ? `Week ${start}` : `Weeks ${start}-${end}`;
 
     setLoading(true);
     try {
       const res = await fetch(`${API_BASE_URL}/timeline/milestone/${editingMilestone.id}`, {
-        method: 'PUT',
+        method: 'PUT', 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: editingMilestone.title,
-          week_label: editingMilestone.week_label,
+          week_label: generatedWeekLabel,
+          start_week: start,
+          end_week: end,
           tasks: editingMilestone.tasks.filter(t => t.name.trim() !== ""),
           graduate_ids: editingMilestone.graduate_ids
         })
@@ -210,7 +224,7 @@ export function AdminTaskManagement() {
   };
 
   const handleAddMilestone = () => {
-    setNewMilestone({ title: "", week_label: "", tasks: [], graduate_ids: [] });
+    setNewMilestone({ title: "", week_label: "", start_week: "", end_week: "", tasks: [], graduate_ids: [] });
     setIsAddModalOpen(true);
   };
 
@@ -230,11 +244,15 @@ export function AdminTaskManagement() {
   };
 
   const handleSaveMilestone = async () => {
-    if (!newMilestone.title || !newMilestone.week_label) {
-      alert("Please fill in Milestone Title and Week Label");
+    if (!newMilestone.title || !newMilestone.start_week || !newMilestone.end_week) {
+      alert("Please fill in Milestone Title, Start Week, and End Week");
       return;
     }
     
+    const start = parseInt(newMilestone.start_week);
+    const end = parseInt(newMilestone.end_week);
+    const generatedWeekLabel = start === end ? `Week ${start}` : `Weeks ${start}-${end}`;
+
     setLoading(true);
     try {
         const res = await fetch(`${API_BASE_URL}/timeline/milestone`, {
@@ -244,7 +262,9 @@ export function AdminTaskManagement() {
             },
             body: JSON.stringify({
                 title: newMilestone.title,
-                week_label: newMilestone.week_label,
+                week_label: generatedWeekLabel,
+                start_week: start,
+                end_week: end,
                 tasks: newMilestone.tasks.filter(t => t.trim() !== ""),
                 graduate_ids: newMilestone.graduate_ids
             })
@@ -265,6 +285,8 @@ export function AdminTaskManagement() {
         setNewMilestone({
           title: "",
           week_label: "",
+          start_week: "",
+          end_week: "",
           tasks: [],
           graduate_ids: []
         });
@@ -519,14 +541,29 @@ export function AdminTaskManagement() {
             />
           </div>
           
-          <div className="grid gap-2">
-            <Label htmlFor="week">Week Specification</Label>
-            <Input
-              id="week"
-              placeholder="e.g. Week 1"
-              value={newMilestone.week_label}
-              onChange={(e) => setNewMilestone({ ...newMilestone, week_label: e.target.value })}
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="start-week">Start Week</Label>
+              <Input
+                id="start-week"
+                type="number"
+                min="1"
+                placeholder="1"
+                value={newMilestone.start_week}
+                onChange={(e) => setNewMilestone({ ...newMilestone, start_week: e.target.value })}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="end-week">End Week</Label>
+              <Input
+                id="end-week"
+                type="number"
+                min="1"
+                placeholder="1"
+                value={newMilestone.end_week}
+                onChange={(e) => setNewMilestone({ ...newMilestone, end_week: e.target.value })}
+              />
+            </div>
           </div>
 
           <div className="grid gap-2 relative" ref={addGraduateDropdownRef}>
@@ -663,14 +700,27 @@ export function AdminTaskManagement() {
                 />
             </div>
             
-            <div className="grid gap-2">
-                <Label htmlFor="edit-week">Week Specification</Label>
-                <Input
-                id="edit-week"
-                placeholder="e.g. Week 1"
-                value={editingMilestone.week_label}
-                onChange={(e) => setEditingMilestone({ ...editingMilestone, week_label: e.target.value })}
-                />
+            <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                    <Label htmlFor="edit-start-week">Start Week</Label>
+                    <Input
+                    id="edit-start-week"
+                    type="number"
+                    min="1"
+                    value={editingMilestone.start_week}
+                    onChange={(e) => setEditingMilestone({ ...editingMilestone, start_week: e.target.value })}
+                    />
+                </div>
+                <div className="grid gap-2">
+                    <Label htmlFor="edit-end-week">End Week</Label>
+                    <Input
+                    id="edit-end-week"
+                    type="number"
+                    min="1"
+                    value={editingMilestone.end_week}
+                    onChange={(e) => setEditingMilestone({ ...editingMilestone, end_week: e.target.value })}
+                    />
+                </div>
             </div>
 
             <div className="grid gap-2 relative" ref={editGraduateDropdownRef}>

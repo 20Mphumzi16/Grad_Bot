@@ -33,6 +33,8 @@ class CreateMilestoneRequest(BaseModel):
     tasks: list[str]
     graduate_id: UUID | None = None
     graduate_ids: list[UUID] | None = None
+    start_week: int | None = None
+    end_week: int | None = None
 
 @router.post("/milestone")
 def create_milestone(payload: CreateMilestoneRequest):
@@ -42,7 +44,14 @@ def create_milestone(payload: CreateMilestoneRequest):
         if not ids and payload.graduate_id:
             ids = [payload.graduate_id]
             
-        return create_milestone_with_tasks(payload.title, payload.week_label, payload.tasks, ids)
+        return create_milestone_with_tasks(
+            payload.title, 
+            payload.week_label, 
+            payload.tasks, 
+            ids, 
+            payload.start_week, 
+            payload.end_week
+        )
     except Exception as e:
         print(f"API Error creating milestone: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -60,6 +69,8 @@ class UpdateMilestoneRequest(BaseModel):
     tasks: list[TaskItem]
     graduate_id: UUID | None = None
     graduate_ids: list[UUID] | None = None
+    start_week: int | None = None
+    end_week: int | None = None
 
 @router.put("/milestone/{milestone_id}")
 def update_milestone(milestone_id: str, payload: UpdateMilestoneRequest):
@@ -72,7 +83,15 @@ def update_milestone(milestone_id: str, payload: UpdateMilestoneRequest):
         if ids is None and payload.graduate_id:
             ids = [payload.graduate_id]
             
-        return update_milestone_with_tasks(milestone_id, payload.title, payload.week_label, tasks_dicts, ids)
+        return update_milestone_with_tasks(
+            milestone_id, 
+            payload.title, 
+            payload.week_label, 
+            tasks_dicts, 
+            ids,
+            payload.start_week,
+            payload.end_week
+        )
     except Exception as e:
         print(f"API Error updating milestone: {e}")
         raise HTTPException(status_code=500, detail=str(e))
