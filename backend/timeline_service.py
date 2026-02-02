@@ -187,12 +187,22 @@ def update_milestone_status(milestone_id: str, status: str):
         print(f"Error updating milestone status {milestone_id}: {e}")
         raise e
 
-def create_milestone_with_tasks(title: str, week_label: str, tasks: list[str], graduate_ids: list[UUID] | None = None):
+def create_milestone_with_tasks(
+    title: str, 
+    week_label: str, 
+    tasks: list[str], 
+    graduate_ids: list[UUID] | None = None,
+    start_week: int | None = None,
+    end_week: int | None = None
+):
     try:
-        # 1. Parse start/end week
-        nums = [int(s) for s in re.findall(r'\b\d+\b', week_label)]
-        start_week = nums[0] if nums else 1
-        end_week = nums[-1] if nums else start_week
+        # 1. Parse start/end week if not provided
+        if start_week is None or end_week is None:
+            nums = [int(s) for s in re.findall(r'\b\d+\b', week_label)]
+            if start_week is None:
+                start_week = nums[0] if nums else 1
+            if end_week is None:
+                end_week = nums[-1] if nums else start_week
 
         # Determine target list
         # If graduate_ids is None or Empty, we default to [None] (Global Milestone)
@@ -278,13 +288,24 @@ def create_milestone_with_tasks(title: str, week_label: str, tasks: list[str], g
         traceback.print_exc()
         raise e
 
-def update_milestone_with_tasks(milestone_id: str, title: str, week_label: str, tasks: list[dict], graduate_ids: list[UUID] | None = None):
+def update_milestone_with_tasks(
+    milestone_id: str, 
+    title: str, 
+    week_label: str, 
+    tasks: list[dict], 
+    graduate_ids: list[UUID] | None = None,
+    start_week: int | None = None,
+    end_week: int | None = None
+):
     try:
         # 1. Update Milestone details
-        # Parse start/end week
-        nums = [int(s) for s in re.findall(r'\b\d+\b', week_label)]
-        start_week = nums[0] if nums else 1
-        end_week = nums[-1] if nums else start_week
+        # Parse start/end week if not provided
+        if start_week is None or end_week is None:
+            nums = [int(s) for s in re.findall(r'\b\d+\b', week_label)]
+            if start_week is None:
+                start_week = nums[0] if nums else 1
+            if end_week is None:
+                end_week = nums[-1] if nums else start_week
 
         update_data = {
             "title": title,
