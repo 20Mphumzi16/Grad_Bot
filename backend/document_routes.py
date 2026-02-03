@@ -40,11 +40,25 @@ async def create_document(
 @router.get("/get-documents", response_model=list[DocumentResponse])
 def list_documents():
     result = supabase.table("documents") \
-        .select("*") \
+        .select("*, document_chunks(count)") \
         .order("created_at", desc=True) \
         .execute()
 
-    return result.data
+    # Post-process to extract chunk count
+    documents = []
+    for doc in result.data:
+        # Extract count from the nested list/object structure
+        # typically it comes as [{'count': N}] or similar depending on PostgREST version
+        chunks_info = doc.get("document_chunks", [])
+        chunk_count = 0
+        if isinstance(chunks_info, list) and len(chunks_info) > 0:
+            chunk_count = chunks_info[0].get("count", 0)
+        
+        # Add to document object (cleaning up the nested field if desired, or just adding 'chunks')
+        doc["chunks"] = chunk_count
+        documents.append(doc)
+
+    return documents
 
 @router.get("/{document_id}/download")
 def download_document(document_id: UUID):
@@ -160,12 +174,23 @@ def remove_document(document_id: str):
 @router.get("/get-newest-documents", response_model=list[DocumentResponse])
 def list_documents():
     result = supabase.table("documents") \
-        .select("*") \
+        .select("*, document_chunks(count)") \
         .order("created_at", desc=True) \
         .limit(5) \
         .execute()
 
-    return result.data
+    # Post-process to extract chunk count
+    documents = []
+    for doc in result.data:
+        chunks_info = doc.get("document_chunks", [])
+        chunk_count = 0
+        if isinstance(chunks_info, list) and len(chunks_info) > 0:
+            chunk_count = chunks_info[0].get("count", 0)
+        
+        doc["chunks"] = chunk_count
+        documents.append(doc)
+
+    return documents
 
 @router.get("/get-popular-documents", response_model=list[DocumentResponse])
 def list_documents():

@@ -21,3 +21,4 @@ class DocumentResponse(BaseModel):
     views: Optional[int]
     description: Optional[str]
     created_at: datetime
+    chunks: Optional[int] = 0
