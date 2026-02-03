@@ -16,7 +16,7 @@ app = FastAPI(title="RAG Chatbot API", version="1.0.0")
 # Enable CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"
+    allow_origins=["https://grad-bot-1cdr.onrender.com","localhost:3000","https://resilient-pithivier-201bbe.netlify.app/"
     ],
     allow_credentials=True,
     allow_methods=["*"],
