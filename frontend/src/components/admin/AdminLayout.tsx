@@ -3,19 +3,29 @@ import { AdminSidebar } from './AdminSidebar';
 import { AdminHeader } from './AdminHeader';
 import { AnimatePresence } from 'framer-motion';
 import { PageTransition } from '../ui/PageTransition';
+import { useState } from 'react';
+import { cn } from '@/components/ui/utils';
 
 export function AdminLayout() {
   const location = useLocation();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
     <div 
       className="min-h-screen"
       style={{ backgroundColor: 'var(--background)' }}
     >
-      <AdminHeader />
-      <div className="flex">
-        <AdminSidebar />
-        <main className="flex-1 ml-64 p-8">
+      <AdminHeader onMobileMenuToggle={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
+      <div className="flex pt-24 md:pt-28">
+        <AdminSidebar isOpen={isMobileMenuOpen} onToggle={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
+        
+        {/* Spacer for Minified Sidebar - ensures content is never cut */}
+        <div className="w-16 flex-shrink-0" aria-hidden="true" />
+        
+        <main className={cn(
+            "flex-1 p-4 md:p-8 pb-20 md:pb-8 transition-all duration-300",
+            // Removed manual margins as Spacer handles the offset
+          )}>
           <AnimatePresence mode="wait">
             <PageTransition key={location.pathname} className="h-full">
               <Outlet />

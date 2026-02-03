@@ -1,9 +1,11 @@
 import { Button } from '../ui/button';
-import { LogOut, Moon, Sun, LayoutDashboard, FileText, BarChart3, Settings, MessageSquare, Users, CheckSquare } from 'lucide-react';
+import { LogOut, Moon, Sun, LayoutDashboard, FileText, BarChart3, Settings, MessageSquare, Users, CheckSquare, Menu } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router';
 import { useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { ConfirmDialog } from '../ui/confirm-dialog';
+import logo from '../../assets/logo.png';
+import logo1 from '../../assets/logo1.png';
 
 const pageLabels: Record<string, string> = {
   '/admin': 'Dashboard',
@@ -25,11 +27,12 @@ const pageIcons: Record<string, any> = {
   '/admin/tasks': CheckSquare,
 };
 
-export function AdminHeader() {
+export function AdminHeader({ onMobileMenuToggle }: { onMobileMenuToggle?: () => void }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { isDark, toggleTheme } = useTheme();
   const [showConfirm, setShowConfirm] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -47,10 +50,18 @@ export function AdminHeader() {
         color: 'var(--foreground)'
       }}
     >
-      <div className="h-full px-6 flex items-center justify-between">
-        <div className="flex items-center gap-3 ml-64">
-          {CurrentIcon && <CurrentIcon className="w-6 h-6" />}
-          <h1 className="text-xl font-semibold">{pageLabels[location.pathname] || 'Admin Dashboard'}</h1>
+      <div className="h-full px-4 md:px-6 flex items-center justify-between">
+        <div className="flex items-center gap-3 ml-16 pl-4 md:pl-8">
+          <div className="md:hidden flex items-center mr-2">
+            <img 
+              src={isDark ? logo1 : logo} 
+              alt="Datacentrix Logo" 
+              className="h-8 w-auto max-w-full object-contain"
+            />
+          </div>
+
+          {CurrentIcon && <CurrentIcon className="w-6 h-6 hidden md:block" />}
+          <h1 className="text-xl font-semibold truncate">{pageLabels[location.pathname] || 'Admin Dashboard'}</h1>
         </div>
 
         <div className="flex items-center gap-3">
