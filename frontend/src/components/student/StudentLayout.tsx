@@ -18,7 +18,7 @@ export function StudentLayout() {
         style={{ backgroundColor: 'var(--background)' }}
       >
         <StudentHeader onMobileMenuToggle={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
-        <div className="flex pt-24 md:pt-28">
+        <div className="flex pt-32">
           <StudentSidebar isOpen={isMobileMenuOpen} onToggle={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
         
         {/* Spacer for Minified Sidebar - ensures content is never cut */}
