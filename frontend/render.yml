@@ -1,0 +1,7 @@
+services:
+  - type: static_site
+    name: your-frontend-name
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
