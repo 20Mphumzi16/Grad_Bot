@@ -1,7 +1,4 @@
-services:
-  - type: static_site
-    name: Grad_Bot
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
+routes:
+  - type: rewrite
+    source: /*
+    destination: /index.html
