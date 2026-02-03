@@ -168,7 +168,7 @@ def update_milestone_status(milestone_id: str, status: str):
                     body = f"""
                     <h2>Milestone Completed</h2>
                     <p>The milestone <strong>{title}</strong> has been marked as completed.</p>
-                    <p>Log in to view your progress: <a href="https://resilient-pithivier-201bbe.netlify.app/student/timeline">View Timeline</a></p>
+                    <p>Log in to view your progress: <a href="{os.getenv("FRONTEND_URL")}/student/timeline">View Timeline</a></p>
                     """
                     
                     if grad_id:
@@ -253,7 +253,7 @@ def create_milestone_with_tasks(
                 <h2>New Milestone Assigned</h2>
                 <p>A new milestone <strong>{title}</strong> ({week_label}) has been assigned to you.</p>
                 <p>Tasks included: {len(tasks) if tasks else 0}</p>
-                <p>Log in to view it: <a href="https://resilient-pithivier-201bbe.netlify.app/">View Timeline</a></p>
+                <p>Log in to view it: <a href="{os.getenv("FRONTEND_URL")}/student/timeline">View Timeline</a></p>
                 """
                 
                 if grad_id:

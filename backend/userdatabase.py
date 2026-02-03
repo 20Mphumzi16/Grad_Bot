@@ -402,3 +402,12 @@ def delete_user(user_id: str) -> bool:
     except Exception as e:
         print(f"Error in delete_user: {e}")
         raise e
+def get_all_graduates_count():
+    print("Fetching all graduates count")
+    try:
+        response = supabase.table("graduates").select("*").execute()
+        print(f"Graduates count: {len(response.data)}")
+        return len(response.data)
+    except Exception as e:
+        print(f"Error in get_all_graduates_count: {e}")
+        raise e

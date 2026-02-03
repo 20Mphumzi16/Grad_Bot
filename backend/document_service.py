@@ -69,7 +69,7 @@ def upload_document(
             <h2>New Document Uploaded</h2>
             <p>A new document <strong>{file_name}</strong> has been uploaded to the Grad Bot.</p>
             <p>Description: {description or 'No description provided'}</p>
-            <p>Log in to view it: <a href="http://localhost:5173/student/documents">View Documents</a></p>
+            <p>Log in to view it: <a href="{os.getenv("FRONTEND_URL")}/student/documents">View Documents</a></p>
             """
             send_email(emails, subject, body)
     except Exception as e:

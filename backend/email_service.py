@@ -58,11 +58,6 @@ def get_all_graduate_emails():
         print(f"Error fetching graduate emails: {e}")
         return []
 
-    # response = supabase.rpc("get_graduate_emails").execute()
-
-    emails = [row["email"] for row in response.data]
-
-    return response.data
 
 def get_graduate_email_by_id(graduate_id: str):
     """Fetch email for a specific graduate ID"""
@@ -113,5 +108,3 @@ def send_email(to_emails: list[str], subject: str, body: str):
     except Exception as e:
         print(f"❌ Error sending email: {e}")
         
-#send_email(["mxovelamxo@outlook.com","mo1motala@gmail.com"], "Testing function send", "test4")
-# print(get_all_graduate_emails())

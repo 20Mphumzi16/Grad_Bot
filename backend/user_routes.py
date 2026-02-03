@@ -1,6 +1,8 @@
+from userdatabase import get_all_graduates_count
 from fastapi import APIRouter, HTTPException
 from userdatabase import get_all_graduates, delete_user, update_graduate_basic, set_graduate_archived_status, get_graduate_details
 from user_models import GraduateResponse, GraduateUpdateRequest
+
 
 router = APIRouter(prefix="/graduates", tags=["Graduates"])
 
@@ -9,6 +11,14 @@ async def list_graduates_endpoint():
     try:
         graduates = get_all_graduates()
         return graduates
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/count")
+def get_all_graduates_count_endpoint():
+    try:
+        count = get_all_graduates_count()
+        return {"count": count}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -34,6 +44,11 @@ async def delete_graduate_endpoint(user_id: str):
         print(f"Delete endpoint error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@router.get("/count")
+def get_all_graduates_count_endpoint():
+       print("get_all_graduates_count_endpoint")
+    
+       print(get_all_graduates_count())   
 
 @router.put("/{user_id}", response_model=GraduateResponse)
 async def update_graduate_endpoint(user_id: str, request: GraduateUpdateRequest):

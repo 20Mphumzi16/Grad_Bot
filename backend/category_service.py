@@ -4,6 +4,7 @@ from supabase import create_client, Client
 
 load_dotenv()
 
+# Initialize Supabase client
 url: str = os.getenv("SUPABASE_URL")
 key: str = os.getenv("SUPABASE_SERVICE_KEY")
 supabase: Client = create_client(url, key)

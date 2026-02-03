@@ -9,15 +9,17 @@ from user_routes import router as user_router
 from timeline_routes import router as timeline_router
 from chat_routes import router as chat_router
 from otp_routes import router as otp_router
-
+import os
+from dotenv import load_dotenv
 
 app = FastAPI(title="RAG Chatbot API", version="1.0.0")
+load_dotenv()
 
+db_url = os.getenv("DATABASE_URL")
 # Enable CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://grad-bot-1cdr.onrender.com","http://localhost:3000","https://resilient-pithivier-201bbe.netlify.app/"
-    ],
+    allow_origins=[str(os.getenv("FRONTEND_URL")), "http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -16,6 +16,8 @@ import {
   Tooltip, 
   ResponsiveContainer 
 } from 'recharts';
+import { API_BASE_URL } from '@/utils/config';
+import { useEffect, useState } from 'react';
 
 export function AdminAnalytics() {
   const conversationData = [
@@ -53,6 +55,14 @@ export function AdminAnalytics() {
     { document: 'Code of Conduct', usage: 267 },
     { document: 'Leave Policy', usage: 234 },
   ];
+
+  const [graduateCount, setGraduateCount] = useState(0);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/graduates/count`)
+      .then(response => response.json())
+      .then(data => setGraduateCount(data.count));
+  }, []);
 
   return (
     <div className="pt-8 space-y-8">
@@ -96,9 +106,9 @@ export function AdminAnalytics() {
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
               <TrendingUp className="w-5 h-5 text-white" />
             </div>
-            <p className="text-gray-600 text-sm">Active Users</p>
+            <p className="text-gray-600 text-sm">Graduates Count</p>
           </div>
-          <p style={{ color: 'var(--foreground)' }} className="mb-1">342</p>
+          <p style={{ color: 'var(--foreground)' }} className="mb-1">{graduateCount}</p>
           <p className="text-sm text-green-600">+18 new this week</p>
         </Card>
       </div>
