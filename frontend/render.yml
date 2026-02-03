@@ -1,4 +1,7 @@
-routes:
-  - type: rewrite
-    source: /*
-    destination: /index.html
+services:
+  - type: static_site
+    name: frontend
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
