@@ -223,6 +223,14 @@ def update_graduate_basic(user_id: str, data: dict):
     return None
 
 
+def get_graduate_details(user_id: str):
+    graduates = get_all_graduates()
+    for grad in graduates:
+        if str(grad["id"]) == str(user_id):
+            return grad
+    return None
+
+
 def get_all_graduates():
     try:
         # 1. Fetch ALL profiles (users)
@@ -312,6 +320,14 @@ def get_all_graduates():
                     "phone": c.get("phone", ""),
                     "progress": progress,
                     "archived": grad_row.get("archived", False),
+                    "bio": grad_row.get("bio"),
+                    "linkedin_link": grad_row.get("linkedin_link"),
+                    "github_link": grad_row.get("github_link"),
+                    "interests": grad_row.get("interests"),
+                    "branch": p.get("branch"),
+                    "department": p.get("department"),
+                    "start_date": grad_row.get("start_date"),
+                    "avatar_url": p.get("avatar_url"),
                 }
                 graduates.append(grad)
             except Exception as inner_e:

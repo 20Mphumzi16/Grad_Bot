@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
+import { X } from "lucide-react";
+
 interface CustomModalProps {
   open: boolean;
   onClose: () => void;
@@ -11,6 +13,9 @@ interface CustomModalProps {
   overlayBlur?: number;
   overlayColor?: string;
   zIndex?: number;
+  className?: string;
+  contentClassName?: string;
+  showCloseButton?: boolean;
 }
 
 export  function CustomModal({
@@ -22,7 +27,10 @@ export  function CustomModal({
   overlayOpacity = 0.6,
   overlayBlur = 12,
   overlayColor = "rgba(0,0,0,0.6)",
-  zIndex = 40,
+  zIndex = 9999,
+  className = "",
+  contentClassName,
+  showCloseButton = false,
 }: CustomModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   const previouslyFocused = useRef<HTMLElement | null>(null);
@@ -97,8 +105,8 @@ export  function CustomModal({
 
   return createPortal(
     <div
-      className="fixed inset-0"
-      style={{ zIndex }}
+      className="fixed inset-0 flex items-center justify-center p-4 sm:p-6"
+      style={{ zIndex, position: 'fixed', left: 0, top: 0, width: '100vw', height: '100vh' }}
       role="dialog"
       aria-modal="true"
     >
@@ -109,6 +117,8 @@ export  function CustomModal({
           backdropFilter: overlayBlur > 0 ? `blur(${overlayBlur}px)` : "none",
           opacity: overlayVisible && !exiting ? overlayOpacity : 0,
           transition: "opacity 260ms cubic-bezier(0.22, 0.61, 0.36, 1)",
+          width: '100%',
+          height: '100%'
         }}
         onClick={() => {
           setExiting(true);
@@ -122,34 +132,31 @@ export  function CustomModal({
 
       <div
         ref={modalRef}
-        className="fixed"
+        className={`relative w-full p-6 rounded-xl shadow-2xl bg-background text-foreground border border-border ${className || 'max-w-md'}`}
         style={{
-          top: "50%",
-          left: "50%",
-          width: "100%",
-          maxWidth: "32rem",
-          padding: "1.5rem",
-          borderRadius: "0.75rem",
-          boxShadow: "0 16px 48px rgba(0,0,0,0.24)",
-          backgroundColor: "var(--background)",
-          color: "var(--foreground)",
-          border: "1px solid var(--border)",
           opacity: contentVisible && !exiting ? 1 : 0,
-          transform: contentVisible && !exiting
-            ? "translate(-50%, -50%) scale(1)"
-            : "translate(-50%, -50%) scale(0.96)",
-          transformOrigin: "50% 50%",
+          transform: contentVisible && !exiting ? "scale(1)" : "scale(0.96)",
           transition:
             "opacity 260ms cubic-bezier(0.22, 0.61, 0.36, 1), transform 300ms cubic-bezier(0.22, 0.61, 0.36, 1)",
         }}
       >
+        {showCloseButton && (
+          <button 
+            onClick={onClose}
+            className="absolute top-3 right-3 z-50 p-2 bg-white/90 hover:bg-white text-black rounded-full transition-colors shadow-sm border border-black/10"
+            aria-label="Close"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        )}
+
         {title && (
           <h2 className="mb-2 text-lg font-semibold">
             {title}
           </h2>
         )}
 
-        <div className="space-y-4">{children}</div>
+        <div className={contentClassName ?? "space-y-4"}>{children}</div>
 
         {footer && (
           <div className="mt-6 flex justify-end gap-2">

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+ import { useEffect, useState, useRef } from 'react';
 import { useClickOutside } from '../hooks/use-click-outside';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
@@ -11,7 +11,7 @@ import { API_BASE_URL } from '../utils/config';
 
 export function AdminTaskManagement() {
   const [milestones, setMilestones] = useState<any[]>([]);
-  const [graduates, setGraduates] = useState<any[]>([]); // Added graduates state
+  const [graduates, setGraduates] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const { setLoading } = useLoading();
   const [error, setError] = useState<string | null>(null);
@@ -24,83 +24,136 @@ export function AdminTaskManagement() {
   const [newMilestone, setNewMilestone] = useState<{
     title: string;
     week_label: string;
+    start_week: string;
+    end_week: string;
     tasks: string[];
     graduate_ids: string[];
   }>({
     title: "",
     week_label: "",
+    start_week: "",
+    end_week: "",
     tasks: [],
     graduate_ids: []
   });
 
   // Delete Modal State
   const [isDeleteAllOpen, setIsDeleteAllOpen] = useState(false);
-  const [milestoneToDelete, setMilestoneToDelete] = useState<string | null>(null);
+  const [milestoneToDelete, setMilestoneToDelete] = useState<any | null>(null); // Group object
 
   // Edit Modal State
   const [isEditGraduateDropdownOpen, setIsEditGraduateDropdownOpen] = useState(false);
   const editGraduateDropdownRef = useClickOutside<HTMLDivElement>(() => setIsEditGraduateDropdownOpen(false), isEditGraduateDropdownOpen);
 
   const [editingMilestone, setEditingMilestone] = useState<{
-    id: string;
+    id: string; // Primary ID
+    ids: string[]; // All IDs
+    milestone_map: { [key: string]: string }; // grad_id -> milestone_id
+    is_global: boolean;
+    global_id: string | null;
     title: string;
     week_label: string;
+    start_week: string;
+    end_week: string;
     tasks: { id?: string; name: string }[];
-    graduate_id: string | null;
-    graduate_ids: string[];
+    graduate_ids: string[]; // Selected grads
   } | null>(null);
 
   const getGraduateName = (graduateId: string | null) => {
-    if (!graduateId) return null;
+    if (!graduateId) return 'Global (All Graduates)';
     const grad = graduates.find(g => g.id === graduateId);
     return grad ? `${grad.first_name} ${grad.last_name}` : 'Unknown Graduate';
   };
 
-  useEffect(() => {
-    const fetchMilestones = async () => {
-      setLoading(true);
-      try {
-        setError(null);
-        const res = await fetch(`${API_BASE_URL}/timeline/all`);
-        if (!res.ok) throw new Error('Failed to fetch milestones');
-        
-        const data = await res.json();
-        setMilestones(data);
+  const fetchMilestones = async () => {
+    setLoading(true);
+    try {
+      setError(null);
+      const res = await fetch(`${API_BASE_URL}/timeline/all`);
+      if (!res.ok) throw new Error('Failed to fetch milestones');
+      
+      const data = await res.json();
+      setMilestones(data);
 
-        // Fetch graduates
-        const gradRes = await fetch(`${API_BASE_URL}/graduates/list`);
-        if (gradRes.ok) {
-            const gradData = await gradRes.json();
-            setGraduates(gradData);
-        }
-      } catch (err) {
-        console.error(err);
-        setError("Failed to load milestones.");
-      } finally {
-        setLoading(false);
+      // Fetch graduates
+      const gradRes = await fetch(`${API_BASE_URL}/graduates/list`);
+      if (gradRes.ok) {
+          const gradData = await gradRes.json();
+          setGraduates(gradData);
       }
-    };
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load milestones.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchMilestones();
   }, [setLoading]);
 
-  const handleMarkDone = async (milestoneId: string, currentStatus: string) => {
-    const newStatus = currentStatus === 'completed' ? 'active' : 'completed';
+  // Group milestones
+  const groupedMilestones = milestones.reduce((acc: any[], milestone) => {
+    const key = `${milestone.title}-${milestone.week_label}-${milestone.start_week}-${milestone.end_week}`;
+    const existingGroup = acc.find((g: any) => g.key === key);
+
+    if (existingGroup) {
+      existingGroup.ids.push(milestone.milestone_id);
+      if (milestone.graduate_id) {
+        existingGroup.graduate_ids.push(milestone.graduate_id);
+        existingGroup.milestone_map[milestone.graduate_id] = milestone.milestone_id;
+      } else {
+         existingGroup.is_global = true;
+         existingGroup.global_id = milestone.milestone_id;
+      }
+      if (milestone.status !== 'completed') {
+          existingGroup.status = 'active';
+      }
+    } else {
+      acc.push({
+        key,
+        primary_id: milestone.milestone_id,
+        ids: [milestone.milestone_id],
+        title: milestone.title,
+        week_label: milestone.week_label,
+        start_week: milestone.start_week,
+        end_week: milestone.end_week,
+        created_at: milestone.created_at,
+        status: milestone.status,
+        tasks: milestone.tasks,
+        graduate_ids: milestone.graduate_id ? [milestone.graduate_id] : [],
+        milestone_map: milestone.graduate_id ? { [milestone.graduate_id]: milestone.milestone_id } : {},
+        is_global: !milestone.graduate_id,
+        global_id: !milestone.graduate_id ? milestone.milestone_id : null
+      });
+    }
+    return acc;
+  }, []);
+
+  const milestoneRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  const scrollToMilestone = (key: string) => {
+    const el = milestoneRefs.current[key];
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const handleMarkDone = async (group: any) => {
+    const newStatus = group.status === 'completed' ? 'active' : 'completed';
     setLoading(true);
     try {
-        const res = await fetch(`${API_BASE_URL}/timeline/milestone/${milestoneId}/status`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status: newStatus })
-        });
-        if (!res.ok) throw new Error("Failed to update status");
+        // Update all milestones in the group
+        await Promise.all(group.ids.map((id: string) => 
+            fetch(`${API_BASE_URL}/timeline/milestone/${id}/status`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus })
+            })
+        ));
         
-        // Refresh
-        const refreshRes = await fetch(`${API_BASE_URL}/timeline/all`);
-        if (refreshRes.ok) {
-            const data = await refreshRes.json();
-            setMilestones(data);
-        }
+        await fetchMilestones();
     } catch (err: any) {
         console.error(err);
         setError("Failed to update milestone status");
@@ -109,25 +162,22 @@ export function AdminTaskManagement() {
     }
   };
 
-  const handleDelete = (milestoneId: string) => {
-    setMilestoneToDelete(milestoneId);
+  const handleDelete = (group: any) => {
+    setMilestoneToDelete(group);
   };
 
   const confirmDeleteMilestone = async () => {
     if (!milestoneToDelete) return;
     setLoading(true);
     try {
-        const res = await fetch(`${API_BASE_URL}/timeline/milestone/${milestoneToDelete}`, {
-            method: 'DELETE'
-        });
-        if (!res.ok) throw new Error("Failed to delete milestone");
+        // Delete all milestones in the group
+        await Promise.all(milestoneToDelete.ids.map((id: string) => 
+            fetch(`${API_BASE_URL}/timeline/milestone/${id}`, {
+                method: 'DELETE'
+            })
+        ));
         
-        // Refresh
-        const refreshRes = await fetch(`${API_BASE_URL}/timeline/all`);
-        if (refreshRes.ok) {
-            const data = await refreshRes.json();
-            setMilestones(data);
-        }
+        await fetchMilestones();
         setMilestoneToDelete(null);
     } catch (err: any) {
         console.error(err);
@@ -137,18 +187,20 @@ export function AdminTaskManagement() {
     }
   };
 
-  const handleModify = (milestoneId: string) => {
-    const milestone = milestones.find(m => m.milestone_id === milestoneId);
-    if (milestone) {
-      setEditingMilestone({
-        id: milestone.milestone_id,
-        title: milestone.title,
-        week_label: milestone.week_label,
-        tasks: milestone.tasks.map((t: any) => ({ id: t.task_id, name: t.name })),
-        graduate_id: milestone.graduate_id || null,
-        graduate_ids: milestone.graduate_id ? [milestone.graduate_id] : []
-      });
-    }
+  const handleModify = (group: any) => {
+    setEditingMilestone({
+      id: group.primary_id,
+      ids: group.ids,
+      milestone_map: group.milestone_map,
+      is_global: group.is_global,
+      global_id: group.global_id,
+      title: group.title,
+      week_label: group.week_label,
+      start_week: group.start_week ? String(group.start_week) : "",
+      end_week: group.end_week ? String(group.end_week) : "",
+      tasks: group.tasks.map((t: any) => ({ id: t.task_id, name: t.name })),
+      graduate_ids: group.graduate_ids
+    });
   };
 
   const handleEditTaskChange = (index: number, value: string) => {
@@ -174,32 +226,128 @@ export function AdminTaskManagement() {
 
   const handleSaveEdit = async () => {
     if (!editingMilestone) return;
-    if (!editingMilestone.title || !editingMilestone.week_label) {
-      alert("Please fill in Milestone Title and Week Label");
+    if (!editingMilestone.title || !editingMilestone.start_week || !editingMilestone.end_week) {
+      alert("Please fill in Milestone Title, Start Week, and End Week");
       return;
     }
 
+    const start = parseInt(editingMilestone.start_week);
+    const end = parseInt(editingMilestone.end_week);
+    const generatedWeekLabel = start === end ? `Week ${start}` : `Weeks ${start}-${end}`;
+
+    const currentGradIds = editingMilestone.graduate_ids;
+    const originalMap = editingMilestone.milestone_map;
+
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/timeline/milestone/${editingMilestone.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: editingMilestone.title,
-          week_label: editingMilestone.week_label,
-          tasks: editingMilestone.tasks.filter(t => t.name.trim() !== ""),
-          graduate_ids: editingMilestone.graduate_ids
-        })
-      });
+        // 1. Handle Global Logic
+        if (currentGradIds.length === 0) {
+            // Target is Global
+            if (!editingMilestone.is_global) {
+                // Was Specific -> Switch to Global
+                // Delete all specific
+                await Promise.all(editingMilestone.ids.map(id => 
+                    fetch(`${API_BASE_URL}/timeline/milestone/${id}`, { method: 'DELETE' })
+                ));
+                // Create Global
+                await fetch(`${API_BASE_URL}/timeline/milestone`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: editingMilestone.title,
+                        week_label: generatedWeekLabel,
+                        start_week: start,
+                        end_week: end,
+                        tasks: editingMilestone.tasks.filter(t => t.name.trim() !== "").map(t => t.name),
+                        graduate_ids: [] // Empty = Global
+                    })
+                });
+            } else {
+                // Was Global -> Update Global
+                await fetch(`${API_BASE_URL}/timeline/milestone/${editingMilestone.global_id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: editingMilestone.title,
+                        week_label: generatedWeekLabel,
+                        start_week: start,
+                        end_week: end,
+                        tasks: editingMilestone.tasks.filter(t => t.name.trim() !== ""),
+                        graduate_ids: []
+                    })
+                });
+            }
+        } else {
+            // Target is Specific
+            if (editingMilestone.is_global && editingMilestone.global_id) {
+                // Was Global -> Switch to Specific
+                // Delete Global
+                await fetch(`${API_BASE_URL}/timeline/milestone/${editingMilestone.global_id}`, { method: 'DELETE' });
+                // Create Specifics
+                await fetch(`${API_BASE_URL}/timeline/milestone`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: editingMilestone.title,
+                        week_label: generatedWeekLabel,
+                        start_week: start,
+                        end_week: end,
+                        tasks: editingMilestone.tasks.filter(t => t.name.trim() !== "").map(t => t.name),
+                        graduate_ids: currentGradIds
+                    })
+                });
+            } else {
+                // Was Specific -> Update Specific
+                const gradsToAdd = currentGradIds.filter(gid => !originalMap[gid]);
+                const gradsToRemove = Object.keys(originalMap).filter(gid => !currentGradIds.includes(gid));
+                const gradsToUpdate = currentGradIds.filter(gid => originalMap[gid]);
 
-      if (!res.ok) throw new Error("Failed to update milestone");
+                const tasksPayload = editingMilestone.tasks.filter(t => t.name.trim() !== "");
 
-      // Refresh
-      const refreshRes = await fetch(`${API_BASE_URL}/timeline/all`);
-      if (refreshRes.ok) {
-          const data = await refreshRes.json();
-          setMilestones(data);
-      }
+                // Add new
+                if (gradsToAdd.length > 0) {
+                    await fetch(`${API_BASE_URL}/timeline/milestone`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            title: editingMilestone.title,
+                            week_label: generatedWeekLabel,
+                            start_week: start,
+                            end_week: end,
+                            tasks: tasksPayload.map(t => t.name), // Create expects strings
+                            graduate_ids: gradsToAdd
+                        })
+                    });
+                }
+
+                // Remove old
+                if (gradsToRemove.length > 0) {
+                    await Promise.all(gradsToRemove.map(gid => 
+                        fetch(`${API_BASE_URL}/timeline/milestone/${originalMap[gid]}`, { method: 'DELETE' })
+                    ));
+                }
+
+                // Update existing
+                if (gradsToUpdate.length > 0) {
+                    await Promise.all(gradsToUpdate.map(gid => 
+                        fetch(`${API_BASE_URL}/timeline/milestone/${originalMap[gid]}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                title: editingMilestone.title,
+                                week_label: generatedWeekLabel,
+                                start_week: start,
+                                end_week: end,
+                                tasks: tasksPayload, // Update expects objects with IDs
+                                graduate_ids: [gid] // Update singular to avoid copies
+                            })
+                        })
+                    ));
+                }
+            }
+        }
+
+      await fetchMilestones();
       setEditingMilestone(null);
     } catch (err: any) {
       console.error(err);
@@ -210,7 +358,7 @@ export function AdminTaskManagement() {
   };
 
   const handleAddMilestone = () => {
-    setNewMilestone({ title: "", week_label: "", tasks: [], graduate_ids: [] });
+    setNewMilestone({ title: "", week_label: "", start_week: "", end_week: "", tasks: [], graduate_ids: [] });
     setIsAddModalOpen(true);
   };
 
@@ -230,11 +378,15 @@ export function AdminTaskManagement() {
   };
 
   const handleSaveMilestone = async () => {
-    if (!newMilestone.title || !newMilestone.week_label) {
-      alert("Please fill in Milestone Title and Week Label");
+    if (!newMilestone.title || !newMilestone.start_week || !newMilestone.end_week) {
+      alert("Please fill in Milestone Title, Start Week, and End Week");
       return;
     }
     
+    const start = parseInt(newMilestone.start_week);
+    const end = parseInt(newMilestone.end_week);
+    const generatedWeekLabel = start === end ? `Week ${start}` : `Weeks ${start}-${end}`;
+
     setLoading(true);
     try {
         const res = await fetch(`${API_BASE_URL}/timeline/milestone`, {
@@ -244,7 +396,9 @@ export function AdminTaskManagement() {
             },
             body: JSON.stringify({
                 title: newMilestone.title,
-                week_label: newMilestone.week_label,
+                week_label: generatedWeekLabel,
+                start_week: start,
+                end_week: end,
                 tasks: newMilestone.tasks.filter(t => t.trim() !== ""),
                 graduate_ids: newMilestone.graduate_ids
             })
@@ -255,16 +409,13 @@ export function AdminTaskManagement() {
             throw new Error(err.detail || 'Failed to create milestone');
         }
 
-        // Refresh list
-        const refreshRes = await fetch(`${API_BASE_URL}/timeline/all`);
-        if (refreshRes.ok) {
-            const data = await refreshRes.json();
-            setMilestones(data);
-        }
+        await fetchMilestones();
         
         setNewMilestone({
           title: "",
           week_label: "",
+          start_week: "",
+          end_week: "",
           tasks: [],
           graduate_ids: []
         });
@@ -299,9 +450,9 @@ export function AdminTaskManagement() {
     }
   };
 
-  const totalTasks = milestones.reduce((acc, milestone) => acc + (milestone.tasks?.length || 0), 0);
+  const totalTasks = groupedMilestones.reduce((acc, m) => acc + (m.tasks?.length || 0), 0);
 
-  const filteredMilestones = milestones.filter(milestone => 
+  const filteredMilestones = groupedMilestones.filter(milestone => 
     milestone.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     milestone.tasks.some((task: any) => task.name.toLowerCase().includes(searchTerm.toLowerCase()))
   );
@@ -346,7 +497,7 @@ export function AdminTaskManagement() {
             </div>
             <div className="flex flex-col">
               <span className="text-sm text-black !text-black font-medium" style={{ color: 'black' }}>Total Milestones</span>
-              <span className="text-xl font-bold text-black !text-black" style={{ color: 'black' }}>{milestones.length}</span>
+              <span className="text-xl font-bold text-black !text-black" style={{ color: 'black' }}>{filteredMilestones.length}</span>
             </div>
           </div>
 
@@ -381,12 +532,13 @@ export function AdminTaskManagement() {
       )}
 
       {/* Milestone Track Bar */}
-      {milestones.length > 0 && (
+      {groupedMilestones.length > 0 && (
         <div className="flex w-full gap-1 overflow-x-auto pb-2">
-          {milestones.map((milestone) => (
+          {groupedMilestones.map((milestone) => (
             <div 
-              key={milestone.milestone_id} 
-              className={`flex-1 min-w-[120px] flex flex-col items-center gap-2 p-2 rounded-lg transition-colors ${
+              key={milestone.key} 
+              onClick={() => scrollToMilestone(milestone.key)}
+              className={`flex-1 min-w-[120px] flex flex-col items-center gap-2 p-2 rounded-lg transition-colors cursor-pointer ${
                 milestone.status === 'completed' ? 'bg-green-50' : 'bg-gray-50'
               }`}
             >
@@ -410,17 +562,23 @@ export function AdminTaskManagement() {
 
       <div className="space-y-6">
         {filteredMilestones.map((milestone) => (
-          <Card key={milestone.milestone_id} className="p-6 border-gray-200 relative overflow-hidden">
+          <div
+            key={milestone.key}
+            ref={(el) => {
+              milestoneRefs.current[milestone.key] = el;
+            }}
+          >
+          <Card className="p-6 border-gray-200 relative overflow-hidden">
             <div className="flex items-start justify-between mb-6">
               <div>
                 <p className="text-sm text-muted-foreground mb-1">
                   {milestone.week_label}
                   {milestone.created_at && ` • Added ${new Date(milestone.created_at).toLocaleDateString()}`}
-                  {milestone.graduate_id && (
-                    <span className="block mt-1 text-blue-600 font-medium flex items-center gap-1">
-                       Assigned to: {getGraduateName(milestone.graduate_id)}
-                    </span>
-                  )}
+                  <span className="block mt-1 text-blue-600 font-medium flex flex-wrap items-center gap-1">
+                    Assigned to: {milestone.graduate_ids.length > 0 
+                      ? milestone.graduate_ids.map((gid: string) => getGraduateName(gid)).join(', ') 
+                      : "Global (All Graduates)"}
+                  </span>
                 </p>
                 <div className="flex items-center gap-2">
                   <h3 className="text-xl font-semibold">{milestone.title}</h3>
@@ -433,7 +591,7 @@ export function AdminTaskManagement() {
                 <Button 
                   variant="outline" 
                   size="sm"
-                  onClick={() => handleModify(milestone.milestone_id)}
+                  onClick={() => handleModify(milestone)}
                   className="gap-2"
                 >
                   <Edit2 className="w-4 h-4" />
@@ -441,7 +599,7 @@ export function AdminTaskManagement() {
                 </Button>
                 <Button 
                   size="sm"
-                  onClick={() => handleMarkDone(milestone.milestone_id, milestone.status)}
+                  onClick={() => handleMarkDone(milestone)}
                   className="gap-2 bg-green-600 hover:bg-green-700 text-black dark:text-white"
                 >
                   <CheckCircle2 className="w-4 h-4" />
@@ -450,7 +608,7 @@ export function AdminTaskManagement() {
                 <Button 
                   variant="destructive"
                   size="sm"
-                  onClick={() => handleDelete(milestone.milestone_id)}
+                  onClick={() => handleDelete(milestone)}
                   className="gap-2 text-white"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -474,9 +632,10 @@ export function AdminTaskManagement() {
               )}
             </div>
           </Card>
+          </div>
         ))}
 
-        {milestones.length === 0 && !error && (
+        {groupedMilestones.length === 0 && !error && (
           <div className="text-center py-12 text-muted-foreground">
             No milestones found.
           </div>
@@ -519,14 +678,29 @@ export function AdminTaskManagement() {
             />
           </div>
           
-          <div className="grid gap-2">
-            <Label htmlFor="week">Week Specification</Label>
-            <Input
-              id="week"
-              placeholder="e.g. Week 1"
-              value={newMilestone.week_label}
-              onChange={(e) => setNewMilestone({ ...newMilestone, week_label: e.target.value })}
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="start-week">Start Week</Label>
+              <Input
+                id="start-week"
+                type="number"
+                min="1"
+                placeholder="1"
+                value={newMilestone.start_week}
+                onChange={(e) => setNewMilestone({ ...newMilestone, start_week: e.target.value })}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="end-week">End Week</Label>
+              <Input
+                id="end-week"
+                type="number"
+                min="1"
+                placeholder="1"
+                value={newMilestone.end_week}
+                onChange={(e) => setNewMilestone({ ...newMilestone, end_week: e.target.value })}
+              />
+            </div>
           </div>
 
           <div className="grid gap-2 relative" ref={addGraduateDropdownRef}>
@@ -663,78 +837,91 @@ export function AdminTaskManagement() {
                 />
             </div>
             
-            <div className="grid gap-2">
-                <Label htmlFor="edit-week">Week Specification</Label>
-                <Input
-                id="edit-week"
-                placeholder="e.g. Week 1"
-                value={editingMilestone.week_label}
-                onChange={(e) => setEditingMilestone({ ...editingMilestone, week_label: e.target.value })}
-                />
+            <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                    <Label htmlFor="edit-start-week">Start Week</Label>
+                    <Input
+                    id="edit-start-week"
+                    type="number"
+                    min="1"
+                    value={editingMilestone.start_week}
+                    onChange={(e) => setEditingMilestone({ ...editingMilestone, start_week: e.target.value })}
+                    />
+                </div>
+                <div className="grid gap-2">
+                    <Label htmlFor="edit-end-week">End Week</Label>
+                    <Input
+                    id="edit-end-week"
+                    type="number"
+                    min="1"
+                    value={editingMilestone.end_week}
+                    onChange={(e) => setEditingMilestone({ ...editingMilestone, end_week: e.target.value })}
+                    />
+                </div>
             </div>
 
             <div className="grid gap-2 relative" ref={editGraduateDropdownRef}>
-              <Label>Assign to Graduates</Label>
-              <div 
-                className="border rounded-md p-2 cursor-pointer bg-white dark:bg-zinc-950 border-gray-200 dark:border-gray-700 flex justify-between items-center"
-                onClick={() => setIsEditGraduateDropdownOpen(!isEditGraduateDropdownOpen)}
-              >
-                <span className="text-sm text-gray-900 dark:text-gray-100">
-                  {editingMilestone.graduate_ids.length === 0 
-                    ? "Select Graduates (Optional)" 
-                    : `${editingMilestone.graduate_ids.length} Graduate(s) Selected`}
-                </span>
-                <span className="text-gray-400">▼</span>
-              </div>
+            <Label>Assign to Graduates</Label>
+            <div 
+              className="border rounded-md p-2 cursor-pointer bg-white dark:bg-zinc-950 border-gray-200 dark:border-gray-700 flex justify-between items-center"
+              onClick={() => setIsEditGraduateDropdownOpen(!isEditGraduateDropdownOpen)}
+            >
+              <span className="text-sm text-gray-900 dark:text-gray-100">
+                {editingMilestone.graduate_ids.length === 0 
+                  ? "Select Graduates (Optional)" 
+                  : `${editingMilestone.graduate_ids.length} Graduate(s) Selected`}
+              </span>
+              <span className="text-gray-400">▼</span>
+            </div>
 
-              {isEditGraduateDropdownOpen && (
-                <div className="absolute top-[75px] left-0 right-0 z-50 bg-white dark:bg-zinc-950 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg max-h-60 overflow-y-auto p-2">
-                  <div 
-                    className="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded cursor-pointer"
-                    onClick={() => {
-                      if (editingMilestone.graduate_ids.length === graduates.length) {
-                          setEditingMilestone({...editingMilestone, graduate_ids: []});
-                      } else {
-                          setEditingMilestone({...editingMilestone, graduate_ids: graduates.map(g => g.id)});
-                      }
-                    }}
-                  >
-                      <input 
-                          type="checkbox" 
-                          checked={editingMilestone.graduate_ids.length === graduates.length && graduates.length > 0}
-                          readOnly
-                          className="pointer-events-none"
-                      />
-                      <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">Select All</span>
-                  </div>
-                  <hr className="my-1 border-gray-200 dark:border-gray-700" />
-                  {graduates.map((grad) => (
-                    <div 
-                      key={grad.id} 
-                      className="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded cursor-pointer"
-                      onClick={() => {
-                          const ids = editingMilestone.graduate_ids.includes(grad.id)
-                              ? editingMilestone.graduate_ids.filter(id => id !== grad.id)
-                              : [...editingMilestone.graduate_ids, grad.id];
-                          setEditingMilestone({ ...editingMilestone, graduate_ids: ids });
-                      }}
-                    >
-                      <input 
+            {isEditGraduateDropdownOpen && (
+              <div className="absolute top-[75px] left-0 right-0 z-50 bg-white dark:bg-zinc-950 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg max-h-60 overflow-y-auto p-2">
+                <div 
+                  className="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded cursor-pointer"
+                  onClick={() => {
+                    if (editingMilestone.graduate_ids.length === graduates.length) {
+                        setEditingMilestone({...editingMilestone, graduate_ids: []});
+                    } else {
+                        setEditingMilestone({...editingMilestone, graduate_ids: graduates.map(g => g.id)});
+                    }
+                  }}
+                >
+                    <input 
                         type="checkbox" 
-                        checked={editingMilestone.graduate_ids.includes(grad.id)} 
+                        checked={editingMilestone.graduate_ids.length === graduates.length && graduates.length > 0}
                         readOnly
                         className="pointer-events-none"
-                      />
-                      <span className="text-sm text-gray-900 dark:text-gray-100">{grad.first_name} {grad.last_name}</span>
-                    </div>
-                  ))}
+                    />
+                    <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">Select All</span>
                 </div>
-              )}
-              <p className="text-xs text-muted-foreground">
-                  Updating assignments will reassign this milestone to the first selected graduate and create copies for others.
-              </p>
-            </div>
-            
+                <hr className="my-1 border-gray-200 dark:border-gray-700" />
+                {graduates.map((grad) => (
+                  <div 
+                    key={grad.id} 
+                    className="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded cursor-pointer"
+                    onClick={() => {
+                        const ids = editingMilestone.graduate_ids.includes(grad.id)
+                            ? editingMilestone.graduate_ids.filter(id => id !== grad.id)
+                            : [...editingMilestone.graduate_ids, grad.id];
+                        setEditingMilestone({ ...editingMilestone, graduate_ids: ids });
+                    }}
+                  >
+                    <input 
+                      type="checkbox" 
+                      checked={editingMilestone.graduate_ids.includes(grad.id)} 
+                      readOnly
+                      className="pointer-events-none"
+                    />
+                    <span className="text-sm text-gray-900 dark:text-gray-100">{grad.first_name} {grad.last_name}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+             <p className="text-xs text-muted-foreground">
+                Deselect all to switch to Global Milestone. Select specific graduates to assign individually.
+            </p>
+          </div>
+
             <div className="grid gap-2">
                 <Label>Tasks</Label>
                 <div className="space-y-2">
@@ -775,47 +962,57 @@ export function AdminTaskManagement() {
         open={!!milestoneToDelete}
         onClose={() => setMilestoneToDelete(null)}
         title="Confirm Deletion"
+        overlayOpacity={0}
+        overlayBlur={0}
         zIndex={2147483601}
         footer={
-          <>
-            <Button variant="outline" onClick={() => setMilestoneToDelete(null)}>
-              Cancel
-            </Button>
-            <Button onClick={confirmDeleteMilestone} className="!bg-red-600 !text-white hover:!bg-red-700" style={{ backgroundColor: '#dc2626', color: 'white' }}>
-              Delete Milestone
-            </Button>
-          </>
+            <>
+                <Button variant="outline" onClick={() => setMilestoneToDelete(null)}>
+                    Cancel
+                </Button>
+                <Button 
+                    variant="destructive" 
+                    onClick={confirmDeleteMilestone}
+                >
+                    Delete
+                </Button>
+            </>
         }
       >
-        <div className="py-4">
-          <p className="text-sm text-muted-foreground">
-            Are you sure you want to delete this milestone? This action cannot be undone and will remove all associated tasks.
-          </p>
-        </div>
+        <p className="text-sm text-muted-foreground">
+            Are you sure you want to delete the milestone "{milestoneToDelete?.title}"?
+            <br/><br/>
+            This will delete it for <strong>{milestoneToDelete?.graduate_ids.length > 0 ? `${milestoneToDelete?.graduate_ids.length} assigned graduates` : "ALL graduates (Global)"}</strong>.
+            <br/>
+            This action cannot be undone.
+        </p>
       </CustomModal>
 
-      {/* Delete All Confirmation Modal */}
+      {/* Delete All Modal */}
       <CustomModal
         open={isDeleteAllOpen}
         onClose={() => setIsDeleteAllOpen(false)}
-        title="Confirm Delete All"
+        title="Delete All Milestones"
+        overlayOpacity={0}
+        overlayBlur={0}
         zIndex={2147483601}
         footer={
-          <>
-            <Button variant="outline" onClick={() => setIsDeleteAllOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={confirmDeleteAll} className="!bg-red-600 !text-white hover:!bg-red-700" style={{ backgroundColor: '#dc2626', color: 'white' }}>
-              Delete All Data
-            </Button>
-          </>
+            <>
+                <Button variant="outline" onClick={() => setIsDeleteAllOpen(false)}>
+                    Cancel
+                </Button>
+                <Button 
+                    variant="destructive" 
+                    onClick={confirmDeleteAll}
+                >
+                    Delete All
+                </Button>
+            </>
         }
       >
-        <div className="py-4">
-          <p className="text-sm text-muted-foreground">
-            Are you absolutely sure? This will delete ALL milestones and tasks from the system. This action cannot be undone.
-          </p>
-        </div>
+        <p className="text-sm text-muted-foreground">
+            Are you sure you want to delete ALL milestones for ALL graduates? This action cannot be undone.
+        </p>
       </CustomModal>
     </div>
   );

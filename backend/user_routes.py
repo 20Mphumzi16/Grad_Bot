@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from userdatabase import get_all_graduates, delete_user, update_graduate_basic, set_graduate_archived_status
+from userdatabase import get_all_graduates, delete_user, update_graduate_basic, set_graduate_archived_status, get_graduate_details
 from user_models import GraduateResponse, GraduateUpdateRequest
 
 router = APIRouter(prefix="/graduates", tags=["Graduates"])
@@ -9,6 +9,18 @@ async def list_graduates_endpoint():
     try:
         graduates = get_all_graduates()
         return graduates
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/{user_id}", response_model=GraduateResponse)
+async def get_graduate_endpoint(user_id: str):
+    try:
+        grad = get_graduate_details(user_id.strip())
+        if grad is None:
+            raise HTTPException(status_code=404, detail="Graduate not found")
+        return grad
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
