@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
+import { X } from "lucide-react";
+
 interface CustomModalProps {
   open: boolean;
   onClose: () => void;
@@ -12,6 +14,8 @@ interface CustomModalProps {
   overlayColor?: string;
   zIndex?: number;
   className?: string;
+  contentClassName?: string;
+  showCloseButton?: boolean;
 }
 
 export  function CustomModal({
@@ -25,6 +29,8 @@ export  function CustomModal({
   overlayColor = "rgba(0,0,0,0.6)",
   zIndex = 9999,
   className = "",
+  contentClassName,
+  showCloseButton = false,
 }: CustomModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   const previouslyFocused = useRef<HTMLElement | null>(null);
@@ -126,7 +132,7 @@ export  function CustomModal({
 
       <div
         ref={modalRef}
-        className={`relative w-full max-w-lg p-6 rounded-xl shadow-2xl bg-background text-foreground border border-border ${className}`}
+        className={`relative w-full p-6 rounded-xl shadow-2xl bg-background text-foreground border border-border ${className || 'max-w-md'}`}
         style={{
           opacity: contentVisible && !exiting ? 1 : 0,
           transform: contentVisible && !exiting ? "scale(1)" : "scale(0.96)",
@@ -134,13 +140,23 @@ export  function CustomModal({
             "opacity 260ms cubic-bezier(0.22, 0.61, 0.36, 1), transform 300ms cubic-bezier(0.22, 0.61, 0.36, 1)",
         }}
       >
+        {showCloseButton && (
+          <button 
+            onClick={onClose}
+            className="absolute top-3 right-3 z-50 p-2 bg-white/90 hover:bg-white text-black rounded-full transition-colors shadow-sm border border-black/10"
+            aria-label="Close"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        )}
+
         {title && (
           <h2 className="mb-2 text-lg font-semibold">
             {title}
           </h2>
         )}
 
-        <div className="space-y-4">{children}</div>
+        <div className={contentClassName ?? "space-y-4"}>{children}</div>
 
         {footer && (
           <div className="mt-6 flex justify-end gap-2">
