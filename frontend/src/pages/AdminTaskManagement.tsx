@@ -46,9 +46,9 @@ export function AdminTaskManagement() {
   const editGraduateDropdownRef = useClickOutside<HTMLDivElement>(() => setIsEditGraduateDropdownOpen(false), isEditGraduateDropdownOpen);
 
   const [editingMilestone, setEditingMilestone] = useState<{
-    id: string; // Primary ID
-    ids: string[]; // All IDs
-    milestone_map: { [key: string]: string }; // grad_id -> milestone_id
+    id: string; 
+    ids: string[]; 
+    milestone_map: { [key: string]: string }; 
     is_global: boolean;
     global_id: string | null;
     title: string;
@@ -56,7 +56,7 @@ export function AdminTaskManagement() {
     start_week: string;
     end_week: string;
     tasks: { id?: string; name: string }[];
-    graduate_ids: string[]; // Selected grads
+    graduate_ids: string[]; 
   } | null>(null);
 
   const getGraduateName = (graduateId: string | null) => {
@@ -460,11 +460,11 @@ export function AdminTaskManagement() {
   return (
     <div className="pt-8 space-y-8">
       <div className="flex items-center justify-between">
-        <div>
+        {/* <div>
           <p className="text-muted-foreground">
             Manage tasks and milestones for the graduate program
           </p>
-        </div>
+        </div> */}
       </div>
 
       <div className="flex items-center justify-between bg-white !bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
