@@ -1,6 +1,6 @@
 services:
   - type: static_site
-    name: frontend
+    name: Grad_Bot
     routes:
       - type: rewrite
         source: /*
