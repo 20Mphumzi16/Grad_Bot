@@ -65,30 +65,24 @@ export function GraduateProfileModal({ user, isOpen, onClose }: GraduateProfileM
       <CustomModal
         open={isOpen}
         onClose={onClose}
-        title="" // Empty title as we'll design a custom header
-        className="!max-w-sm !p-0 overflow-hidden flex flex-col max-h-[85vh]" // Remove default padding for banner effect, limit height, narrow width
+        title="" 
+        className="w-full !max-w-md !p-0 overflow-hidden flex flex-col max-h-[85vh] mx-4" // Added mx-4 for safety on small screens, max-w-md
+        contentClassName="flex-1 min-h-0 relative flex flex-col"
         overlayOpacity={0.5}
         overlayBlur={4}
+        showCloseButton={true}
       >
-        <div className="relative flex flex-col h-full overflow-y-auto custom-scrollbar">
-          {/* Close Button */}
-          <button 
-            onClick={onClose}
-            className="absolute top-2 right-2 z-50 p-2 bg-white/80 hover:bg-white text-black dark:bg-black/50 dark:hover:bg-black/70 dark:text-white rounded-full transition-colors backdrop-blur-md shadow-sm border border-black/5 dark:border-white/10"
-            aria-label="Close profile"
-          >
-            <X className="w-5 h-5" />
-          </button>
-
+        {/* Scrollable Content Area */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
           {/* Banner */}
-          <div className="h-28 bg-gradient-to-r from-blue-600 to-teal-500 w-full shrink-0"></div>
+          <div className="h-32 bg-gradient-to-r from-blue-600 to-teal-500 w-full shrink-0"></div>
           
           {/* Profile Header Content */}
           <div className="px-6 pb-6">
-            <div className="relative flex justify-between items-end -mt-10 mb-4">
+            <div className="relative flex justify-between items-end -mt-12 mb-4">
               <div className="relative group cursor-pointer" onClick={() => setIsImagePreviewOpen(true)}>
-                <Avatar className="w-24 h-24 border-4 border-white shadow-md transition-transform transform group-hover:scale-105">
-                  <AvatarImage src={avatarUrl || undefined} />
+                <Avatar className="w-24 h-24 border-4 border-white dark:border-gray-900 shadow-md transition-transform transform group-hover:scale-105 bg-white">
+                  <AvatarImage src={avatarUrl || undefined} className="object-cover" />
                   <AvatarFallback className="text-2xl bg-blue-100 text-blue-700">
                     {firstInitial}{lastInitial}
                   </AvatarFallback>
