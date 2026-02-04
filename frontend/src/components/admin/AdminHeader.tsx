@@ -52,11 +52,11 @@ export function AdminHeader({ onMobileMenuToggle }: { onMobileMenuToggle?: () =>
     >
       <div className="h-full px-4 md:px-6 flex items-center justify-between">
         <div className="flex items-center gap-3 ml-16 pl-4 md:pl-8">
-          <div className="md:hidden flex items-center mr-2">
+          <div className="md:hidden flex items-center mr-2 shrink-0">
             <img 
               src={isDark ? logo1 : logo} 
               alt="Datacentrix Logo" 
-              className="h-8 w-auto max-w-full object-contain"
+              className="h-8 w-auto object-contain"
             />
           </div>
 

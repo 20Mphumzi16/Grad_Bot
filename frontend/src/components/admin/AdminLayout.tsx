@@ -16,7 +16,7 @@ export function AdminLayout() {
       style={{ backgroundColor: 'var(--background)' }}
     >
       <AdminHeader onMobileMenuToggle={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
-      <div className="flex pt-24 md:pt-28">
+      <div className="flex pt-32">
         <AdminSidebar isOpen={isMobileMenuOpen} onToggle={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
         
         {/* Spacer for Minified Sidebar - ensures content is never cut */}
@@ -24,7 +24,7 @@ export function AdminLayout() {
         
         <main className={cn(
             "flex-1 p-4 md:p-8 pb-20 md:pb-8 transition-all duration-300",
-            // Removed manual margins as Spacer handles the offset
+          
           )}>
           <AnimatePresence mode="wait">
             <PageTransition key={location.pathname} className="h-full">
