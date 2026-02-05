@@ -11,12 +11,16 @@ import {
   MapPin,
   Briefcase,
   Camera,
-  Save
+  Save,
+  Plus,
+  Pencil,
+  X
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
 import { useLoading } from '../components/ui/loading';
 import { toast } from 'sonner';
 import { API_BASE_URL } from '../utils/config';
+import { CustomModal } from '../components/ui/custom-modal';
 
 
 const user_data: any = {
@@ -501,6 +505,8 @@ export function StudentProfile() {
         </div>
       </Card>
 
+      <SkillsSection graduateId={user_data.id} />
+
       {/* Programme Information */}
       <Card className="p-6 border-border">
         <h3 className="text-foreground mb-6">Programme Information</h3>
@@ -613,5 +619,507 @@ export function StudentProfile() {
         </Button>
       </div>
     </div>
+  );
+}
+
+type Skill = { id: string; skill_id: number; name: string; source?: string; where_used?: string };
+type AvailableSkill = { id: number; name: string };
+
+function SkillsSection({ graduateId }: { graduateId?: string }) {
+  const [skills, setSkills] = useState<Skill[]>([]);
+  const [availableSkills, setAvailableSkills] = useState<AvailableSkill[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showAll, setShowAll] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [skillName, setSkillName] = useState('');
+  const [pendingSkills, setPendingSkills] = useState<string[]>([]);
+  const [skillSource, setSkillSource] = useState('');
+  const [usedIn, setUsedIn] = useState<string[]>([]);
+  const [query, setQuery] = useState('');
+  
+  // Fetch data on mount or when graduateId changes
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+     
+      
+
+        // 1. Fetch available skills for suggestions
+        let availSkills: AvailableSkill[] = [];
+        try {
+          const skillsRes = await fetch(`${API_BASE_URL}/skills/get-all`);
+          if (skillsRes.ok) {
+            const data = await skillsRes.json();
+            // Assuming data is [{id: 1, name: "Java"}, ...]
+            availSkills = Array.isArray(data) 
+              ? data.map((s: any) => ({ id: s.id, name: s.name || s.skill_name }))
+              : [];
+            setAvailableSkills(availSkills);
+          }
+        } catch (e) {
+          console.error('Failed to fetch skills suggestions:', e);
+        }
+
+        // 2. Fetch graduate's existing skills
+        if (graduateId) {
+          try {
+            const gradSkillsRes = await fetch(`${API_BASE_URL}/graduate_skills/get-all/${graduateId}`);
+            if (gradSkillsRes.ok) {
+              const data = await gradSkillsRes.json();
+              // Backend returns graduate_skills rows: { id, graduate_id, skill_id, ... }
+              // We need to map skill_id to name using availSkills
+              const mappedSkills: Skill[] = Array.isArray(data) ? data.map((item: any) => {
+                const foundSkill = availSkills.find(as => as.id === item.skill_id);
+                return {
+                  id: item.id || crypto.randomUUID(), // graduate_skill entry id
+                  skill_id: item.skill_id,
+                  name: foundSkill ? foundSkill.name : 'Unknown Skill',
+                  source: item.institution || item.source,
+                  where_used: item.where_used
+                };
+              }) : [];
+              setSkills(mappedSkills);
+            }
+          } catch (e) {
+            console.error('Failed to fetch graduate skills:', e);
+          }
+        }
+
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [graduateId]);
+
+  const suggestions = availableSkills.map(s => s.name);
+  
+  const filtered = query.trim() 
+    ? suggestions.filter(s => 
+        s.toLowerCase().includes(query.toLowerCase()) && 
+        !pendingSkills.includes(s) && 
+        !skills.some(existing => existing.name.toLowerCase() === s.toLowerCase())
+      ).slice(0, 6)
+    : [];
+
+  const visible = showAll ? skills : skills.slice(0, 6);
+
+  const openAdd = () => {
+    setEditingId(null);
+    setSkillName('');
+    setPendingSkills([]);
+    setSkillSource('');
+    setUsedIn([]);
+    setQuery('');
+    setOpen(true);
+  };
+
+  const openEdit = (id: string) => {
+    const s = skills.find(x => x.id === id);
+    if (!s) return;
+    setEditingId(id);
+    setSkillName(s.name);
+    setPendingSkills([]); 
+    setSkillSource(s.source ?? '');
+    setUsedIn(s.where_used ? s.where_used.split(',').map(i => i.trim()) : []); 
+    setQuery('');
+    setOpen(true);
+  };
+
+  const addPendingSkill = (name: string) => {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    
+    // Validate against available skills
+    const isValid = availableSkills.some(s => s.name.toLowerCase() === trimmed.toLowerCase());
+    if (!isValid) {
+      toast.error('Please select a valid skill from the suggestions');
+      return;
+    }
+
+    if (pendingSkills.some(s => s.toLowerCase() === trimmed.toLowerCase())) {
+      toast.error('Skill already selected');
+      return;
+    }
+    
+    if (skills.some(s => s.name.toLowerCase() === trimmed.toLowerCase())) {
+      toast.error('Skill already exists in your profile');
+      return;
+    }
+
+    setPendingSkills(prev => [...prev, trimmed]);
+    setSkillName('');
+    setQuery('');
+  };
+
+  const removePendingSkill = (name: string) => {
+    setPendingSkills(prev => prev.filter(s => s !== name));
+  };
+
+  const saveSkill = async () => {
+    if (!graduateId) {
+      toast.error('User profile not loaded');
+      return;
+    }
+
+    
+
+    if (editingId) {
+      const originalSkill = skills.find(s => s.id === editingId);
+      if (!originalSkill) {
+        setOpen(false);
+        return;
+      }
+
+      // Check if skill name corresponds to a valid skill
+      const currentSkillObj = availableSkills.find(s => s.name.toLowerCase() === skillName.trim().toLowerCase());
+      if (!currentSkillObj) {
+        toast.error('Please select a valid skill');
+        return;
+      }
+
+      const token = localStorage.getItem('token');
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token || ''}`
+      };
+
+      // If the skill itself is changed (name changed -> different ID)
+      if (currentSkillObj.id !== originalSkill.skill_id) {
+         // Delete old and Add new
+         try {
+           // 1. Delete old
+           const delRes = await fetch(`${API_BASE_URL}/graduate_skills/delete/${graduateId}/${originalSkill.skill_id}`, {
+             method: 'DELETE',
+             headers
+           });
+           
+           if (!delRes.ok) {
+             throw new Error('Failed to delete old skill');
+           }
+
+           // 2. Add new
+           const payload = {
+             graduate_id: graduateId,
+             skill_id: currentSkillObj.id,
+             source: skillSource.trim() || undefined,
+             where_used: usedIn.join(', ') || undefined
+           };
+
+           const addRes = await fetch(`${API_BASE_URL}/graduate_skills/add`, {
+             method: 'POST',
+             headers,
+             body: JSON.stringify(payload)
+           });
+
+           if (addRes.ok) {
+             setSkills(prev => prev.map(s => s.id === editingId ? {
+               id: s.id, // Keep same frontend ID or generate new? keeping same is fine for UI stability
+               skill_id: currentSkillObj.id,
+               name: currentSkillObj.name,
+               source: payload.source,
+               where_used: payload.where_used
+             } : s));
+             toast.success('Skill updated');
+             setOpen(false);
+           } else {
+             toast.error('Failed to add new skill');
+           }
+         } catch (e) {
+           console.error('Error updating skill:', e);
+           toast.error('Error updating skill');
+         }
+      } else {
+         // Same skill, just update details
+         try {
+            const payload = {
+              graduate_id: graduateId,
+              skill_id: currentSkillObj.id,
+              source: skillSource.trim() || undefined,
+              where_used: usedIn.join(', ') || undefined
+            };
+
+            const res = await fetch(`${API_BASE_URL}/graduate_skills/update`, {
+              method: 'PUT',
+              headers,
+              body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+              setSkills(prev => prev.map(s => s.id === editingId ? {
+                ...s,
+                source: payload.source,
+                where_used: payload.where_used
+              } : s));
+              toast.success('Skill updated');
+              setOpen(false);
+            } else {
+              toast.error('Failed to update skill');
+            }
+         } catch (e) {
+            console.error('Error updating skill:', e);
+            toast.error('Error updating skill');
+         }
+      }
+      return;
+    } else {
+      // Add mode
+      let skillsToSaveNames = [...pendingSkills];
+      if (skillName.trim()) {
+        const name = skillName.trim();
+        const isValid = availableSkills.some(s => s.name.toLowerCase() === name.toLowerCase());
+        if (isValid && !skillsToSaveNames.includes(name) && !skills.some(s => s.name.toLowerCase() === name.toLowerCase())) {
+           skillsToSaveNames.push(name);
+        }
+      }
+
+      if (skillsToSaveNames.length === 0) {
+        toast.error('Please add at least one valid skill');
+        return;
+      }
+
+     
+
+      let successCount = 0;
+      for (const name of skillsToSaveNames) {
+        const skillObj = availableSkills.find(s => s.name.toLowerCase() === name.toLowerCase());
+        if (!skillObj) continue;
+
+        try {
+          const payload = {
+            graduate_id: graduateId,
+            skill_id: skillObj.id,
+            source: skillSource.trim() || undefined,
+            where_used: usedIn.join(', ') || undefined
+          };
+
+          const res = await fetch(`${API_BASE_URL}/graduate_skills/add`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+            },
+            body: JSON.stringify(payload)
+          });
+
+          if (res.ok) {
+            successCount++;
+            // Update local state
+            setSkills(prev => [...prev, {
+              id: crypto.randomUUID(), // We don't get the new ID back easily unless we read response
+              skill_id: skillObj.id,
+              name: skillObj.name,
+              source: skillSource.trim() || undefined,
+              where_used: usedIn.join(', ') || undefined
+            }]);
+          } else {
+            console.error(`Failed to add skill ${name}`);
+          }
+        } catch (e) {
+          console.error(`Error adding skill ${name}:`, e);
+        }
+      }
+
+      if (successCount > 0) {
+        toast.success(`${successCount} skill(s) added`);
+        setOpen(false);
+      } else {
+        toast.error('Failed to add skills');
+      }
+    }
+  };
+
+  const removeSkill = async (id: string) => { // id is the graduate_skill entry id (frontend generated or backend)
+    // We need skill_id to delete. 
+    // Wait, the delete endpoint takes graduate_id and skill_id.
+    const skillToRemove = skills.find(s => s.id === id);
+    if (!skillToRemove || !graduateId) return;
+
+    try {
+  
+      
+      const token = localStorage.getItem('token');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+      const res = await fetch(`${API_BASE_URL}/graduate_skills/delete/${graduateId}/${skillToRemove.skill_id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          ...headers
+        }
+      });
+
+      if (res.ok) {
+        setSkills(prev => prev.filter(s => s.id !== id));
+        toast.success('Skill removed');
+      } else {
+        toast.error('Failed to remove skill');
+      }
+    } catch (e) {
+      console.error('Error removing skill:', e);
+      toast.error('Error removing skill');
+    }
+  };
+
+  const toggleUsedIn = (label: string) => {
+    setUsedIn(prev => prev.includes(label) ? prev.filter(x => x !== label) : [...prev, label]);
+  };
+
+  return (
+    <Card className="p-6 border-border">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-teal-500 flex items-center justify-center">
+            <Briefcase className="w-5 h-5 text-white" />
+          </div>
+          <h3 className="text-foreground">Skills</h3>
+        </div>
+        <Button onClick={openAdd} className="rounded-xl">
+          <Plus className="w-4 h-4 mr-2" />
+          Add
+        </Button>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {isLoading ? (
+           <div className="col-span-full py-8 text-center text-muted-foreground">
+             Loading skills...
+           </div>
+        ) : visible.length === 0 ? (
+          <div className="col-span-full py-8 text-center text-muted-foreground border-2 border-dashed rounded-xl">
+            No skills added yet. Click "Add" to list your skills.
+          </div>
+        ) : (
+          visible.map(s => (
+            <div key={s.id} className="border rounded-xl p-4 flex items-start justify-between">
+              <div>
+                <p className="font-medium" style={{ color: 'var(--foreground)' }}>{s.name}</p>
+                {s.source ? <p className="text-sm text-muted-foreground">{s.source}</p> : null}
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(s.id)}>
+                  <Pencil className="w-4 h-4" />
+                </Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-red-600" onClick={() => removeSkill(s.id)}>
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+      {skills.length > 6 && (
+        <button className="mt-4 text-sm text-blue-600 hover:text-blue-700" type="button" onClick={() => setShowAll(v => !v)}>
+          {showAll ? 'Show less' : 'Show all skills'}
+        </button>
+      )}
+      <CustomModal
+        open={open}
+        onClose={() => setOpen(false)}
+        title={editingId ? 'Edit Skill' : 'Add Skill'}
+        footer={
+          <>
+            <Button variant="outline" className="rounded-xl" onClick={() => setOpen(false)}>Cancel</Button>
+            <Button className="rounded-xl" onClick={saveSkill}>Save</Button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="skill-name" style={{ color: 'var(--foreground)' }}>Skill name</Label>
+              <div className="relative">
+                <Input
+                  id="skill-name"
+                  value={skillName}
+                  onChange={(e) => {
+                    setSkillName(e.target.value);
+                    setQuery(e.target.value);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      if (!editingId) {
+                         addPendingSkill(skillName);
+                      }
+                    }
+                  }}
+                  className="rounded-xl"
+                  placeholder="e.g., Java"
+                />
+                {filtered.length > 0 && (
+                  <div className="absolute z-10 mt-2 w-full rounded-xl border bg-white dark:bg-zinc-950 shadow-lg max-h-48 overflow-y-auto">
+                    {filtered.map(s => (
+                      <button
+                        key={s}
+                        className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl"
+                        type="button"
+                        onClick={() => {
+                          if (editingId) {
+                            setSkillName(s);
+                            setQuery('');
+                          } else {
+                            addPendingSkill(s);
+                          }
+                        }}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              
+              {!editingId && pendingSkills.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {pendingSkills.map(skill => (
+                    <div key={skill} className="flex items-center gap-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-3 py-1 rounded-full text-sm">
+                      <span>{skill}</span>
+                      <button 
+                        onClick={() => removePendingSkill(skill)}
+                        className="hover:text-blue-900 dark:hover:text-blue-100 focus:outline-none"
+                        type="button"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="skill-source" style={{ color: 'var(--foreground)' }}>Institution or source (optional)</Label>
+              <Input
+                id="skill-source"
+                value={skillSource}
+                onChange={(e) => setSkillSource(e.target.value)}
+                className="rounded-xl"
+                placeholder="e.g., Cape Peninsula University of Technology"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label style={{ color: 'var(--foreground)' }}>Show us where you used this skill (optional)</Label>
+              <div className="flex flex-wrap gap-2">
+                {['Experience', 'Education', 'Projects','DCX'].map(opt => (
+                  <button
+                    key={opt}
+                    type="button"
+                    onClick={() => toggleUsedIn(opt)}
+                    className={`px-3 py-1 rounded-full border text-sm transition-colors ${
+                      usedIn.includes(opt) 
+                        ? 'bg-blue-600 text-white border-blue-600' 
+                        : 'text-muted-foreground hover:bg-gray-50 dark:hover:bg-gray-800'
+                    }`}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+      </CustomModal>
+    </Card>
   );
 }
