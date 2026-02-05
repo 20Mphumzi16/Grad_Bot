@@ -62,7 +62,7 @@
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.396 0.141 25.723);
   --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: #4b5563;
+  --border: rgba(255, 255, 255, 0.2);
   --input: #4b5563;
   --input-background: #6b7280;
   --switch-background: #6b7280;
@@ -80,7 +80,7 @@
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-accent: #111827;
   --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: #4b5563;
+  --sidebar-border: rgba(255, 255, 255, 0.2);
   --sidebar-ring: oklch(0.439 0 0);
 
   /* Login Page Gradients - Dark Mode */

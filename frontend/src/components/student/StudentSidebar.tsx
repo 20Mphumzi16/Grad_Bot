@@ -1,4 +1,4 @@
-import { MessageSquare, User, BookOpen, Calendar, FileText, Home, Menu } from 'lucide-react';
+import { MessageSquare, User, BookOpen, Calendar, FileText, Home, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { Link, useLocation } from 'react-router';
 import { useStudentNotifications } from '@/context/StudentNotificationContext';
 import { useIsMobile } from '@/components/ui/use-mobile';
@@ -124,8 +124,9 @@ export function StudentSidebar({ isOpen, onToggle }: StudentSidebarProps) {
   return (
     <aside 
       className={cn(
-        "fixed left-0 top-16 bottom-0 border-r z-30 transition-all duration-300",
-        isOpen ? "w-64" : "w-16" // Dynamic width on mobile and desktop
+        "border-r z-50 transition-all duration-300 bg-background flex flex-col h-screen",
+        isMobile ? "fixed inset-y-0 left-0" : "sticky top-0",
+        isOpen ? "w-64" : "w-16", 
       )}
       style={{
         backgroundColor: 'var(--background)',
@@ -134,13 +135,13 @@ export function StudentSidebar({ isOpen, onToggle }: StudentSidebarProps) {
       }}
     >
       <div className="h-full flex flex-col">
-        {/* Hamburger Toggle */}
+        {/* Toggle Button with Arrow */}
         <div className={cn(
-          "flex items-center transition-all duration-300",
-          isOpen ? "p-4" : "flex-col py-4 items-center"
+          "flex items-center transition-all duration-300 h-16", // Match header height
+          isOpen ? "justify-end px-4" : "justify-center"
         )}>
-          <Button variant="ghost" size="icon" onClick={onToggle} className={isOpen ? "" : "mb-2"}>
-            <Menu className="h-6 w-6" />
+          <Button variant="ghost" size="icon" onClick={onToggle}>
+            {isOpen ? <PanelLeftClose className="h-6 w-6" /> : <PanelLeftOpen className="h-6 w-6" />}
           </Button>
         </div>
 
@@ -149,7 +150,7 @@ export function StudentSidebar({ isOpen, onToggle }: StudentSidebarProps) {
 
         <StudentSidebarContent 
           minified={!isOpen} 
-          onItemClick={isOpen ? onToggle : undefined} 
+          onItemClick={isMobile && isOpen ? onToggle : undefined} 
         />
       </div>
     </aside>
