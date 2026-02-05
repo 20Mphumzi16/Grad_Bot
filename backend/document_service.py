@@ -2,15 +2,11 @@ import os
 import uuid
 from fastapi import UploadFile
 from dotenv import load_dotenv
-from supabase import create_client, Client
+from db.supabase_client import supabase
 from cloud_chat import download_from_supabase, index_document
 from email_service import send_email, get_all_graduate_emails
 
 load_dotenv()
-
-url: str = os.getenv("SUPABASE_URL")
-key: str = os.getenv("SUPABASE_SERVICE_KEY")
-supabase: Client = create_client(url, key)
 
 def upload_document(
     file: UploadFile,
