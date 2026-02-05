@@ -9,6 +9,7 @@ import { AdminUserManagement } from "../pages/AdminUserManagement";
 import { AdminTaskManagement } from "../pages/AdminTaskManagement";
 import { AdminSettings } from "../pages/AdminSettings";
 import { AdminLayout } from "../components/admin/AdminLayout";
+import { AdminShell } from "../components/admin/AdminShell";
 import { StudentLogin } from "../pages/StudentLogin";
 import { StudentDashboard } from "../pages/StudentDashboard";
 import { StudentChat } from "../pages/StudentChat";
@@ -17,6 +18,7 @@ import { StudentResources } from "../pages/StudentResources";
 import { StudentTimeline } from "../pages/StudentTimeline";
 import { StudentDocuments } from "../pages/StudentDocuments";
 import { StudentLayout } from "../components/student/StudentLayout";
+import { StudentShell } from "../components/student/StudentShell";
 import ActivateAccount from "../pages/ActivateAccount";
 import ForgotPassword from "../pages/ForgotPassword";
 
@@ -89,36 +91,42 @@ export const router = createBrowserRouter([
   },
   {
     path: "/admin",
-    Component: AdminLayout,
+    Component: AdminShell,
     loader: adminLoader,
     children: [
       {
-        index: true,
-        Component: AdminDashboard,
-      },
-      {
-        path: "documents",
-        Component: AdminDocuments,
-      },
-      {
-        path: "users",
-        Component: AdminUserManagement,
-      },
-      {
-        path: "tasks",
-        Component: AdminTaskManagement,
-      },
-      {
-        path: "conversations",
-        Component: AdminConversations,
-      },
-      {
-        path: "analytics",
-        Component: AdminAnalytics,
-      },
-      {
-        path: "settings",
-        Component: AdminSettings,
+        path: "",
+        Component: AdminLayout,
+        children: [
+          {
+            index: true,
+            Component: AdminDashboard,
+          },
+          {
+            path: "documents",
+            Component: AdminDocuments,
+          },
+          {
+            path: "users",
+            Component: AdminUserManagement,
+          },
+          {
+            path: "tasks",
+            Component: AdminTaskManagement,
+          },
+          {
+            path: "conversations",
+            Component: AdminConversations,
+          },
+          {
+            path: "analytics",
+            Component: AdminAnalytics,
+          },
+          {
+            path: "settings",
+            Component: AdminSettings,
+          },
+        ],
       },
     ],
   },
@@ -128,32 +136,38 @@ export const router = createBrowserRouter([
   },
   {
     path: "/student",
-    Component: StudentLayout,
+    Component: StudentShell,
     loader: studentLoader,
     children: [
       {
-        index: true,
-        Component: StudentDashboard,
-      },
-      {
-        path: "chat",
-        Component: StudentChat,
-      },
-      {
-        path: "profile",
-        Component: StudentProfile,
-      },
-      {
-        path: "resources",
-        Component: StudentResources,
-      },
-      {
-        path: "timeline",
-        Component: StudentTimeline,
-      },
-      {
-        path: "documents",
-        Component: StudentDocuments,
+        path: "",
+        Component: StudentLayout,
+        children: [
+          {
+            index: true,
+            Component: StudentDashboard,
+          },
+          {
+            path: "chat",
+            Component: StudentChat,
+          },
+          {
+            path: "profile",
+            Component: StudentProfile,
+          },
+          {
+            path: "resources",
+            Component: StudentResources,
+          },
+          {
+            path: "timeline",
+            Component: StudentTimeline,
+          },
+          {
+            path: "documents",
+            Component: StudentDocuments,
+          },
+        ],
       },
     ],
   },

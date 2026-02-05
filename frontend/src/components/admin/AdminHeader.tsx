@@ -1,3 +1,4 @@
+import { cn } from '@/components/ui/utils';
 import { Button } from '../ui/button';
 import { LogOut, Moon, Sun, LayoutDashboard, FileText, BarChart3, Settings, MessageSquare, Users, CheckSquare, Menu } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router';
@@ -6,6 +7,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { ConfirmDialog } from '../ui/confirm-dialog';
 import logo from '../../assets/logo.png';
 import logo1 from '../../assets/logo1.png';
+import { useIsMobile } from '@/components/ui/use-mobile';
 
 const pageLabels: Record<string, string> = {
   '/admin': 'Dashboard',
@@ -27,23 +29,26 @@ const pageIcons: Record<string, any> = {
   '/admin/tasks': CheckSquare,
 };
 
-export function AdminHeader({ onMobileMenuToggle }: { onMobileMenuToggle?: () => void }) {
+export function AdminHeader({ onMobileMenuToggle, isSidebarOpen }: { onMobileMenuToggle?: () => void; isSidebarOpen?: boolean }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { isDark, toggleTheme } = useTheme();
   const [showConfirm, setShowConfirm] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  // const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // Removed internal state as it's not used
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     navigate('/');
   };
 
+  const isMobile = useIsMobile();
   const CurrentIcon = pageIcons[location.pathname];
 
   return (
     <header 
-      className="fixed top-0 left-0 right-0 border-b z-40 h-16"
+      className={cn(
+        "sticky top-0 z-40 w-full border-b bg-background h-16 flex-shrink-0 transition-all duration-300",
+      )}
       style={{
         backgroundColor: 'var(--background)',
         borderColor: 'var(--border)',
@@ -51,7 +56,7 @@ export function AdminHeader({ onMobileMenuToggle }: { onMobileMenuToggle?: () =>
       }}
     >
       <div className="h-full px-4 md:px-6 flex items-center justify-between">
-        <div className="flex items-center gap-3 ml-16 pl-4 md:pl-8">
+        <div className="flex items-center gap-3 pl-0">
           <div className="md:hidden flex items-center mr-2 shrink-0">
             <img 
               src={isDark ? logo1 : logo} 
