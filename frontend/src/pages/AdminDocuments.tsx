@@ -436,7 +436,7 @@ setCategories(data);
   }, []);
 
   return (
-    <div className="pt-12 space-y-8">
+    <div className="space-y-8">
       {/* Page header */}
       <div className="flex items-center justify-end">
         <Button 

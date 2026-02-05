@@ -1,38 +1,25 @@
-import { Outlet, useLocation } from 'react-router';
-import { AdminSidebar } from './AdminSidebar';
-import { AdminHeader } from './AdminHeader';
+import { Outlet, useLocation, useOutletContext } from 'react-router';
 import { AnimatePresence } from 'framer-motion';
 import { PageTransition } from '../ui/PageTransition';
-import { useState } from 'react';
-import { cn } from '@/components/ui/utils';
+
+type SidebarContext = {
+  isSidebarOpen: boolean;
+  setIsSidebarOpen: (open: boolean) => void;
+  isMobile: boolean;
+};
 
 export function AdminLayout() {
   const location = useLocation();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  // We can still consume context if needed, but layout is simplified
+  const { isSidebarOpen, setIsSidebarOpen, isMobile } = useOutletContext<SidebarContext>();
 
   return (
-    <div 
-      className="min-h-screen"
-      style={{ backgroundColor: 'var(--background)' }}
-    >
-      <AdminHeader onMobileMenuToggle={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
-      <div className="flex pt-32">
-        <AdminSidebar isOpen={isMobileMenuOpen} onToggle={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
-        
-        {/* Spacer for Minified Sidebar - ensures content is never cut */}
-        <div className="w-16 flex-shrink-0" aria-hidden="true" />
-        
-        <main className={cn(
-            "flex-1 p-4 md:p-8 pb-20 md:pb-8 transition-all duration-300",
-          
-          )}>
-          <AnimatePresence mode="wait">
-            <PageTransition key={location.pathname} className="h-full">
-              <Outlet />
-            </PageTransition>
-          </AnimatePresence>
-        </main>
-      </div>
+    <div className="min-h-full p-4 md:p-8 pb-20 md:pb-8">
+      <AnimatePresence mode="wait">
+        <PageTransition key={location.pathname} className="h-full">
+          <Outlet />
+        </PageTransition>
+      </AnimatePresence>
     </div>
   );
 }

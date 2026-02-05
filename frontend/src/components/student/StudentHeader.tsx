@@ -1,4 +1,5 @@
 import { Button } from '../ui/button';
+import { cn } from '../ui/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Bell, LogOut, Moon, Sun, MessageSquare, User, BookOpen, Calendar, FileText, Home, Menu } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router';
@@ -19,6 +20,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import { useIsMobile } from '@/components/ui/use-mobile';
 
 const pageLabels: Record<string, string> = {
   '/student': 'Dashboard',
@@ -38,10 +40,11 @@ const pageIcons: Record<string, any> = {
   '/student/profile': User,
 };
 
-export function StudentHeader({ onMobileMenuToggle }: { onMobileMenuToggle?: () => void }) {
+export function StudentHeader({ onMobileMenuToggle, isSidebarOpen }: { onMobileMenuToggle?: () => void; isSidebarOpen?: boolean }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { isDark, toggleTheme } = useTheme();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // Internal state for mobile menu if needed
   const [firstName, setFirstName] = useState<string | null>(null);
   const [lastName, setLastName] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -155,16 +158,22 @@ export function StudentHeader({ onMobileMenuToggle }: { onMobileMenuToggle?: () 
     navigate(item.path);
   };
 
+  const isMobile = useIsMobile();
   const CurrentIcon = pageIcons[location.pathname];
 
   return (
-    <header className="fixed top-0 left-0 right-0 border-b z-40 h-16" style={{
-      backgroundColor: 'var(--background)',
-      borderColor: 'var(--border)',
-      color: 'var(--foreground)'
-    }}>
+    <header 
+      className={cn(
+        "sticky top-0 z-40 w-full border-b bg-background h-16 flex-shrink-0 transition-all duration-300",
+      )}
+      style={{
+        backgroundColor: 'var(--background)',
+        borderColor: 'var(--border)',
+        color: 'var(--foreground)'
+      }}
+    >
       <div className="h-full px-4 md:px-6 flex items-center justify-between">
-        <div className="flex items-center gap-3 ml-16 pl-4 md:pl-8">
+        <div className="flex items-center gap-3 pl-0">
           <div className="md:hidden flex items-center mr-2 shrink-0">
             <img 
               src={isDark ? logo1 : logo} 
