@@ -173,12 +173,14 @@ export function StudentSidebar({ isOpen, onToggle }: StudentSidebarProps) {
   return (
     <aside 
       className={cn(
-        "border-r z-50 transition-all duration-300 bg-background flex flex-col h-screen relative overflow-visible",
-        isMobile ? "fixed inset-y-0 left-0" : "sticky top-0",
+        "z-50 transition-all duration-300 bg-background flex flex-col relative overflow-visible",
+        isMobile 
+          ? "fixed inset-y-0 left-0 h-full border-r" 
+          : "sticky top-0 m-4 h-[calc(100vh-2rem)] rounded-2xl border shadow-xl",
         isOpen ? "w-64" : "w-16", 
       )}
       style={{
-        backgroundColor: 'var(--background)',
+        backgroundColor: isDark ? 'var(--background)' : '#eff6ff',
         borderColor: 'var(--border)',
         color: 'var(--foreground)'
       }}

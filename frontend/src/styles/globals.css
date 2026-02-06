@@ -46,15 +46,15 @@
 }
 
 .dark {
-  --background: #4b5563;
+  --background: #0f172a;
   --foreground: oklch(0.985 0 0);
-  --card: #6b7280;
+  --card: #2c2c2d;
   --card-foreground: oklch(0.985 0 0);
   --popover: #374151;
   --popover-foreground: oklch(0.985 0 0);
   --primary: oklch(0.985 0 0);
   --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.60 0 0);
+  --secondary: oklch(59.987% 0.00007 271.152);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: #6b7280;
   --muted-foreground: #e5e7eb;

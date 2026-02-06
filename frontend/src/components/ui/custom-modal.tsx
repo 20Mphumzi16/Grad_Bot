@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useTheme } from '@/context/ThemeContext';
 
 import { X } from "lucide-react";
 
@@ -37,6 +38,8 @@ export  function CustomModal({
   const [overlayVisible, setOverlayVisible] = useState(false);
   const [contentVisible, setContentVisible] = useState(false);
   const [exiting, setExiting] = useState(false);
+
+  const { isDark } = useTheme();
 
   useEffect(() => {
     if (!open) {
@@ -132,8 +135,9 @@ export  function CustomModal({
 
       <div
         ref={modalRef}
-        className={`relative w-full p-6 rounded-xl shadow-2xl bg-background text-foreground border border-border ${className || 'max-w-md'}`}
+        className={`relative w-full p-6 rounded-xl shadow-2xl text-foreground border border-border ${className || 'max-w-md'}`}
         style={{
+          backgroundColor: isDark ? '#1f2937' : '#ffffff',
           opacity: contentVisible && !exiting ? 1 : 0,
           transform: contentVisible && !exiting ? "scale(1)" : "scale(0.96)",
           transition:
