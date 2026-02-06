@@ -805,22 +805,25 @@ setCategories(data);
   <div className="space-y-2">
     <Label>Category</Label>
     <Select value={category} onValueChange={setCategory}>
-      <SelectTrigger className="rounded-lg border border-gray-300 dark:border-gray-500 bg-input-background dark:bg-input/30">
+      <SelectTrigger className="rounded-lg border border-gray-300 dark:border-gray-500 bg-input-background dark:bg-input/30 h-12 px-4">
         <SelectValue placeholder="Select a category" />
       </SelectTrigger>
-      <SelectContent className="bg-input-background dark:bg-input/30 border-gray-300 dark:border-gray-500">
+      <SelectContent 
+        className="bg-input-background dark:bg-input/30 border-gray-300 dark:border-gray-500"
+        style={{ zIndex: 100001 }}
+      >
         {loadingCategories ? (
-          <SelectItem value="loading" disabled>
+          <SelectItem value="loading" disabled className="py-3 pl-6 pr-12 cursor-pointer focus:bg-gray-100 dark:focus:bg-gray-800">
             Loading...
           </SelectItem>
         ) : categories.length > 0 ? (
           categories.map((cat) => (
-            <SelectItem key={cat.id} value={String(cat.id)}>
+            <SelectItem key={cat.id} value={String(cat.id)} className="py-3 pl-6 pr-12 cursor-pointer focus:bg-gray-100 dark:focus:bg-gray-800">
               {cat.name}
             </SelectItem>
           ))
         ) : (
-          <SelectItem value="" disabled>
+          <SelectItem value="" disabled className="py-3 pl-6 pr-12 cursor-pointer focus:bg-gray-100 dark:focus:bg-gray-800">
             {categoriesError ? `Error: ${categoriesError}` : 'No categories available'}
           </SelectItem>
         )}
