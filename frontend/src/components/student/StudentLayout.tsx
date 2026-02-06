@@ -10,16 +10,18 @@ type SidebarContext = {
 
 export function StudentLayout() {
   const location = useLocation();
-  // We can still consume context if needed, but layout is simplified
-  const { isSidebarOpen, setIsSidebarOpen, isMobile } = useOutletContext<SidebarContext>();
+  const { isSidebarOpen, setIsSidebarOpen, isMobile } =
+    useOutletContext<SidebarContext>();
 
   return (
-    <div className="min-h-full p-8 md:p-8 pb-20 md:pb-8">
-      <AnimatePresence mode="wait">
-        <PageTransition key={location.pathname} className="h-full">
-          <Outlet />
-        </PageTransition>
-      </AnimatePresence>
+    <div className="w-full h-full overflow-hidden flex flex-col">
+      <div className="flex-1 w-full h-full overflow-y-auto p-8 pb-20 md:pb-8">
+        <AnimatePresence mode="wait">
+          <PageTransition key={location.pathname} className="min-h-full">
+            <Outlet />
+          </PageTransition>
+        </AnimatePresence>
+      </div>
     </div>
   );
 }
