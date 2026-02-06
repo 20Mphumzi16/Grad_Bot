@@ -228,7 +228,7 @@ export function StudentTimeline() {
           background-color: black !important;
         }
       `}</style>
-      <div className="max-w-3xl mx-auto space-y-8">
+      <div className="w-full space-y-8">
         <Card className="p-6 border-gray-200">
         <div className="flex items-center justify-between mb-4">
           <div>
