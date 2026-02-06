@@ -17,7 +17,7 @@ export function StudentShell() {
 
   return (
     <StudentNotificationProvider>
-      <div className="flex h-screen w-full bg-background overflow-hidden">
+      <div className="fixed inset-0 flex w-full h-full bg-background overflow-hidden">
         {/* Sidebar: Fixed on mobile, Relative on desktop */}
         <StudentSidebar
           isOpen={isSidebarOpen}
@@ -25,14 +25,14 @@ export function StudentShell() {
         />
         
         {/* Main Content Column */}
-        <div className="flex flex-col flex-1 min-w-0 h-full">
+        <div className="flex flex-col flex-1 h-full min-w-0 overflow-hidden">
           <StudentHeader 
             onMobileMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)} 
             isSidebarOpen={isSidebarOpen}
           />
           
           {/* Scrollable Page Content */}
-          <main className="flex-1 overflow-y-auto">
+          <main className="flex-1 h-full overflow-hidden relative">
             <Outlet context={{ isSidebarOpen, setIsSidebarOpen, isMobile } satisfies SidebarContext} />
           </main>
         </div>

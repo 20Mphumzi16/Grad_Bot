@@ -14,12 +14,14 @@ export function AdminLayout() {
   const { isSidebarOpen, setIsSidebarOpen, isMobile } = useOutletContext<SidebarContext>();
 
   return (
-    <div className="min-h-full p-4 md:p-8 pb-20 md:pb-8">
-      <AnimatePresence mode="wait">
-        <PageTransition key={location.pathname} className="h-full">
-          <Outlet />
-        </PageTransition>
-      </AnimatePresence>
+    <div className="w-full h-full overflow-hidden flex flex-col">
+      <div className="flex-1 w-full h-full overflow-y-auto p-4 md:p-8 pb-20 md:pb-8">
+        <AnimatePresence mode="wait">
+          <PageTransition key={location.pathname} className="min-h-full">
+            <Outlet />
+          </PageTransition>
+        </AnimatePresence>
+      </div>
     </div>
   );
 }
