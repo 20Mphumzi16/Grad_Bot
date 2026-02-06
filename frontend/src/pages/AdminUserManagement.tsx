@@ -956,6 +956,7 @@ export function AdminUserManagement() {
             </Button>
             <Button
               variant="destructive"
+              className="bg-red-600 hover:bg-red-700 text-white dark:bg-red-600 dark:hover:bg-red-700 dark:text-white"
               onClick={async () => {
                 const id = confirmUserId!;
                 setConfirmUserId(null);
@@ -985,6 +986,7 @@ export function AdminUserManagement() {
             </Button>
             <Button
               variant="destructive"
+              className="bg-red-600 hover:bg-red-700 text-white dark:bg-red-600 dark:hover:bg-red-700 dark:text-white"
               onClick={async () => {
                 setConfirmDeleteAll(false);
                 if (hasSelectedUsers) {
