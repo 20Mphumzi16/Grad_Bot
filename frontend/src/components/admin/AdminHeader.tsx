@@ -1,10 +1,9 @@
 import { cn } from '@/components/ui/utils';
 import { Button } from '../ui/button';
-import { LogOut, Moon, Sun, LayoutDashboard, FileText, BarChart3, Settings, MessageSquare, Users, CheckSquare, Menu } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router';
+import { Moon, Sun, LayoutDashboard, FileText, BarChart3, Settings, MessageSquare, Users, CheckSquare, Menu } from 'lucide-react';
+import { useLocation } from 'react-router';
 import { useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
-import { ConfirmDialog } from '../ui/confirm-dialog';
 import { useIsMobile } from '@/components/ui/use-mobile';
 
 const pageLabels: Record<string, string> = {
@@ -28,16 +27,9 @@ const pageIcons: Record<string, any> = {
 };
 
 export function AdminHeader({ onMobileMenuToggle, isSidebarOpen }: { onMobileMenuToggle?: () => void; isSidebarOpen?: boolean }) {
-  const navigate = useNavigate();
   const location = useLocation();
   const { isDark, toggleTheme } = useTheme();
-  const [showConfirm, setShowConfirm] = useState(false);
   // const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // Removed internal state as it's not used
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/');
-  };
 
   const isMobile = useIsMobile();
   const CurrentIcon = pageIcons[location.pathname];
@@ -81,30 +73,6 @@ export function AdminHeader({ onMobileMenuToggle, isSidebarOpen }: { onMobileMen
               <p style={{ color: 'var(--foreground)' }}>Admin User</p>
             </div>
           </div>
-
-          <>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => setShowConfirm(true)}
-              style={{ color: 'var(--muted-foreground)' }}
-              className="hover:opacity-75"
-            >
-              <LogOut className="w-5 h-5" />
-            </Button>
-
-            <ConfirmDialog
-              open={showConfirm}
-              title="Confirm Logout"
-              description="Are you sure you want to log out?"
-              onCancel={() => setShowConfirm(false)}
-              onConfirm={() => {
-                setShowConfirm(false);
-                handleLogout();
-              }}
-              confirmText="Log out"
-            />
-          </>
         </div>
       </div>
     </header>

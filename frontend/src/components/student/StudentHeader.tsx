@@ -1,11 +1,10 @@
 import { Button } from '../ui/button';
 import { cn } from '../ui/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { Bell, LogOut, Moon, Sun, MessageSquare, User, BookOpen, Calendar, FileText, Home, Menu } from 'lucide-react';
+import { Bell, Moon, Sun, MessageSquare, User, BookOpen, Calendar, FileText, Home, Menu } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router';
 import React, { useEffect, useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
-import { ConfirmDialog } from '../ui/confirm-dialog';
 import { useStudentNotifications } from '@/context/StudentNotificationContext';
 import { ScrollArea } from '../ui/scroll-area';
 import { API_BASE_URL } from '@/utils/config';
@@ -48,7 +47,6 @@ export function StudentHeader({ onMobileMenuToggle, isSidebarOpen }: { onMobileM
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarLoading, setAvatarLoading] = useState<boolean>(false);
   const [avatarVersion, setAvatarVersion] = useState<number>(0);
-  const [showConfirm, setShowConfirm] = useState(false);
 
   const { notifications, markAsViewed } = useStudentNotifications();
   const [showAllNotifications, setShowAllNotifications] = useState(false);
@@ -145,11 +143,6 @@ export function StudentHeader({ onMobileMenuToggle, isSidebarOpen }: { onMobileM
     window.addEventListener('avatarUpdated', handler);
     return () => window.removeEventListener('avatarUpdated', handler);
   }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/');
-  };
 
   const handleNotificationClick = (item: any) => {
     markAsViewed(item.type);
@@ -302,30 +295,6 @@ export function StudentHeader({ onMobileMenuToggle, isSidebarOpen }: { onMobileM
               <p style={{ color: 'var(--muted-foreground)', fontSize: '0.75rem' }}>Graduate 2025</p>
             </div>
           </div>
-
-          <>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setShowConfirm(true)}
-              style={{ color: 'var(--muted-foreground)' }}
-              className="hover:opacity-75"
-            >
-              <LogOut className="w-5 h-5" />
-            </Button>
-
-            <ConfirmDialog
-              open={showConfirm}
-              title="Confirm Logout"
-              description="Are you sure you want to log out?"
-              onCancel={() => setShowConfirm(false)}
-              onConfirm={() => {
-                setShowConfirm(false);
-                handleLogout();
-              }}
-              confirmText="Log out"
-            />
-          </>
         </div>
       </div>
     </header>
