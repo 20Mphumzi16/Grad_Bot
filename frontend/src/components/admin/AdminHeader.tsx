@@ -5,8 +5,6 @@ import { useNavigate, useLocation } from 'react-router';
 import { useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { ConfirmDialog } from '../ui/confirm-dialog';
-import logo from '../../assets/logo.png';
-import logo1 from '../../assets/logo1.png';
 import { useIsMobile } from '@/components/ui/use-mobile';
 
 const pageLabels: Record<string, string> = {
@@ -57,14 +55,6 @@ export function AdminHeader({ onMobileMenuToggle, isSidebarOpen }: { onMobileMen
     >
       <div className="h-full px-4 md:px-6 flex items-center justify-between">
         <div className="flex items-center gap-3 pl-0">
-          <div className="md:hidden flex items-center mr-2 shrink-0">
-            <img 
-              src={isDark ? logo1 : logo} 
-              alt="Datacentrix Logo" 
-              className="h-8 w-auto object-contain"
-            />
-          </div>
-
           {CurrentIcon && <CurrentIcon className="w-6 h-6 hidden md:block" />}
           <h1 className="text-xl font-semibold truncate">{pageLabels[location.pathname] || 'Admin Dashboard'}</h1>
         </div>
