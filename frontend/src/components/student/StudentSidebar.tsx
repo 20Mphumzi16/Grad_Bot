@@ -1,9 +1,15 @@
-import { MessageSquare, User, BookOpen, Calendar, FileText, Home, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
-import { Link, useLocation } from 'react-router';
+import { MessageSquare, User, BookOpen, Calendar, FileText, Home, ChevronRight, PanelLeftClose, LogOut } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router';
+import { useState } from 'react';
 import { useStudentNotifications } from '@/context/StudentNotificationContext';
+import { useTheme } from '@/context/ThemeContext';
 import { useIsMobile } from '@/components/ui/use-mobile';
 import { cn } from '@/components/ui/utils';
 import { Button } from '@/components/ui/button';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import logo from '@/assets/logo.png';
+import logo1 from '@/assets/logo1.png';
+import logo2 from '@/assets/logo2.png';
 
 const navItems = [
   { icon: Home, label: 'Dashboard', path: '/student' },
@@ -16,7 +22,14 @@ const navItems = [
 
 export function StudentSidebarContent({ onItemClick, minified = false }: { onItemClick?: () => void; minified?: boolean }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const { hasNewMilestone, hasNewDocument, hasNewResource, markAsViewed } = useStudentNotifications();
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/');
+  };
 
   const handleLinkClick = (path: string) => {
     if (path === '/student/timeline' && hasNewMilestone) {
@@ -32,8 +45,8 @@ export function StudentSidebarContent({ onItemClick, minified = false }: { onIte
   };
 
   return (
-    <div className={cn("h-full flex flex-col transition-all duration-300", minified ? "items-center py-2" : "p-6 pt-2")}>
-      <nav className="space-y-1 flex-1 w-full mt-4">
+    <div className={cn("flex-1 min-h-0 flex flex-col transition-all duration-300", minified ? "items-center py-2" : "p-6 pt-2")}>
+      <nav className="space-y-1 flex-1 w-full mt-4 overflow-y-auto">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
@@ -105,6 +118,41 @@ export function StudentSidebarContent({ onItemClick, minified = false }: { onIte
           );
         })}
       </nav>
+
+      <div className="mt-auto w-full pt-4 border-t border-border">
+        <Button
+          variant="ghost"
+          onClick={() => setShowConfirm(true)}
+          className={cn(
+            "flex items-center transition-all duration-300 rounded-xl relative group w-full hover:bg-red-50 hover:text-red-600",
+            minified ? "w-10 h-10 justify-center p-0 mx-auto" : "px-4 py-3 justify-start"
+          )}
+          title={minified ? "Logout" : undefined}
+        >
+          <div className="relative flex-shrink-0">
+            <LogOut className="w-5 h-5" />
+          </div>
+          
+          <div className={cn(
+            "flex items-center overflow-hidden transition-all duration-300 ease-in-out",
+            minified ? "hidden" : "flex-1 w-auto opacity-100 ml-3"
+          )}>
+            <span className="truncate whitespace-nowrap">Logout</span>
+          </div>
+        </Button>
+
+        <ConfirmDialog
+          open={showConfirm}
+          title="Confirm Logout"
+          description="Are you sure you want to log out?"
+          onCancel={() => setShowConfirm(false)}
+          onConfirm={() => {
+            setShowConfirm(false);
+            handleLogout();
+          }}
+          confirmText="Log out"
+        />
+      </div>
     </div>
   );
 }
@@ -116,6 +164,7 @@ interface StudentSidebarProps {
 
 export function StudentSidebar({ isOpen, onToggle }: StudentSidebarProps) {
   const isMobile = useIsMobile();
+  const { isDark } = useTheme();
   
   // Logic:
   // - Desktop (md): Always w-64, no hamburger, not minified.
@@ -124,7 +173,7 @@ export function StudentSidebar({ isOpen, onToggle }: StudentSidebarProps) {
   return (
     <aside 
       className={cn(
-        "border-r z-50 transition-all duration-300 bg-background flex flex-col h-screen",
+        "border-r z-50 transition-all duration-300 bg-background flex flex-col h-screen relative overflow-visible",
         isMobile ? "fixed inset-y-0 left-0" : "sticky top-0",
         isOpen ? "w-64" : "w-16", 
       )}
@@ -134,19 +183,49 @@ export function StudentSidebar({ isOpen, onToggle }: StudentSidebarProps) {
         color: 'var(--foreground)'
       }}
     >
+      {/* Toggle Button - Absolute Positioned on Desktop - Only visible when minified */}
+      {!isMobile && !isOpen && (
+        <Button
+          onClick={onToggle}
+          className={cn(
+            "absolute -right-3 top-[70px] z-[100] h-6 w-6 rounded-full border shadow-md p-0",
+            "bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-600"
+          )}
+        >
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+      )}
+
       <div className="h-full flex flex-col">
-        {/* Toggle Button with Arrow */}
+        {/* Logo Section */}
         <div className={cn(
-          "flex items-center transition-all duration-300 h-16", // Match header height
-          isOpen ? "justify-end px-4" : "justify-center"
+          "flex items-center transition-all duration-300 h-16", 
+          isOpen ? "justify-between px-4" : "justify-center"
         )}>
-          <Button variant="ghost" size="icon" onClick={onToggle}>
-            {isOpen ? <PanelLeftClose className="h-6 w-6" /> : <PanelLeftOpen className="h-6 w-6" />}
-          </Button>
+          {isOpen ? (
+            <>
+              <div className="flex items-center gap-2">
+                {isDark ? (
+                  <img src={logo1} alt="Logo" className="h-8 object-contain" />
+                ) : (
+                  <img src={logo} alt="Logo" className="h-8 object-contain" />
+                )}
+              </div>
+              <Button variant="ghost" size="icon" onClick={onToggle} className="text-muted-foreground hover:text-foreground">
+                <PanelLeftClose className="h-5 w-5" />
+              </Button>
+            </>
+          ) : (
+            <img 
+              src={logo2} 
+              alt="GradBot" 
+              className="h-8 w-8 object-contain"
+            />
+          )}
         </div>
 
         {/* Desktop Spacer - Hidden on Mobile */}
-        <div className="hidden md:block pt-6"></div>
+        <div className="hidden md:block pt-2"></div>
 
         <StudentSidebarContent 
           minified={!isOpen} 
