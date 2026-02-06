@@ -15,7 +15,7 @@ export function AdminShell() {
   const isMobile = useIsMobile();
 
   return (
-    <div className="fixed inset-0 flex w-full h-full bg-gray-200 dark:bg-background overflow-hidden">
+    <div className="fixed inset-0 flex w-full h-full bg-background overflow-hidden">
       {/* Sidebar: Fixed on mobile, Relative on desktop */}
       <AdminSidebar
         isOpen={isSidebarOpen}

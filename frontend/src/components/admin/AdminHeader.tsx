@@ -37,7 +37,7 @@ export function AdminHeader({ onMobileMenuToggle, isSidebarOpen }: { onMobileMen
   return (
     <header 
       className={cn(
-        "sticky top-0 z-40 flex-shrink-0 transition-all duration-300 bg-background",
+        "sticky top-0 z-40 flex-shrink-0 transition-all duration-300",
         isMobile 
           ? "w-full border-b h-16" 
           : "m-4 w-[calc(100%-2rem)] rounded-2xl border shadow-md h-16"
