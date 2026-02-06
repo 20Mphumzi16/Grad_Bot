@@ -367,7 +367,7 @@ export function StudentChat() {
          
          
           {/* Chat container */}
-          <Card className="flex-1 border-gray-200 flex flex-col overflow-hidden min-w-[350px]">
+          <Card className="flex-1 border-gray-200 flex flex-col overflow-hidden min-w-[350px] relative">
             {/* Messages area */}
             <div
               ref={chatRef}
@@ -494,7 +494,7 @@ export function StudentChat() {
             )}
  
             {/* Input area */}
-            <div className="border-t border-gray-200 p-6">
+            <div className="border-t border-gray-200 p-6 relative z-50">
               <div className="flex justify-center mb-2 gap-2">
                 {messages.length > 1 && (
                   <Button
@@ -506,18 +506,6 @@ export function StudentChat() {
                   >
                     <RotateCcw className={`w-3.5 h-3.5 ${isResetting ? 'animate-spin' : ''}`} />
                     Reset Chat
-                  </Button>
-                )}
-               
-                {!isAtBottom && (
-                  <Button
-                    onClick={scrollToBottom}
-                    variant="ghost"
-                    size="sm"
-                    className="text-xs text-gray-400 hover:text-gray-600 hover:bg-gray-50 h-auto py-1.5 px-3 rounded-full gap-1.5 transition-colors animate-bounce"
-                  >
-                    <ArrowDown className="w-3.5 h-3.5" />
-                    Scroll to Bottom
                   </Button>
                 )}
               </div>
@@ -537,8 +525,16 @@ export function StudentChat() {
                 </Button>
               </div>
             </div>
- 
- 
+
+            {!isAtBottom && (
+              <Button
+                onClick={scrollToBottom}
+                className="absolute top-4 left-1/2 -translate-x-1/2 rounded-full w-10 h-10 p-0 bg-blue-600 hover:bg-blue-700 text-white shadow-xl animate-bounce z-50"
+              >
+                <ArrowDown className="w-5 h-5" />
+              </Button>
+            )}
+
           </Card>
  
           {/* Sources side panel */}

@@ -299,7 +299,7 @@ export function StudentDashboard() {
             </div>
           </div>
           <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">Questions Asked</p>
-          <p className="text-gray-900 dark:text-gray-100 mb-2">
+          <p className="mb-2">
             {statsLoading ? (
               <Loader2 className="w-4 h-4 text-gray-400 gb-spinner" />
             ) : (
@@ -322,7 +322,7 @@ export function StudentDashboard() {
             </div>
           </div>
           <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">Resources Viewed</p>
-          <p className="text-gray-900 dark:text-gray-100 mb-2">
+          <p className="mb-2">
             {statsLoading ? (
               <Loader2 className="w-4 h-4 text-gray-400 gb-spinner" />
             ) : (
@@ -368,7 +368,7 @@ export function StudentDashboard() {
             </div>
           </div>
           <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">Tasks Completed</p>
-          <p className="text-gray-900 dark:text-gray-100 mb-2">
+          <p className="mb-2">
             {statsLoading ? (
               <Loader2 className="w-4 h-4 text-gray-400 gb-spinner" />
             ) : (
@@ -405,7 +405,7 @@ export function StudentDashboard() {
                 <div key={index} className="p-4 rounded-xl border border-gray-100 hover:border-gray-200 transition-colors">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
-                      <p className="text-gray-900 dark:text-gray-100 text-sm mb-1">{milestone.title}</p>
+                      <p className="text-sm mb-1">{milestone.title}</p>
                       <p className="text-gray-500 dark:text-gray-400 text-xs flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
                         {milestone.dueDate}
@@ -450,7 +450,7 @@ export function StudentDashboard() {
                   <BookOpen className="w-5 h-5 text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-gray-900 dark:text-gray-100 text-sm truncate">{resource.file_name}</p>
+                  <p className="text-sm truncate">{resource.file_name}</p>
                   <p className="text-gray-500 dark:text-gray-400 text-xs">{resource.file_extension} • {resource.views} views</p>
                 </div>
                 <button

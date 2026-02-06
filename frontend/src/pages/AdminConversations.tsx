@@ -158,12 +158,12 @@ export function AdminConversations() {
             <div className="space-y-3">
               <div className="bg-gray-50 rounded-xl p-4">
                 <p className="text-xs text-gray-500 mb-2">USER QUERY</p>
-                <p style={{ color: 'var(--foreground)' }} className="text-sm">{conversation.query}</p>
+                <p className="text-sm text-black">{conversation.query}</p>
               </div>
 
               <div className="bg-blue-50 rounded-xl p-4">
                 <p className="text-xs text-blue-600 mb-2">BOT RESPONSE</p>
-                <p style={{ color: 'var(--foreground)' }} className="text-sm">{conversation.response}</p>
+                <p className="text-sm text-black">{conversation.response}</p>
               </div>
             </div>
 
