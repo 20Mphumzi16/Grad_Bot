@@ -288,7 +288,7 @@ export function StudentProfile() {
   }
 
   return (
-    <div className="pt-8 space-y-8 w-full max-w-7xl mx-auto">
+    <div className="pt-8 space-y-8">
       {/* Page header */}
       <div className="flex items-center justify-between">
         <div>
