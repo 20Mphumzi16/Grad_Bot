@@ -506,8 +506,7 @@ export function AdminTaskManagement() {
           <div className="flex items-center gap-3">
             <Button 
               onClick={handleAddMilestone} 
-              className="gap-2 !bg-black hover:!bg-gray-800 !text-white border-0"
-              style={{ backgroundColor: 'black', color: 'white' }}
+              className="gap-2 bg-blue-600 hover:bg-blue-700 text-white border-0 dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white"
             >
               <Plus className="w-4 h-4" />
               Add Milestone
@@ -516,7 +515,7 @@ export function AdminTaskManagement() {
             <Button 
               variant="destructive" 
               onClick={handleDeleteAll}
-              className="gap-2 text-white"
+              className="gap-2 text-white bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700"
             >
               <Trash2 className="w-4 h-4" />
               Delete All
@@ -609,7 +608,7 @@ export function AdminTaskManagement() {
                   variant="destructive"
                   size="sm"
                   onClick={() => handleDelete(milestone)}
-                  className="gap-2 text-white"
+                  className="gap-2 text-white bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700"
                 >
                   <Trash2 className="w-4 h-4" />
                   Delete

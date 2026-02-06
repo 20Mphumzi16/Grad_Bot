@@ -87,7 +87,7 @@ function UserActionMenu({
             Edit
           </button>
           <button
-            className="block w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50"
+            className="block w-full px-3 py-2 text-left text-sm bg-red-600 text-white hover:bg-red-700"
             type="button"
             onClick={(e) => {
               e.stopPropagation();
@@ -462,7 +462,7 @@ export function AdminUserManagement() {
               </span>
             </div>
             <Button
-              className="rounded-xl"
+              className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white"
               onClick={() => {
                 setCreateForm({
                   firstName: '',
@@ -478,8 +478,8 @@ export function AdminUserManagement() {
               Add
             </Button>
             <Button
-              variant="outline"
-              className="rounded-xl border-red-200 text-red-600 hover:bg-red-50"
+              variant="destructive"
+              className="rounded-xl bg-red-600 hover:bg-red-700 text-white dark:bg-red-600 dark:hover:bg-red-700 dark:text-white"
               onClick={() => setConfirmDeleteAll(true)}
               disabled={filteredUsers.length === 0}
             >
