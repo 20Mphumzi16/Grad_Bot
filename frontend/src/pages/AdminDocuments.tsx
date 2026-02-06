@@ -809,7 +809,7 @@ setCategories(data);
         <SelectValue placeholder="Select a category" />
       </SelectTrigger>
       <SelectContent 
-        className="bg-input-background dark:bg-input/30 border-gray-300 dark:border-gray-500"
+        className="bg-white dark:bg-zinc-800 border-gray-300 dark:border-gray-500"
         style={{ zIndex: 100001 }}
       >
         {loadingCategories ? (
