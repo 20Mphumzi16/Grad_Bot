@@ -2,8 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '../components/ui/sheet';
-import { useIsMobile } from '../components/ui/use-mobile';
 import { API_BASE_URL } from '../utils/config';
 import {
   Send,
@@ -15,24 +13,24 @@ import {
   ArrowDown
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-
+ 
 // Add loading type
 type MessageType = 'user' | 'bot' | 'loading';
-
+ 
 interface Source {
   chunk_id: string;
   text: string;
   source: string;
   page?: string;
 }
-
+ 
 interface ChatHistoryMessage {
   role: 'user' | 'assistant';
   time_stamp: string;
   content: string;
   sources?: string[] | null;
 }
-
+ 
 interface Message {
   id: number;
   type: MessageType;
@@ -40,20 +38,20 @@ interface Message {
   sources?: Source[];
   timestamp: string;
 }
-
+ 
 const formatTime = (dateInput?: string | Date) => {
   try {
     if (!dateInput) {
       return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
     }
-
+ 
     if (typeof dateInput === 'string') {
       const timeMatch = dateInput.match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)$/i);
       if (timeMatch) {
         return `${timeMatch[1]}:${timeMatch[2]} ${timeMatch[3].toUpperCase()}`;
       }
     }
-
+ 
     const date = new Date(dateInput);
     if (isNaN(date.getTime())) return String(dateInput);
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
@@ -61,9 +59,8 @@ const formatTime = (dateInput?: string | Date) => {
     return String(dateInput || "");
   }
 };
-
+ 
 export function StudentChat() {
-  const isMobile = useIsMobile();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
@@ -72,22 +69,22 @@ export function StudentChat() {
       timestamp: formatTime()
     }
   ]);
-
+ 
   const [firstName, setFirstName] = useState<string | null>(null);
-
+ 
   const [inputValue, setInputValue] = useState('');
-
+ 
   const chatRef = useRef<HTMLDivElement>(null);
   const [isAtBottom, setIsAtBottom] = useState(true);
-
+ 
   // Sources panel state
   const [isSourcesPanelOpen, setIsSourcesPanelOpen] = useState(false);
   const [activeSourcesMessageId, setActiveSourcesMessageId] = useState<number | null>(null);
   const [activeSources, setActiveSources] = useState<Source[] | null>(null);
-
+ 
   const [isHistoryLoading, setIsHistoryLoading] = useState(true);
   const [isResetting, setIsResetting] = useState(false);
-
+ 
   // AUTO-SCROLL WHEN MESSAGES CHANGE (but don't break manual scrolling)
   useEffect(() => {
     if (!isAtBottom) return;
@@ -98,12 +95,12 @@ export function StudentChat() {
       behavior: 'smooth',
     });
   }, [messages, isAtBottom]);
-
+ 
   const truncateText = (text: string, limit = 50) => {
     if (text.length <= limit) return text;
     return text.slice(0, limit).trim() + '…';
   };
-
+ 
   const scrollToBottom = () => {
     const el = chatRef.current;
     if (!el) return;
@@ -116,22 +113,22 @@ export function StudentChat() {
   const handleChatScroll = () => {
     const el = chatRef.current;
     if (!el) return;
-
+ 
     const threshold = 40; // px from bottom to still count as "at bottom"
     const atBottom =
       el.scrollHeight - el.scrollTop - el.clientHeight <= threshold;
-
+ 
     setIsAtBottom(atBottom);
   };
-
+ 
   // Fetch current user and personalize greeting
   useEffect(() => {
     let mounted = true;
-
-
+ 
+ 
     const token = localStorage.getItem('token');
     if (!token) return;
-
+ 
     (async () => {
       try {
         const res = await fetch(`${API_BASE_URL}/auth/me`, {
@@ -141,7 +138,7 @@ export function StudentChat() {
             'Content-Type': 'application/json',
           },
         });
-
+ 
         if (!res.ok) return;
         const data = await res.json();
         const name = data.first_name || data.firstName || data.name || data.full_name || data.fullName || '';
@@ -159,7 +156,7 @@ export function StudentChat() {
     })();
     return () => { mounted = false; };
   }, []);
-
+ 
   // Fetch chat history (old structure) and append after initial greeting
   useEffect(() => {
     let mounted = true;
@@ -174,10 +171,10 @@ export function StudentChat() {
       try {
         const res = await fetch(`${API_BASE_URL}/chat/get-history/${id}`);
         if (!res.ok) throw new Error("Failed to fetch history");
-
+ 
         const data: ChatHistoryMessage[] = await res.json();
         if (!mounted || !Array.isArray(data)) return;
-
+ 
         const enriched = await Promise.all(
           data.map(async (msg, index) => {
             const baseMsg: Message = {
@@ -202,7 +199,7 @@ export function StudentChat() {
             return baseMsg;
           })
         );
-
+ 
         setMessages(prev => {
           if (prev.length > 1) return prev;
           return [...prev, ...enriched];
@@ -213,34 +210,34 @@ export function StudentChat() {
         if (mounted) setIsHistoryLoading(false);
       }
     })();
-
+ 
     return () => {
       mounted = false;
     };
   }, []);
-
+ 
   const suggestedQuestions = [
     "What are my first 90 days milestones?",
     "How do I request time off?",
     "What training is available?",
     "Who is my HR contact?"
   ];
-
+ 
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
-
+ 
     const userMessage: Message = {
       id: Date.now(),
       type: 'user',
       content: inputValue,
       timestamp: formatTime()
     };
-
+ 
     setMessages(prev => [...prev, userMessage]);
-
+ 
     const questionToSend = inputValue;
     setInputValue('');
-
+ 
     // Add loading indicator
     const loadingMessage: Message = {
       id: Date.now() + 1,
@@ -248,12 +245,12 @@ export function StudentChat() {
       content: "",
       timestamp: formatTime()
     };
-
+ 
     setMessages(prev => [...prev, loadingMessage]);
     const token = localStorage.getItem('token');
     if (!token) return;
-    const id = JSON.parse(atob(token.split('.')[1])).user_id; 
-
+    const id = JSON.parse(atob(token.split('.')[1])).user_id;
+ 
     try {
       const response = await fetch(`${API_BASE_URL}/chat/ask`, {
         method: "POST",
@@ -263,12 +260,12 @@ export function StudentChat() {
           question: questionToSend
         })
       });
-
+ 
       const data = await response.json();
       console.log("RAG response:", data);
-
-
-
+ 
+ 
+ 
       const botMessage: Message = {
         id: Date.now() + 2,
         type: 'bot',
@@ -276,14 +273,14 @@ export function StudentChat() {
         sources: data.sources, // ✅ CORRECT
         timestamp: formatTime()
       };
-
-
+ 
+ 
       // Replace the loading bubble
       setMessages(prev => [
         ...prev.filter(m => m.type !== 'loading'),
         botMessage
       ]);
-
+ 
     } catch (error) {
       const errorMessage: Message = {
         id: Date.now() + 2,
@@ -291,30 +288,30 @@ export function StudentChat() {
         content: "Sorry, I couldn't reach the server.",
         timestamp: formatTime()
       };
-
+ 
       setMessages(prev => [
         ...prev.filter(m => m.type !== 'loading'),
         errorMessage
       ]);
     }
   };
-
+ 
   const handleSourcesClick = (message: Message) => {
     if (!message.sources || message.sources.length === 0) return;
     setActiveSources(message.sources);
     setActiveSourcesMessageId(message.id);
     setIsSourcesPanelOpen(true);
   };
-
+ 
   const handleSuggestedQuestion = (question: string) => {
     setInputValue(question);
   };
-
+ 
   const handleResetChat = async () => {
     const token = localStorage.getItem('token');
     if (!token) return;
     const id = JSON.parse(atob(token.split('.')[1])).user_id;
-    
+   
     setIsResetting(true);
     try {
       const response = await fetch(`${API_BASE_URL}/chat/reset/${id}`, {
@@ -323,7 +320,7 @@ export function StudentChat() {
           'Content-Type': 'application/json',
         },
       });
-
+ 
       if (response.ok) {
         const welcomeMessage: Message = {
           id: Date.now(),
@@ -342,7 +339,7 @@ export function StudentChat() {
       setIsResetting(false);
     }
   };
-
+ 
   const SourcesContent = () => (
     <div className="flex-1 overflow-y-auto p-4 space-y-3">
       {activeSources?.map((source, index) => (
@@ -362,15 +359,15 @@ export function StudentChat() {
       ))}
     </div>
   );
-
+ 
   return (
-    <div className="pt-0 md:pt-8 h-[calc(100dvh-6rem)] md:h-[calc(100vh-8rem)]">
-      <div className="flex flex-col h-full max-w-4xl mx-auto">
-      <div className="flex flex-1 gap-4 overflow-hidden">         
+    <div className="h-full">
+      <div className={`flex flex-col h-full mx-auto transition-all duration-300 ${isSourcesPanelOpen ? 'w-full px-4 max-w-[1600px]' : 'max-w-4xl'}`}>
+      <div className="flex flex-row gap-6 overflow-hidden h-full">        
          
          
           {/* Chat container */}
-          <Card className="relative flex-1 border-gray-200 flex flex-col overflow-hidden">
+          <Card className="flex-1 border-gray-200 flex flex-col overflow-hidden min-w-[350px]">
             {/* Messages area */}
             <div
               ref={chatRef}
@@ -403,7 +400,7 @@ export function StudentChat() {
                         <span className="text-xs text-gray-500 dark:text-gray-400">Knowledge Assistant</span>
                       </div>
                     )}
-
+ 
                     {/* Message Bubble */}
                     <div
                       className={`rounded-2xl p-4 ${
@@ -424,7 +421,7 @@ export function StudentChat() {
                       ) : message.type === 'bot' ? (
                         <div className="text-sm
     max-w-none
-
+ 
     [&>p]:mb-3
     [&>ul]:mb-3
     [&>ol]:mb-3
@@ -439,7 +436,7 @@ export function StudentChat() {
                         <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                       )}
                     </div>
-
+ 
                     {/* Sources trigger (ChatGPT-style) */}
                     {message.type === 'bot' &&
                       message.sources &&
@@ -452,7 +449,7 @@ export function StudentChat() {
                           Sources · {message.sources.length}
                         </button>
                       )}
-
+ 
                     {/* BOT FOOTER */}
                     {message.type === 'bot' && (
                       <div className="flex items-center gap-3 mt-2">
@@ -462,7 +459,7 @@ export function StudentChat() {
                      
                       </div>
                     )}
-
+ 
                     {/* USER FOOTER */}
                     {message.type === 'user' && (
                       <div className="flex justify-end mt-2">
@@ -475,7 +472,7 @@ export function StudentChat() {
                 </div>
               ))}
             </div>
-
+ 
             {/* Suggested questions */}
             {messages.length === 1 && (
               <div className="px-6 pb-4">
@@ -495,7 +492,7 @@ export function StudentChat() {
                 </div>
               </div>
             )}
-
+ 
             {/* Input area */}
             <div className="border-t border-gray-200 p-6">
               <div className="flex justify-center mb-2 gap-2">
@@ -511,7 +508,7 @@ export function StudentChat() {
                     Reset Chat
                   </Button>
                 )}
-                
+               
                 {!isAtBottom && (
                   <Button
                     onClick={scrollToBottom}
@@ -540,13 +537,15 @@ export function StudentChat() {
                 </Button>
               </div>
             </div>
-
-
+ 
+ 
           </Card>
-
+ 
           {/* Sources side panel */}
-          {!isMobile && isSourcesPanelOpen && activeSources && (
-            <Card className="w-80 flex-shrink-0 border-gray-200 flex flex-col overflow-hidden h-[calc(100vh-8rem)] sticky top-8 animate-in slide-in-from-right-10 fade-in duration-300">
+          {isSourcesPanelOpen && activeSources && (
+            <Card
+              className="w-[400px] flex-none border-gray-200 flex flex-col overflow-hidden h-full animate-in slide-in-from-right-10 fade-in duration-300 shadow-lg"
+            >
             <div className="border-b border-gray-200 px-4 py-3 flex items-center justify-between">
                 <h2 className="text-sm font-semibold">Sources</h2>
                 <Button
@@ -564,24 +563,6 @@ export function StudentChat() {
               </div>
               <SourcesContent />
             </Card>
-          )}
-
-          {/* Mobile Sources Sheet */}
-          {isMobile && (
-            <Sheet open={isSourcesPanelOpen} onOpenChange={(open) => {
-              setIsSourcesPanelOpen(open);
-              if (!open) {
-                setActiveSources(null);
-                setActiveSourcesMessageId(null);
-              }
-            }}>
-              <SheetContent side="bottom" className="h-[80vh] flex flex-col">
-                <SheetHeader>
-                   <SheetTitle>Sources</SheetTitle>
-                </SheetHeader>
-                <SourcesContent />
-              </SheetContent>
-            </Sheet>
           )}
         </div>
       </div>
