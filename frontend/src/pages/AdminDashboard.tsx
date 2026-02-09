@@ -142,14 +142,14 @@ export function AdminDashboard() {
               <p className="text-gray-600 text-sm mb-1">{stat.label}</p>
               <p style={{ color: 'var(--foreground)' }} className="mb-2">
                 {statsLoading ? (
-                  <Loader2 className="w-4 h-4 text-gray-400 gb-spinner" />
+                  <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />
                 ) : (
                   stat.value
                 )}
               </p>
               <p className="text-sm text-green-600">
                 {statsLoading ? (
-                  <Loader2 className="w-3 h-3 text-green-400 gb-spinner" />
+                  <Loader2 className="w-3 h-3 text-green-400 animate-spin" />
                 ) : (
                   stat.change
                 )}
