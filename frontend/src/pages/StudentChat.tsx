@@ -108,6 +108,17 @@ export function StudentChat() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     setIsAtBottom(true);
   };
+
+  // Scroll to bottom when history finishes loading
+  useEffect(() => {
+    if (!isHistoryLoading) {
+      // Use a small timeout to ensure DOM is updated
+      setTimeout(() => {
+        scrollToBottom();
+      }, 100);
+    }
+  }, [isHistoryLoading]);
+
   const handleChatScroll = () => {
     const el = chatRef.current;
     if (!el) return;
