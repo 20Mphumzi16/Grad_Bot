@@ -301,14 +301,14 @@ export function StudentDashboard() {
           <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">Questions Asked</p>
           <p className="mb-2">
             {statsLoading ? (
-              <Loader2 className="w-4 h-4 text-gray-400 gb-spinner" />
+              <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />
             ) : (
               totalQuestions
             )}
           </p>
           <p className="text-sm text-green-600">
             {statsLoading ? (
-              <Loader2 className="w-3 h-3 text-green-400 gb-spinner" />
+              <Loader2 className="w-3 h-3 text-green-400 animate-spin" />
             ) : (
               '+5 this week'
             )}
@@ -324,14 +324,14 @@ export function StudentDashboard() {
           <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">Resources Viewed</p>
           <p className="mb-2">
             {statsLoading ? (
-              <Loader2 className="w-4 h-4 text-gray-400 gb-spinner" />
+              <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />
             ) : (
               totalViews
             )}
           </p>
           <p className="text-sm text-green-600">
             {statsLoading ? (
-              <Loader2 className="w-3 h-3 text-green-400 gb-spinner" />
+              <Loader2 className="w-3 h-3 text-green-400 animate-spin" />
             ) : (
               `+${viewsThisWeek} this week`
             )}
@@ -347,14 +347,14 @@ export function StudentDashboard() {
           <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">Programme Progress</p>
           <p className="mb-2">
             {statsLoading ? (
-              <Loader2 className="w-4 h-4 text-gray-400 gb-spinner" />
+              <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />
             ) : (
               `${progressData.percentage}%`
             )}
           </p>
           <p className="text-sm text-green-600">
             {statsLoading ? (
-              <Loader2 className="w-3 h-3 text-green-400 gb-spinner" />
+              <Loader2 className="w-3 h-3 text-green-400 animate-spin" />
             ) : (
               `${progressData.completedMilestones}/${progressData.totalMilestones} Milestones`
             )}
@@ -370,14 +370,14 @@ export function StudentDashboard() {
           <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">Tasks Completed</p>
           <p className="mb-2">
             {statsLoading ? (
-              <Loader2 className="w-4 h-4 text-gray-400 gb-spinner" />
+              <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />
             ) : (
               `${progressData.completed}/${progressData.total}`
             )}
           </p>
           <p className="text-sm text-green-600">
             {statsLoading ? (
-              <Loader2 className="w-3 h-3 text-green-400 gb-spinner" />
+              <Loader2 className="w-3 h-3 text-green-400 animate-spin" />
             ) : (
               `${progressData.percentage}% complete`
             )}
