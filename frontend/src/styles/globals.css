@@ -47,10 +47,10 @@
 }
 
 .dark {
-  --header-background: #2c2c2d;
+  --header-background: #1e293b;
   --background: #0f172a;
   --foreground: oklch(0.985 0 0);
-  --card: #2c2c2d;
+  --card: #1e293b;
   --card-foreground: oklch(0.985 0 0);
   --popover: #374151;
   --popover-foreground: oklch(0.985 0 0);

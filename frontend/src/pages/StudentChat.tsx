@@ -3,6 +3,7 @@ import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { API_BASE_URL } from '../utils/config';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Send,
   FileText,
@@ -399,7 +400,7 @@ export function StudentChat() {
   return (
     <div className="h-full">
       <div className={`flex flex-col h-full mx-auto transition-all duration-300 ${isSourcesPanelOpen ? 'w-full px-4 max-w-[1600px]' : 'max-w-4xl'}`}>
-      <div className="flex flex-row gap-6 overflow-hidden h-full">        
+      <div className="flex flex-row overflow-hidden h-full">        
          
          
           {/* Chat container */}
@@ -568,28 +569,34 @@ export function StudentChat() {
           </Card>
  
           {/* Sources side panel */}
-          {isSourcesPanelOpen && activeSources && (
-            <Card
-              className="w-[400px] flex-none border-gray-200 flex flex-col overflow-hidden h-full animate-in slide-in-from-right-10 fade-in duration-300 shadow-lg bg-[var(--card)]"
-            >
-            <div className="border-b border-gray-200 px-4 py-3 flex items-center justify-between">
-                <h2 className="text-sm font-semibold">Sources</h2>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6"
-                  onClick={() => {
-                    setIsSourcesPanelOpen(false);
-                    setActiveSources(null);
-                    setActiveSourcesMessageId(null);
-                  }}
+          <AnimatePresence>
+            {isSourcesPanelOpen && activeSources && (
+              <motion.div
+                initial={{ width: 0, opacity: 0, x: 20 }}
+                animate={{ width: 400, opacity: 1, x: 0 }}
+                exit={{ width: 0, opacity: 0, x: 20 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="flex-none h-full"
+              >
+                <Card
+                  className="w-full h-full border-gray-200 flex flex-col overflow-hidden shadow-lg bg-[var(--card)]"
                 >
-                  {'×'}
-                </Button>
-              </div>
-              <SourcesContent />
-            </Card>
-          )}
+                  <div className="border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+                    <h2 className="text-sm font-semibold">Sources</h2>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6"
+                      onClick={() => setIsSourcesPanelOpen(false)}
+                    >
+                      {'×'}
+                    </Button>
+                  </div>
+                  <SourcesContent />
+                </Card>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 
