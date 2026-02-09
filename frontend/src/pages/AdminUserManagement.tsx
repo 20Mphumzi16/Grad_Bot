@@ -39,6 +39,7 @@ type GraduateUser = {
   branch?: string;
   start_date?: string;
   emp_no?: string | number;
+  skills?: string[];
 };
 
 function UserActionMenu({ 
@@ -161,6 +162,7 @@ export function AdminUserManagement() {
           branch: it?.branch ?? it?.location ?? '',
           start_date: it?.start_date ?? '',
           emp_no: it?.emp_no ?? '',
+          skills: it?.skills ?? [],
         }));
         setUsers(mapped);
         setSelectedUserIds([]);
@@ -229,6 +231,7 @@ export function AdminUserManagement() {
               branch: detailedUser.branch ?? detailedUser.location ?? prev.branch,
               start_date: detailedUser.start_date ?? detailedUser.startDate ?? prev.start_date,
               emp_no: detailedUser.emp_no ?? detailedUser.empNo ?? prev.emp_no,
+              skills: detailedUser.skills ?? prev.skills,
             };
           }
           return prev;

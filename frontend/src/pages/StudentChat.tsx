@@ -299,6 +299,33 @@ export function StudentChat() {
     setActiveSources(message.sources);
     setActiveSourcesMessageId(message.id);
     setIsSourcesPanelOpen(true);
+    
+    // Scroll to top when sources are opened
+    // Use setTimeout to allow state updates and layout transitions to start
+    setTimeout(() => {
+      // 1. Scroll chat messages to top
+      if (chatRef.current) {
+        chatRef.current.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      }
+
+      // 2. Scroll the main page content container (StudentLayout)
+      const mainContent = document.getElementById('student-main-content');
+      if (mainContent) {
+        mainContent.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      }
+
+      // 3. Fallback: scroll window
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }, 100);
   };
  
   const handleSuggestedQuestion = (question: string) => {

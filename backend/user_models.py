@@ -55,6 +55,7 @@ class GraduateResponse(BaseModel):
     department: str | None = None
     start_date: str | None = None
     avatar_url: str | None = None
+    skills: list[str] | None = None
 
 
 class GraduateUpdateRequest(BaseModel):

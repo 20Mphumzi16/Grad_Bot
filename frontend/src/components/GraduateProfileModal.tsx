@@ -32,6 +32,7 @@ export interface GraduateProfile {
   branch?: string; // location
   start_date?: string;
   emp_no?: string | number;
+  skills?: string[];
 }
 
 interface GraduateProfileModalProps {
@@ -126,6 +127,60 @@ export function GraduateProfileModal({ user, isOpen, onClose }: GraduateProfileM
               {user.bio || "No bio available."}
             </p>
           </div>
+
+          {/* Programme Information */}
+          <div className="mt-6">
+            <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-3">Programme Information</h3>
+            <div className="space-y-2">
+              {user.department && (
+                <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                  <div className="w-8 h-8 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-500 shrink-0">
+                    <Building2 className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="block font-medium text-foreground">Department</span>
+                    <span>{user.department}</span>
+                  </div>
+                </div>
+              )}
+              {user.branch && (
+                <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                  <div className="w-8 h-8 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-500 shrink-0">
+                    <MapPin className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="block font-medium text-foreground">Branch</span>
+                    <span>{user.branch}</span>
+                  </div>
+                </div>
+              )}
+              {user.start_date && (
+                <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                  <div className="w-8 h-8 rounded-full bg-teal-500/10 flex items-center justify-center text-teal-500 shrink-0">
+                    <Calendar className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="block font-medium text-foreground">Start Date</span>
+                    <span>{new Date(user.start_date).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Skills */}
+          {user.skills && user.skills.length > 0 && (
+            <div className="mt-6">
+              <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-3">Skills</h3>
+              <div className="flex flex-wrap gap-2">
+                {user.skills.map((skill, i) => (
+                  <Badge key={i} variant="outline" className="px-3 py-1 border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100">
+                    {skill}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Contact & Links */}
           <div className="mt-6 flex flex-col gap-6">

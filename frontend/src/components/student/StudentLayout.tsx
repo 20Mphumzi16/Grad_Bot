@@ -15,7 +15,10 @@ export function StudentLayout() {
 
   return (
     <div className="w-full h-full overflow-hidden flex flex-col">
-      <div className="flex-1 w-full h-full overflow-y-auto p-8 pb-20 md:pb-8">
+      <div 
+        id="student-main-content"
+        className="flex-1 w-full h-full overflow-y-auto p-8 pb-20 md:pb-8"
+      >
         <AnimatePresence mode="wait">
           <PageTransition key={location.pathname} className="min-h-full">
             <Outlet />

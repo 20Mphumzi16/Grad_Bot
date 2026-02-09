@@ -239,7 +239,7 @@ export function StudentTimeline() {
             <p className="text-sm text-gray-600">Complete</p>
           </div>
         </div>
-        <Progress value={progressPercentage} className="h-3" />
+        <Progress value={progressPercentage} className="h-3 bg-gray-200 dark:bg-gray-700 black-progress-indicator" />
       </Card>
 
       <div className="relative">

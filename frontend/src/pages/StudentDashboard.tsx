@@ -345,7 +345,7 @@ export function StudentDashboard() {
             </div>
           </div>
           <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">Programme Progress</p>
-          <p className="text-gray-900 dark:text-gray-100 mb-2">
+          <p className="mb-2">
             {statsLoading ? (
               <Loader2 className="w-4 h-4 text-gray-400 gb-spinner" />
             ) : (
