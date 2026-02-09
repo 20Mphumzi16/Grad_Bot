@@ -486,8 +486,8 @@ export function AdminTaskManagement() {
               <ClipboardList className="w-5 h-5 text-blue-600 !text-blue-600" />
             </div>
             <div className="flex flex-col">
-              <span className="text-sm text-black !text-black font-medium" style={{ color: 'black' }}>Total Tasks</span>
-              <span className="text-xl font-bold text-black !text-black" style={{ color: 'black' }}>{totalTasks}</span>
+              <span className="text-sm font-medium admin-stats-text">Total Tasks</span>
+              <span className="text-xl font-bold admin-stats-text">{totalTasks}</span>
             </div>
           </div>
 
@@ -496,8 +496,8 @@ export function AdminTaskManagement() {
               <Flag className="w-5 h-5 text-blue-600 !text-blue-600" />
             </div>
             <div className="flex flex-col">
-              <span className="text-sm text-black !text-black font-medium" style={{ color: 'black' }}>Total Milestones</span>
-              <span className="text-xl font-bold text-black !text-black" style={{ color: 'black' }}>{filteredMilestones.length}</span>
+              <span className="text-sm font-medium admin-stats-text">Total Milestones</span>
+              <span className="text-xl font-bold admin-stats-text">{filteredMilestones.length}</span>
             </div>
           </div>
 

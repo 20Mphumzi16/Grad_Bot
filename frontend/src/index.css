@@ -31,6 +31,15 @@
   color: #3b82f6 !important; /* blue-500 */
 }
 
+/* Admin Stats Text Styling */
+.admin-stats-text {
+  color: #000000 !important;
+}
+
+:is(.dark) .admin-stats-text {
+  color: #ffffff !important;
+}
+
 /* Matrix Loader */
 .matrix-loader {
   display: grid;
