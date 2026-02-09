@@ -94,30 +94,9 @@ export function GraduateProfileModal({ user, isOpen, onClose }: GraduateProfileM
               </div>
             </div>
 
-            <div className="space-y-1">
-              <h2 className="text-2xl font-bold text-foreground">{fullName}</h2>
+          <div className="space-y-1">
+            <h2 className="text-2xl font-bold text-foreground">{fullName}</h2>
             <p className="text-lg text-muted-foreground font-medium">{user.role}</p>
-            
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground mt-2">
-              {user.branch && (
-                <div className="flex items-center gap-1">
-                  <MapPin className="w-4 h-4" />
-                  <span>{user.branch}</span>
-                </div>
-              )}
-              {user.department && (
-                <div className="flex items-center gap-1">
-                  <Building2 className="w-4 h-4" />
-                  <span>{user.department}</span>
-                </div>
-              )}
-              {user.start_date && (
-                <div className="flex items-center gap-1">
-                  <Calendar className="w-4 h-4" />
-                  <span>Joined {new Date(user.start_date).toLocaleDateString()}</span>
-                </div>
-              )}
-            </div>
           </div>
 
           {/* Bio Section */}
