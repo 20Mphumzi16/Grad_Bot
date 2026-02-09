@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { CustomModal } from './ui/custom-modal';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Badge } from './ui/badge';
@@ -244,9 +245,9 @@ export function GraduateProfileModal({ user, isOpen, onClose }: GraduateProfileM
       </CustomModal>
 
       {/* Image Preview Overlay */}
-      {isImagePreviewOpen && (
+      {isImagePreviewOpen && createPortal(
         <div 
-          className="fixed inset-0 z-[1100] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+          className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-200"
           onClick={() => setIsImagePreviewOpen(false)}
         >
           <div className="relative max-w-4xl max-h-screen w-full flex items-center justify-center">
@@ -273,7 +274,8 @@ export function GraduateProfileModal({ user, isOpen, onClose }: GraduateProfileM
                </div>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
