@@ -39,6 +39,7 @@ type GraduateUser = {
   branch?: string;
   start_date?: string;
   emp_no?: string | number;
+  skills?: string[];
 };
 
 function UserActionMenu({ 
@@ -161,6 +162,7 @@ export function AdminUserManagement() {
           branch: it?.branch ?? it?.location ?? '',
           start_date: it?.start_date ?? '',
           emp_no: it?.emp_no ?? '',
+          skills: it?.skills ?? [],
         }));
         setUsers(mapped);
         setSelectedUserIds([]);
@@ -229,6 +231,7 @@ export function AdminUserManagement() {
               branch: detailedUser.branch ?? detailedUser.location ?? prev.branch,
               start_date: detailedUser.start_date ?? detailedUser.startDate ?? prev.start_date,
               emp_no: detailedUser.emp_no ?? detailedUser.empNo ?? prev.emp_no,
+              skills: detailedUser.skills ?? prev.skills,
             };
           }
           return prev;
@@ -435,7 +438,7 @@ export function AdminUserManagement() {
 
   return (
     <div className="pt-8 space-y-8">
-      <Card className="p-6 border-gray-200">
+      <Card className="p-6 border-gray-200 bg-[var(--card)]">
         <div className="flex items-center gap-4">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -523,7 +526,7 @@ export function AdminUserManagement() {
         </Alert>
       )}
 
-      <Card className="border-gray-200">
+      <Card className="border-gray-200 bg-[var(--card)]">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="border-b border-gray-200">

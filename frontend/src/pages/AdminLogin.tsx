@@ -81,12 +81,12 @@ export function AdminLogin() {
         </Link>
 
         {/* Login card */}
-        <div className="bg-card rounded-3xl shadow-xl shadow-black/5 dark:shadow-black/20 p-8">
+        <div className="bg-[var(--card)] rounded-3xl shadow-xl shadow-black/5 dark:shadow-black/20 p-8">
           <div className="text-center mb-8">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-teal-500 flex items-center justify-center mx-auto mb-4">
               <Lock className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-foreground mb-2">
+            <h1 className="text-2xl font-bold text-foreground mb-2">
               Admin Login
             </h1>
             <p className="text-muted-foreground text-sm">

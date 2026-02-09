@@ -267,12 +267,12 @@ export default function ForgotPassword() {
               <span className="text-sm">Back to Home</span>
             </Link>
 
-            <div className="bg-card rounded-3xl shadow-xl shadow-black/5 dark:shadow-black/20 p-8 min-h-[400px] flex flex-col justify-center">
-              <div className="text-center mb-8">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mx-auto mb-4">
-                  <KeyRound className="w-8 h-8 text-white" />
-                </div>
-                <h1 className="text-foreground mb-2">Reset Password</h1>
+            <div className="bg-[var(--card)] rounded-3xl shadow-xl shadow-black/5 dark:shadow-black/20 p-8 min-h-[400px] flex flex-col justify-center">
+                <div className="text-center mb-8">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mx-auto mb-4">
+                    <KeyRound className="w-8 h-8 text-white" />
+                  </div>
+                  <h1 className="text-2xl font-bold text-foreground mb-2">Reset Password</h1>
                 <p className="text-muted-foreground text-sm">
                   {step === 1 && "Step 1: Enter your email to reset password"}
                   {step === 2 && "Step 2: Enter the code sent to your email"}

@@ -10,7 +10,9 @@ import {
   ThumbsDown,
   Sparkles,
   RotateCcw,
-  ArrowDown
+  ArrowDown,
+  ArrowBigDown,
+  Plus
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
  
@@ -75,6 +77,7 @@ export function StudentChat() {
   const [inputValue, setInputValue] = useState('');
  
   const chatRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isAtBottom, setIsAtBottom] = useState(true);
  
   // Sources panel state
@@ -102,12 +105,7 @@ export function StudentChat() {
   };
  
   const scrollToBottom = () => {
-    const el = chatRef.current;
-    if (!el) return;
-    el.scrollTo({
-      top: el.scrollHeight,
-      behavior: 'smooth',
-    });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     setIsAtBottom(true);
   };
   const handleChatScroll = () => {
@@ -301,6 +299,33 @@ export function StudentChat() {
     setActiveSources(message.sources);
     setActiveSourcesMessageId(message.id);
     setIsSourcesPanelOpen(true);
+    
+    // Scroll to top when sources are opened
+    // Use setTimeout to allow state updates and layout transitions to start
+    setTimeout(() => {
+      // 1. Scroll chat messages to top
+      if (chatRef.current) {
+        chatRef.current.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      }
+
+      // 2. Scroll the main page content container (StudentLayout)
+      const mainContent = document.getElementById('student-main-content');
+      if (mainContent) {
+        mainContent.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      }
+
+      // 3. Fallback: scroll window
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }, 100);
   };
  
   const handleSuggestedQuestion = (question: string) => {
@@ -367,7 +392,7 @@ export function StudentChat() {
          
          
           {/* Chat container */}
-          <Card className="flex-1 border-gray-200 flex flex-col overflow-hidden min-w-[350px] relative">
+          <Card className="flex-1 border-gray-200 flex flex-col overflow-hidden min-w-[350px] relative bg-[var(--card)]">
             {/* Messages area */}
             <div
               ref={chatRef}
@@ -525,22 +550,16 @@ export function StudentChat() {
                 </Button>
               </div>
             </div>
+            <div ref={messagesEndRef} />
 
-            {!isAtBottom && (
-              <Button
-                onClick={scrollToBottom}
-                className="absolute top-4 left-1/2 -translate-x-1/2 rounded-full w-10 h-10 p-0 bg-blue-600 hover:bg-blue-700 text-white shadow-xl animate-bounce z-50"
-              >
-                <ArrowDown className="w-5 h-5" />
-              </Button>
-            )}
+
 
           </Card>
  
           {/* Sources side panel */}
           {isSourcesPanelOpen && activeSources && (
             <Card
-              className="w-[400px] flex-none border-gray-200 flex flex-col overflow-hidden h-full animate-in slide-in-from-right-10 fade-in duration-300 shadow-lg"
+              className="w-[400px] flex-none border-gray-200 flex flex-col overflow-hidden h-full animate-in slide-in-from-right-10 fade-in duration-300 shadow-lg bg-[var(--card)]"
             >
             <div className="border-b border-gray-200 px-4 py-3 flex items-center justify-between">
                 <h2 className="text-sm font-semibold">Sources</h2>
@@ -562,6 +581,17 @@ export function StudentChat() {
           )}
         </div>
       </div>
+
+      {/* Floating Action Button for Scroll to Bottom - Always visible when chat active */}
+      {messages.length > 1 && (
+        <Button
+          onClick={scrollToBottom}
+          className="fixed bottom-8 right-8 w-14 h-14 rounded-full shadow-2xl bg-blue-600 hover:bg-blue-700 text-white z-[100] transition-transform hover:scale-105 animate-bounce"
+          title="Scroll to Bottom"
+        >
+          <ArrowBigDown className="w-8 h-8" fill="currentColor" />
+        </Button>
+      )}
     </div>
   );
 }

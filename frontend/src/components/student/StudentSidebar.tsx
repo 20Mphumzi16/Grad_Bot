@@ -180,7 +180,7 @@ export function StudentSidebar({ isOpen, onToggle }: StudentSidebarProps) {
         isOpen ? "w-64" : "w-16", 
       )}
       style={{
-        backgroundColor: isDark ? 'var(--background)' : '#eff6ff',
+        backgroundColor: isDark ? 'var(--sidebar)' : '#eff6ff',
         borderColor: 'var(--border)',
         color: 'var(--foreground)'
       }}
