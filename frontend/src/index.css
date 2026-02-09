@@ -16,6 +16,21 @@
   }
 }
 
+/* Document Name Styling */
+.document-name-text {
+  color: #000000 !important;
+}
+.document-name-text:hover {
+  color: #3b82f6 !important; /* blue-500 */
+}
+
+:is(.dark) .document-name-text {
+  color: #ffffff !important;
+}
+:is(.dark) .document-name-text:hover {
+  color: #3b82f6 !important; /* blue-500 */
+}
+
 /* Matrix Loader */
 .matrix-loader {
   display: grid;

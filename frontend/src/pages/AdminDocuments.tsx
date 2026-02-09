@@ -624,7 +624,7 @@ setCategories(data);
                         </div>
                         <span 
                           onClick={() => handleView(doc.id, doc.name)}
-                          className="text-sm font-medium cursor-pointer hover:text-blue-500 hover:underline transition-colors text-gray-900 dark:text-white"
+                          className="text-sm font-medium cursor-pointer hover:underline transition-colors document-name-text"
                           title={doc.name}
                         >
                           {doc.name}
