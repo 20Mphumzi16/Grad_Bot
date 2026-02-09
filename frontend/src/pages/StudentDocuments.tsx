@@ -106,15 +106,15 @@ export function StudentDocuments() {
     <div className="pt-8 space-y-8">
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="p-6 border-gray-200">
+        <Card className="p-6 border-gray-200 bg-[var(--card)]">
           <p className="text-gray-600 text-sm mb-1">Total Documents</p>
           <p style={{ color: 'var(--foreground)' }}>{documents.length}</p>
         </Card>
-        <Card className="p-6 border-gray-200">
+        <Card className="p-6 border-gray-200 bg-[var(--card)]">
           <p className="text-gray-600 text-sm mb-1">New Documents</p>
           <p style={{ color: 'var(--foreground)' }}>{documents.filter(d => d.views === 0).length}</p>
         </Card>
-        <Card className="p-6 border-gray-200">
+        <Card className="p-6 border-gray-200 bg-[var(--card)]">
           <p className="text-gray-600 text-sm mb-1">Viewed</p>
           <p style={{ color: 'var(--foreground)' }}>{documents.filter(d => d.views > 0).length}</p>
         </Card>
@@ -123,7 +123,7 @@ export function StudentDocuments() {
       {/* Documents list */}
       <div className="space-y-4">
         {documents.map((doc) => (
-          <Card key={doc.id} className="p-6 border-gray-200 hover:shadow-lg transition-shadow">
+          <Card key={doc.id} className="p-6 border-gray-200 hover:shadow-lg transition-shadow bg-[var(--card)]">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-teal-500 flex items-center justify-center flex-shrink-0">
                 <FileText className="w-6 h-6 text-white" />

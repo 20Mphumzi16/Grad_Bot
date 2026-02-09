@@ -133,7 +133,7 @@ export function AdminDashboard() {
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (
-            <Card key={stat.label} className="p-6 border-gray-200">
+            <Card key={stat.label} className="p-6 border-gray-200 bg-[var(--card)]">
               <div className="flex items-start justify-between mb-4">
                 <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center`}>
                   <Icon className="w-6 h-6 text-white" />
@@ -162,7 +162,7 @@ export function AdminDashboard() {
       {/* Main content grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent documents */}
-        <Card className="p-6 border-gray-200">
+        <Card className="p-6 border-gray-200 bg-[var(--card)]">
           <div className="flex items-center justify-between mb-6">
             <h3 style={{ color: 'var(--foreground)' }}>Recent Documents</h3>
             <Button 
@@ -210,7 +210,7 @@ export function AdminDashboard() {
         </Card>
 
         {/* Recent queries */}
-        <Card className="p-6 border-gray-200">
+        <Card className="p-6 border-gray-200 bg-[var(--card)]">
           <div className="flex items-center justify-between mb-6">
             <h3 style={{ color: 'var(--foreground)' }}>Recent Queries</h3>
             <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700">
@@ -235,7 +235,7 @@ export function AdminDashboard() {
       </div>
 
       {/* System status */}
-      <Card className="p-6 border-gray-200">
+      <Card className="p-6 border-gray-200 bg-[var(--card)]">
         <h3 style={{ color: 'var(--foreground)' }} className="mb-6">System Status</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>

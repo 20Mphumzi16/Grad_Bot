@@ -365,7 +365,7 @@ export function StudentChat() {
          
          
           {/* Chat container */}
-          <Card className="flex-1 border-gray-200 flex flex-col overflow-hidden min-w-[350px] relative">
+          <Card className="flex-1 border-gray-200 flex flex-col overflow-hidden min-w-[350px] relative bg-[var(--card)]">
             {/* Messages area */}
             <div
               ref={chatRef}
@@ -532,7 +532,7 @@ export function StudentChat() {
           {/* Sources side panel */}
           {isSourcesPanelOpen && activeSources && (
             <Card
-              className="w-[400px] flex-none border-gray-200 flex flex-col overflow-hidden h-full animate-in slide-in-from-right-10 fade-in duration-300 shadow-lg"
+              className="w-[400px] flex-none border-gray-200 flex flex-col overflow-hidden h-full animate-in slide-in-from-right-10 fade-in duration-300 shadow-lg bg-[var(--card)]"
             >
             <div className="border-b border-gray-200 px-4 py-3 flex items-center justify-between">
                 <h2 className="text-sm font-semibold">Sources</h2>

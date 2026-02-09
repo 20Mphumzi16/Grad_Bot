@@ -43,7 +43,7 @@ export function AdminHeader({ onMobileMenuToggle, isSidebarOpen }: { onMobileMen
           : "m-4 w-[calc(100%-2rem)] rounded-2xl border shadow-md h-16"
       )}
       style={{
-        backgroundColor: 'var(--background)',
+        backgroundColor: 'var(--header-background)',
         borderColor: 'var(--border)',
         color: 'var(--foreground)'
       }}
