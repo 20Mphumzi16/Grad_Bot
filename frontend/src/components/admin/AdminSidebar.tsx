@@ -154,7 +154,7 @@ export function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
       )}
       style={{
         background: isDark ? 'var(--sidebar)' : '#eff6ff',
-        backdropFilter: isDark ? 'blur(12px)' : 'none',
+        backdropFilter: 'none',
         borderColor: 'var(--sidebar-border)',
         color: 'var(--foreground)'
       }}

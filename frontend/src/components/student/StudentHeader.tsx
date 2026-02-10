@@ -161,7 +161,8 @@ export function StudentHeader({ onMobileMenuToggle, isSidebarOpen }: { onMobileM
           : "m-4 w-[calc(100%-2rem)] rounded-2xl border shadow-md h-16"
       )}
       style={{
-        backgroundColor: 'var(--header-background)',
+        background: 'var(--header-background)',
+        backdropFilter: isDark ? 'blur(12px)' : 'none',
         borderColor: 'var(--border)',
         color: 'var(--foreground)'
       }}
