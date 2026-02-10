@@ -68,14 +68,7 @@ export function StudentTimeline() {
   };
 
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Completed':
-        return 'border-green-200 bg-[var(--card)]';
-      case 'In-Progress':
-        return 'border-orange-200 bg-[var(--card)]';
-      default:
-        return 'border-gray-200 bg-[var(--card)]';
-    }
+    return 'bg-[var(--card)]';
   };
 
   const getMilestoneProgress = (milestone: any) => {
@@ -229,7 +222,7 @@ export function StudentTimeline() {
         }
       `}</style>
       <div className="w-full space-y-8">
-        <Card className="p-6 border-gray-200 bg-[var(--card)]">
+        <Card className="p-6 bg-[var(--card)]">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="mb-1">Overall Progress</h3>

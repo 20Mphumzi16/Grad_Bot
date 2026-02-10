@@ -467,7 +467,7 @@ export function AdminTaskManagement() {
         </div> */}
       </div>
 
-      <div className="flex items-center justify-between bg-[var(--card)] p-4 rounded-lg border border-gray-200 shadow-sm">
+      <div className="flex items-center justify-between bg-[var(--card)] p-4 rounded-lg border border-[var(--border)] shadow-sm">
         {/* Left Side: Search */}
         <div className="relative w-96">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -475,7 +475,7 @@ export function AdminTaskManagement() {
             placeholder="Search milestones or tasks..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 bg-white border-gray-200 text-black placeholder:text-gray-500"
+            className="pl-10 bg-white border text-black placeholder:text-gray-500"
           />
         </div>
 
@@ -538,7 +538,7 @@ export function AdminTaskManagement() {
               key={milestone.key} 
               onClick={() => scrollToMilestone(milestone.key)}
               className={`flex-1 min-w-[120px] flex flex-col items-center gap-2 p-2 rounded-lg transition-colors cursor-pointer ${
-                milestone.status === 'completed' ? 'bg-green-50' : 'bg-gray-50'
+                milestone.status === 'completed' ? 'bg-green-50 dark:bg-green-900/20' : 'bg-gray-50 dark:bg-gray-800'
               }`}
             >
               <div className="flex items-center justify-center gap-1 w-full overflow-hidden">
@@ -567,7 +567,7 @@ export function AdminTaskManagement() {
               milestoneRefs.current[milestone.key] = el;
             }}
           >
-          <Card className="p-6 border-gray-200 relative overflow-hidden bg-[var(--card)]">
+          <Card className="p-6 relative overflow-hidden bg-[var(--card)]">
             <div className="flex items-start justify-between mb-6">
               <div>
                 <p className="text-sm text-muted-foreground mb-1">
@@ -620,7 +620,7 @@ export function AdminTaskManagement() {
               {milestone.tasks.map((task: any) => (
                 <div
                   key={task.task_id}
-                  className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 border border-gray-100 dark:bg-zinc-800 dark:border-zinc-700"
+                  className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 border dark:bg-zinc-800"
                 >
                   <Circle className="w-4 h-4 text-gray-400" />
                   <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{task.name}</span>
@@ -705,7 +705,7 @@ export function AdminTaskManagement() {
           <div className="grid gap-2 relative" ref={addGraduateDropdownRef}>
             <Label>Assign to Graduates</Label>
             <div 
-              className="border rounded-md p-2 cursor-pointer bg-white dark:bg-zinc-950 border-gray-200 dark:border-gray-700 flex justify-between items-center"
+              className="border rounded-md p-2 cursor-pointer bg-white dark:bg-zinc-950 border-[var(--border)] flex justify-between items-center"
               onClick={() => setIsGraduateDropdownOpen(!isGraduateDropdownOpen)}
             >
               <span className="text-sm text-gray-900 dark:text-gray-100">
@@ -717,7 +717,7 @@ export function AdminTaskManagement() {
             </div>
 
             {isGraduateDropdownOpen && (
-              <div className="absolute top-[75px] left-0 right-0 z-50 bg-white dark:bg-zinc-950 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg max-h-60 overflow-y-auto p-2">
+              <div className="absolute top-[75px] left-0 right-0 z-50 bg-white dark:bg-zinc-950 border rounded-md shadow-lg max-h-60 overflow-y-auto p-2">
                 <div 
                   className="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded cursor-pointer"
                   onClick={() => {
@@ -736,7 +736,7 @@ export function AdminTaskManagement() {
                     />
                     <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">Select All</span>
                 </div>
-                <hr className="my-1 border-gray-200 dark:border-gray-700" />
+                <hr className="my-1 border dark:border-gray-700" />
                 {graduates.map((grad) => (
                   <div 
                     key={grad.id} 
@@ -862,7 +862,7 @@ export function AdminTaskManagement() {
             <div className="grid gap-2 relative" ref={editGraduateDropdownRef}>
             <Label>Assign to Graduates</Label>
             <div 
-              className="border rounded-md p-2 cursor-pointer bg-white dark:bg-zinc-950 border-gray-200 dark:border-gray-700 flex justify-between items-center"
+              className="border rounded-md p-2 cursor-pointer bg-white dark:bg-zinc-950 border-[var(--border)] flex justify-between items-center"
               onClick={() => setIsEditGraduateDropdownOpen(!isEditGraduateDropdownOpen)}
             >
               <span className="text-sm text-gray-900 dark:text-gray-100">
@@ -874,7 +874,7 @@ export function AdminTaskManagement() {
             </div>
 
             {isEditGraduateDropdownOpen && (
-              <div className="absolute top-[75px] left-0 right-0 z-50 bg-white dark:bg-zinc-950 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg max-h-60 overflow-y-auto p-2">
+              <div className="absolute top-[75px] left-0 right-0 z-50 bg-white dark:bg-zinc-950 border border-[var(--border)] rounded-md shadow-lg max-h-60 overflow-y-auto p-2">
                 <div 
                   className="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded cursor-pointer"
                   onClick={() => {
@@ -893,7 +893,7 @@ export function AdminTaskManagement() {
                     />
                     <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">Select All</span>
                 </div>
-                <hr className="my-1 border-gray-200 dark:border-gray-700" />
+                <hr className="my-1 border dark:border-gray-700" />
                 {graduates.map((grad) => (
                   <div 
                     key={grad.id} 

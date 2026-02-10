@@ -42,7 +42,7 @@ export function HowItWorks() {
               return (
                 <div key={step.title} className="text-center">
                   <div className="relative inline-block mb-6">
-                    <div className="w-24 h-24 rounded-2xl bg-white border-2 border-gray-100 shadow-lg shadow-gray-200/50 flex items-center justify-center mx-auto">
+                    <div className="w-24 h-24 rounded-2xl bg-white border-2 shadow-lg shadow-gray-200/50 flex items-center justify-center mx-auto">
                       <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-teal-500 flex items-center justify-center">
                         <Icon className="w-6 h-6 text-white" />
                       </div>

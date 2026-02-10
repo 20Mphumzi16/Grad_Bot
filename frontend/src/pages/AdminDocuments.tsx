@@ -450,7 +450,7 @@ setCategories(data);
 
       {/* Stats cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="p-6 border-gray-200 bg-[var(--card)]">
+        <Card className="p-6 bg-[var(--card)]">
           <div className="flex items-start justify-between mb-4">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
               <FileText className="w-6 h-6 text-white" />
@@ -459,7 +459,7 @@ setCategories(data);
           <p className="text-gray-600 text-sm mb-1">Total Documents</p>
           <p style={{ color: 'var(--foreground)' }} className="text-2xl font-semibold">{documents.length}</p>
         </Card>
-        <Card className="p-6 border-gray-200 bg-[var(--card)]">
+        <Card className="p-6 bg-[var(--card)]">
           <div className="flex items-start justify-between mb-4">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
               <CheckCircle2 className="w-6 h-6 text-white" />
@@ -470,7 +470,7 @@ setCategories(data);
             {documents.filter((d) => d.status === 'processed').length}
           </p>
         </Card>
-        <Card className="p-6 border-gray-200 bg-[var(--card)]">
+        <Card className="p-6 bg-[var(--card)]">
           <div className="flex items-start justify-between mb-4">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
               <Clock className="w-6 h-6 text-white" />
@@ -481,7 +481,7 @@ setCategories(data);
             {documents.filter((d) => d.status === 'processing').length}
           </p>
         </Card>
-        <Card className="p-6 border-gray-200 bg-[var(--card)]">
+        <Card className="p-6 bg-[var(--card)]">
           <div className="flex items-start justify-between mb-4">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
               <Package className="w-6 h-6 text-white" />
@@ -495,7 +495,7 @@ setCategories(data);
       </div>
 
       {/* Search and filters */}
-      <Card className="p-6 border-gray-200 bg-[var(--card)]">
+      <Card className="p-6 bg-[var(--card)]">
         <div className="space-y-4">
           <div className="flex items-center gap-4">
             <div className="flex-1 relative">
@@ -587,10 +587,10 @@ setCategories(data);
       </Card>
 
       {/* Documents table */}
-      <Card className="border-gray-200 bg-[var(--card)]">
+      <Card className="bg-[var(--card)]">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="border-b border-gray-200">
+            <thead className="border-b">
               <tr>
                 <th className="text-left p-4 text-sm text-muted-foreground">Document Name</th>
                 <th className="text-left p-4 text-sm text-muted-foreground">Category</th>

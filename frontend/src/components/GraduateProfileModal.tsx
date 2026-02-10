@@ -83,7 +83,7 @@ export function GraduateProfileModal({ user, isOpen, onClose }: GraduateProfileM
           <div className="px-6 pb-6">
             <div className="relative flex justify-between items-end -mt-12 mb-4">
               <div className="relative group cursor-pointer" onClick={() => setIsImagePreviewOpen(true)}>
-                <Avatar className="w-24 h-24 border-4 border-white dark:border-gray-900 shadow-md transition-transform transform group-hover:scale-105 bg-white">
+                <Avatar className="w-24 h-24 border-4 border-[var(--card)] shadow-md transition-transform transform group-hover:scale-105 bg-white">
                   <AvatarImage src={avatarUrl || undefined} className="object-cover" />
                   <AvatarFallback className="text-2xl bg-blue-100 text-blue-700">
                     {firstInitial}{lastInitial}

@@ -382,7 +382,7 @@ export function StudentChat() {
       {activeSources?.map((source, index) => (
         <div
           key={source.chunk_id || index}
-          className="border border-gray-200 rounded-lg p-3 bg-gray-50 space-y-2"
+          className="border rounded-lg p-3 bg-gray-50 space-y-2"
         >
           <div className="flex items-center gap-2 text-xs text-gray-500">
             <FileText className="w-3 h-3" />
@@ -404,7 +404,7 @@ export function StudentChat() {
          
          
           {/* Chat container */}
-          <Card className="flex-1 border-gray-200 flex flex-col overflow-hidden min-w-[350px] relative bg-[var(--card)]">
+          <Card className="flex-1 flex flex-col overflow-hidden min-w-[350px] relative bg-[var(--card)]">
             {/* Messages area */}
             <div
               ref={chatRef}
@@ -531,7 +531,7 @@ export function StudentChat() {
             )}
  
             {/* Input area */}
-            <div className="border-t border-gray-200 p-6 relative z-50">
+            <div className="border-t p-6 relative z-50">
               <div className="flex justify-center mb-2 gap-2">
                 {messages.length > 1 && (
                   <Button
@@ -579,9 +579,9 @@ export function StudentChat() {
                 className="flex-none h-full"
               >
                 <Card
-                  className="w-full h-full border-gray-200 flex flex-col overflow-hidden shadow-lg bg-[var(--card)]"
+                  className="w-full h-full flex flex-col overflow-hidden shadow-lg bg-[var(--card)]"
                 >
-                  <div className="border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+                  <div className="border-b px-4 py-3 flex items-center justify-between">
                     <h2 className="text-sm font-semibold">Sources</h2>
                     <Button
                       variant="ghost"
