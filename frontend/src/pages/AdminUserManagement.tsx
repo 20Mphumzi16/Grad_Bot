@@ -74,7 +74,7 @@ function UserActionMenu({
         <MoreVertical className="w-4 h-4 text-gray-600" />
       </Button>
       {isOpen && (
-        <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 w-28 rounded-md border bg-white shadow-lg z-50">
+        <div className="absolute right-0 top-0 w-28 rounded-md border bg-white shadow-lg z-50">
           <button
             className="block w-full px-3 py-2 text-left text-sm hover:bg-gray-100"
             type="button"
@@ -602,11 +602,12 @@ export function AdminUserManagement() {
                 filteredUsers.map((user) => (
                   <tr
                     key={user.id}
-                    className="border-b border-[var(--border)] hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer"
+                    className="group border-b border-[var(--border)] hover:bg-gray-50 cursor-pointer hover:text-black"
                     onClick={() => handleUserClick(user)}
                   >
                     <td className="p-6" onClick={(e) => e.stopPropagation()}>
                       <Checkbox
+                        className="opacity-0 group-hover:opacity-100 data-[state=checked]:opacity-100 transition-opacity"
                         checked={selectedUserIds.includes(user.id)}
                         onCheckedChange={(checked) =>
                           setSelectedUserIds((prev) => {
@@ -689,6 +690,8 @@ export function AdminUserManagement() {
         title="Add user"
         overlayOpacity={0}
         overlayBlur={0}
+        className="max-w-xl max-h-[85vh] flex flex-col"
+        contentClassName="overflow-y-auto flex-1 pr-2"
         footer={
           <>
             <Button
@@ -847,6 +850,8 @@ export function AdminUserManagement() {
         title="Edit user"
         overlayOpacity={0}
         overlayBlur={0}
+        className="max-w-xl max-h-[85vh] flex flex-col"
+        contentClassName="overflow-y-auto flex-1 pr-2"
         footer={
           <>
             <Button

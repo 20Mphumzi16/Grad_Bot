@@ -68,7 +68,7 @@ export function GraduateProfileModal({ user, isOpen, onClose }: GraduateProfileM
         open={isOpen}
         onClose={onClose}
         title="" 
-        className="w-full !max-w-md !p-0 overflow-hidden flex flex-col max-h-[85vh] mx-4" // Added mx-4 for safety on small screens, max-w-md
+        className="w-full max-w-xl !p-0 overflow-hidden flex flex-col max-h-[85vh] mx-4"
         contentClassName="flex-1 min-h-0 relative flex flex-col"
         overlayOpacity={0.5}
         overlayBlur={4}
