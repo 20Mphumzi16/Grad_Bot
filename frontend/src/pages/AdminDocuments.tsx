@@ -519,7 +519,7 @@ setCategories(data);
                 <ArrowUpDown className="w-4 h-4 mr-2" />
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
-              <SelectContent className="bg-input-background dark:bg-input/30 border-gray-300 dark:border-gray-500">
+              <SelectContent className="bg-white dark:bg-zinc-950 border-gray-300 dark:border-gray-500">
                 <SelectItem value="date">Sort by Date</SelectItem>
                 <SelectItem value="name">Sort Alphabetically</SelectItem>
               </SelectContent>
