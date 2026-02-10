@@ -648,6 +648,8 @@ export function AdminTaskManagement() {
         overlayOpacity={0}
         overlayBlur={0}
         zIndex={2147483601}
+        className="max-w-xl max-h-[85vh] flex flex-col"
+        contentClassName="overflow-y-auto flex-1 pr-2"
         footer={
           <>
             <Button variant="outline" onClick={() => setIsAddModalOpen(false)}>
@@ -806,6 +808,8 @@ export function AdminTaskManagement() {
         overlayOpacity={0}
         overlayBlur={0}
         zIndex={2147483601}
+        className="max-w-xl max-h-[85vh] flex flex-col"
+        contentClassName="overflow-y-auto flex-1 pr-2"
         footer={
           <>
             <Button variant="outline" onClick={() => setEditingMilestone(null)}>
