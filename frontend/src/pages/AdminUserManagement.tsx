@@ -602,11 +602,12 @@ export function AdminUserManagement() {
                 filteredUsers.map((user) => (
                   <tr
                     key={user.id}
-                    className="border-b border-[var(--border)] hover:bg-gray-50 cursor-pointer hover:text-black"
+                    className="group border-b border-[var(--border)] hover:bg-gray-50 cursor-pointer hover:text-black"
                     onClick={() => handleUserClick(user)}
                   >
                     <td className="p-6" onClick={(e) => e.stopPropagation()}>
                       <Checkbox
+                        className="opacity-0 group-hover:opacity-100 data-[state=checked]:opacity-100 transition-opacity"
                         checked={selectedUserIds.includes(user.id)}
                         onCheckedChange={(checked) =>
                           setSelectedUserIds((prev) => {
@@ -689,6 +690,8 @@ export function AdminUserManagement() {
         title="Add user"
         overlayOpacity={0}
         overlayBlur={0}
+        className="max-w-xl max-h-[85vh] flex flex-col"
+        contentClassName="overflow-y-auto flex-1 pr-2"
         footer={
           <>
             <Button
@@ -847,6 +850,8 @@ export function AdminUserManagement() {
         title="Edit user"
         overlayOpacity={0}
         overlayBlur={0}
+        className="max-w-xl max-h-[85vh] flex flex-col"
+        contentClassName="overflow-y-auto flex-1 pr-2"
         footer={
           <>
             <Button
