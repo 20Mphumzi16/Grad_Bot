@@ -160,6 +160,7 @@ export function StudentDashboard() {
                 const isInProgress = /progress/i.test(String(rawStatus));
 
                 return {
+                  id: m.milestone_id || m.id,
                   title: m.title || m.name || m.milestone_title || 'Untitled milestone',
                   dueDate: m.due_date || m.dueDate || m.deadline || 'No date',
                   status: rawStatus,
@@ -402,7 +403,7 @@ export function StudentDashboard() {
               <p className="text-sm text-gray-500">No upcoming milestones found.</p>
             ) : (
               upcomingMilestones.map((milestone, index) => (
-                <div key={index} className="p-4 rounded-xl border border-[var(--border)] transition-colors">
+                <div key={milestone.id || index} className="p-4 rounded-xl border border-[var(--border)] transition-colors">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
                       <p className="text-sm mb-1">{milestone.title}</p>

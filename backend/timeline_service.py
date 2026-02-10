@@ -492,6 +492,11 @@ def get_next_three_active_milestones(graduate_id: UUID):
 
         results = []
         for m in milestones:
+            # Check if milestone is assigned to specific graduate
+            assigned_to = m.get("graduate_id")
+            if assigned_to and str(assigned_to) != str(graduate_id):
+                continue
+
             m_tasks = [t for t in tasks if t["milestone_id"] == m["id"]]
 
             if not m_tasks:
