@@ -45,7 +45,7 @@ export function Header() {
 
       {/* Mobile Navigation */}
       {isMenuOpen && (
-        <div className="lg:hidden absolute top-full left-0 right-0 bg-white border-b border-gray-100 shadow-lg p-4 flex flex-col gap-4">
+        <div className="lg:hidden absolute top-full left-0 right-0 bg-white border-b shadow-lg p-4 flex flex-col gap-4">
           <Button variant="ghost" className="w-full justify-start text-gray-600 hover:text-gray-900">
             About
           </Button>

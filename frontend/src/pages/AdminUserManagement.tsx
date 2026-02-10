@@ -438,7 +438,7 @@ export function AdminUserManagement() {
 
   return (
     <div className="pt-8 space-y-8">
-      <Card className="p-6 border-gray-200 bg-[var(--card)]">
+      <Card className="p-6 bg-[var(--card)]">
         <div className="flex items-center gap-4">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -491,7 +491,7 @@ export function AdminUserManagement() {
           </div>
         </div>
         {showFilters && (
-          <div className="flex items-center gap-4 border-t pt-4 mt-4">
+          <div className="flex items-center gap-4 border-t border-[var(--border)] pt-4 mt-4">
             <div className="flex-1">
               <Label className="text-sm mb-2 block">Filter by Role</Label>
               <Select value={filterRole} onValueChange={setFilterRole}>
@@ -526,10 +526,10 @@ export function AdminUserManagement() {
         </Alert>
       )}
 
-      <Card className="border-gray-200 bg-[var(--card)]">
+      <Card className="bg-[var(--card)]">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="border-b border-gray-200">
+            <thead className="border-b">
               <tr>
                 <th className="text-left p-6 text-sm text-muted-foreground" />
                 <th className="text-left p-6 text-sm text-muted-foreground">
@@ -558,7 +558,7 @@ export function AdminUserManagement() {
             <tbody>
               {loadingUsers ? (
                 Array.from({ length: 4 }).map((_, index) => (
-                  <tr key={index} className="border-b border-gray-100">
+                  <tr key={index} className="border-b border-[var(--border)]">
                     <td className="p-6">
                       <div className="flex items-center gap-3">
                         <Skeleton className="w-10 h-10 rounded-lg" />
@@ -602,7 +602,7 @@ export function AdminUserManagement() {
                 filteredUsers.map((user) => (
                   <tr
                     key={user.id}
-                    className="border-b border-gray-100 hover:bg-white hover:text-black cursor-pointer"
+                    className="border-b border-[var(--border)] hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer"
                     onClick={() => handleUserClick(user)}
                   >
                     <td className="p-6" onClick={(e) => e.stopPropagation()}>

@@ -292,7 +292,7 @@ export function StudentDashboard() {
 
       {/* Stats grid */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="p-6 border-gray-200 bg-[var(--card)]">
+        <Card className="p-6 bg-[var(--card)]">
           <div className="flex items-center justify-between mb-4">
             <div className={`w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center`}>
               <MessageSquare className="w-6 h-6 text-white" />
@@ -315,7 +315,7 @@ export function StudentDashboard() {
           </p>
         </Card>
 
-        <Card className="p-6 border-gray-200 bg-[var(--card)]">
+        <Card className="p-6 bg-[var(--card)]">
           <div className="flex items-center justify-between mb-4">
             <div className={`w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center`}>
               <BookOpen className="w-6 h-6 text-white" />
@@ -338,7 +338,7 @@ export function StudentDashboard() {
           </p>
         </Card>
 
-        <Card className="p-6 border-gray-200 bg-[var(--card)]">
+        <Card className="p-6 bg-[var(--card)]">
           <div className="flex items-center justify-between mb-4">
             <div className={`w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center`}>
               <TrendingUp className="w-6 h-6 text-white" />
@@ -361,7 +361,7 @@ export function StudentDashboard() {
           </p>
         </Card>
 
-        <Card className="p-6 border-gray-200 bg-[var(--card)]">
+        <Card className="p-6 bg-[var(--card)]">
           <div className="flex items-center justify-between mb-4">
             <div className={`w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center`}>
               <CheckCircle2 className="w-6 h-6 text-white" />
@@ -388,7 +388,7 @@ export function StudentDashboard() {
       {/* Main content grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Upcoming milestones */}
-        <Card className="p-6 border-gray-200 bg-[var(--card)]">
+        <Card className="p-6 bg-[var(--card)]">
           <div className="flex items-center justify-between mb-6">
             <h3 style={{ color: 'var(--foreground)' }}>Upcoming Milestones</h3>
             <Link to="/student/timeline">
@@ -402,7 +402,7 @@ export function StudentDashboard() {
               <p className="text-sm text-gray-500">No upcoming milestones found.</p>
             ) : (
               upcomingMilestones.map((milestone, index) => (
-                <div key={index} className="p-4 rounded-xl border border-gray-100 hover:border-gray-200 transition-colors">
+                <div key={index} className="p-4 rounded-xl border border-[var(--border)] transition-colors">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
                       <p className="text-sm mb-1">{milestone.title}</p>
@@ -434,7 +434,7 @@ export function StudentDashboard() {
         </Card>
 
         {/* Recent resources */}
-        <Card className="p-6 border-gray-200 bg-[var(--card)]">
+        <Card className="p-6 bg-[var(--card)]">
           <div className="flex items-center justify-between mb-6">
             <h3 style={{ color: 'var(--foreground)' }}>Popular Resources</h3>
             <Link to="/student/resources">
@@ -445,7 +445,7 @@ export function StudentDashboard() {
           </div>
           <div className="space-y-4">
             {recentResources.map((resource, index) => (
-              <div key={index} className="flex items-center gap-4 p-4 rounded-xl border border-gray-100 hover:border-gray-200 transition-colors cursor-pointer">
+              <div key={index} className="flex items-center gap-4 p-4 rounded-xl border border-[var(--border)] transition-colors cursor-pointer">
                 <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-teal-500 flex items-center justify-center flex-shrink-0">
                   <BookOpen className="w-5 h-5 text-white" />
                 </div>
@@ -470,7 +470,7 @@ export function StudentDashboard() {
       </div>
 
       {/* Quick tip */}
-      <Card className="p-6 border-blue-200 bg-[var(--card)]">
+      <Card className="p-6 bg-[var(--card)]">
         <div className="flex items-start gap-4">
           <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
             <MessageSquare className="w-5 h-5 text-blue-600" />
