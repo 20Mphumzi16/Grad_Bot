@@ -74,7 +74,7 @@ function UserActionMenu({
         <MoreVertical className="w-4 h-4 text-gray-600" />
       </Button>
       {isOpen && (
-        <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 w-28 rounded-md border bg-white shadow-lg z-50">
+        <div className="absolute right-0 top-0 w-28 rounded-md border bg-white shadow-lg z-50">
           <button
             className="block w-full px-3 py-2 text-left text-sm hover:bg-gray-100"
             type="button"
@@ -602,7 +602,7 @@ export function AdminUserManagement() {
                 filteredUsers.map((user) => (
                   <tr
                     key={user.id}
-                    className="border-b border-[var(--border)] hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer"
+                    className="border-b border-[var(--border)] hover:bg-gray-50 cursor-pointer hover:text-black"
                     onClick={() => handleUserClick(user)}
                   >
                     <td className="p-6" onClick={(e) => e.stopPropagation()}>

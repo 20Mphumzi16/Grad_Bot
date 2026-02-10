@@ -317,7 +317,7 @@ export function StudentTimeline() {
                         <div
                           key={taskIndex}
                           onClick={() => !isDisabled && handleToggleTask(index, taskIndex)}
-                          className={`flex items-center gap-3 p-3 rounded-lg bg-white/50 transition ${
+                          className={`flex items-center gap-3 p-3 rounded-lg bg-white/50 transition group ${
                             isDisabled ? 'cursor-default opacity-80' : 'cursor-pointer hover:bg-white'
                           }`}
                         >
@@ -330,9 +330,8 @@ export function StudentTimeline() {
                             className={`text-sm ${
                               isCompleted
                                 ? 'text-gray-500 line-through'
-                                : ''
+                                : 'text-[var(--foreground)] group-hover:text-black'
                             }`}
-                            style={!isCompleted ? { color: 'var(--foreground)' } : {}}
                           >
                             {task.name}
                           </span>

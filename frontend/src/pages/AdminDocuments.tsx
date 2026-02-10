@@ -616,15 +616,15 @@ setCategories(data);
                 </tr>
               ) : (
                 filteredDocuments.map((doc) => (
-                  <tr key={doc.id} className="border-b border-gray-100 hover:bg-gray-50">
+                  <tr key={doc.id} className="border-b border-gray-100 hover:bg-gray-50 group">
                     <td className="p-4">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0">
-                          <FileText className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                          <FileText className="w-5 h-5 text-gray-600 dark:text-gray-400 group-hover:text-black" />
                         </div>
                         <span 
                           onClick={() => handleView(doc.id, doc.name)}
-                          className="text-sm font-medium cursor-pointer hover:underline transition-colors document-name-text"
+                          className="text-sm font-medium cursor-pointer hover:underline transition-colors document-name-text group-hover:!text-black"
                           title={doc.name}
                         >
                           {doc.name}
@@ -642,13 +642,13 @@ setCategories(data);
                       {getStatusBadge(doc.status || '')}
                     </td>
                     <td className="p-4">
-                      <span style={{ color: 'var(--foreground)' }} className="text-sm">{doc.chunks}</span>
+                      <span className="text-sm text-[var(--foreground)] group-hover:!text-black">{doc.chunks}</span>
                     </td>
                     <td className="p-4">
-                      <span className="text-gray-600 dark:text-gray-300 text-sm">{formatSizeMb(doc.size)}</span>
+                      <span className="text-gray-600 dark:text-gray-300 text-sm group-hover:!text-black">{formatSizeMb(doc.size)}</span>
                     </td>
                     <td className="p-4">
-                      <span className="text-gray-600 dark:text-gray-300 text-sm">{doc.uploadedAt}</span>
+                      <span className="text-gray-600 dark:text-gray-300 text-sm group-hover:!text-black">{doc.uploadedAt}</span>
                     </td>
                     <td className="p-4">
                       <div className="flex items-center gap-2">
