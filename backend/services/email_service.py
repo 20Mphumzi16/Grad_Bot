@@ -2,17 +2,12 @@ import os
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 from dotenv import load_dotenv
-from supabase import create_client, Client
+from db.supabase_client import supabase
 
 load_dotenv()
 
 SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
 SENDGRID_FROM = os.getenv('SENDGRID_FROM')
-
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-
 
 
 def send_otp_email(to_email: str, otp: str):

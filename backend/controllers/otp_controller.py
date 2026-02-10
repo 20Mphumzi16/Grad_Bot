@@ -4,10 +4,10 @@ import os
 from dotenv import load_dotenv
 from supabase import create_client, Client
 from datetime import datetime, timedelta, timezone
-from otp_request_models import EmailVerifyRequest,ResetPasswordRequest,OTPVerifyRequest
-from security import hash_password ,generate_otp,verify_password
-from email_service import send_otp_email
-from jwt_utils import create_access_token, decode_token
+from models.otp_request_models import EmailVerifyRequest,ResetPasswordRequest,OTPVerifyRequest
+from util.security_util import hash_password ,generate_otp,verify_password
+from services.email_service import send_otp_email
+from util.jwt_utils import create_access_token, decode_token
 load_dotenv()
 
 

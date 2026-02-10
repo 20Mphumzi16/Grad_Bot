@@ -3,14 +3,15 @@ import email
 from fastapi import APIRouter, HTTPException, Depends,UploadFile, File
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError
-from user_models  import *
-from user_models import RegisterRequest, LoginRequest, TokenResponse, UserResponse, UserUpdateRequest,FirstLoginResponse
+from models.user_models import *
+from models.user_models import RegisterRequest, LoginRequest, TokenResponse, UserResponse, UserUpdateRequest,FirstLoginResponse
 from typing import Union
 
-from userdatabase import new_user, get_user, supabase, update_user
-from jwt_utils import create_access_token, decode_token
+from services.user_service import new_user, get_user, supabase, update_user
+from util.jwt_utils import create_access_token, decode_token
 from uuid import UUID
 
+router = APIRouter(prefix="/auth", tags=["Auth"])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 def get_current_user(token: str = Depends(oauth2_scheme)):
@@ -98,7 +99,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
     
     return user
 
-router = APIRouter(prefix="/auth", tags=["Auth"])
+
 
 
 @router.post("/register")
@@ -115,10 +116,14 @@ async def register(request: RegisterRequest):
 async def update(request: UserUpdateRequest):
     updated_user = update_user(request.model_dump())
     return updated_user
+
+
 @router.post(
     "/login",
     response_model=Union[TokenResponse, FirstLoginResponse]
 )
+
+
 async def login(request: LoginRequest):
     result = get_user(request.email, request.password)
 

@@ -2,7 +2,7 @@ import sys
 import os
 sys.path.append(os.path.join(os.getcwd(), 'backend'))
 
-from security import hash_password, verify_password
+from backend.util.security_util import hash_password, verify_password
 
 pwd = "my_secret_password"
 hashed = hash_password(pwd)

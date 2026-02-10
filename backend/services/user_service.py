@@ -1,19 +1,14 @@
 import hashlib
 import os
 from dotenv import load_dotenv
-from supabase import create_client, Client
-from timeline_service import calculate_graduate_progress
+from db.supabase_client import supabase
+from services.timeline_service import calculate_graduate_progress
 
 
 
 load_dotenv()
 
-url: str = os.getenv("SUPABASE_URL")
-key: str = os.getenv("SUPABASE_SERVICE_KEY")
-supabase: Client = create_client(url, key)
 default_password = str(os.getenv("DEFAULT_PASS"))
-
-
 
 def password_hashing(password: str) -> str:
     return hashlib.sha256(password.encode()).hexdigest()

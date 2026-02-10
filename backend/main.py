@@ -1,16 +1,16 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from auth_routes import router as auth_router
+from controllers.auth_controller import router as auth_router
 from controllers.graduate_skill_controller import router as graduate_skill_router
 from controllers.skills_controller import router as skills_router
 # 🔹 Import your core logic
-from document_routes import router as document_router
-from category_routes import router as category_router
-from user_routes import router as user_router
-from timeline_routes import router as timeline_router
-from chat_routes import router as chat_router
-from otp_routes import router as otp_router
+from controllers.document_controller import router as document_router
+from controllers.category_controller import router as category_router
+from controllers.user_controller import router as user_router
+from controllers.timeline_controller import router as timeline_router
+from controllers.chat_controller import router as chat_router
+from controllers.otp_controller import router as otp_router
 import os
 from dotenv import load_dotenv
 

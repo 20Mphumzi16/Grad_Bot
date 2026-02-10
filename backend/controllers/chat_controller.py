@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from cloud_chat import chat, ordered_history, get_user_message_count, chunks_by_id, new_chat_on_token
+from services.cloud_chat_service import chat, ordered_history, get_user_message_count, chunks_by_id, new_chat_on_token
 
 router = APIRouter(prefix="/chat", tags=["Chat"])
 
@@ -57,6 +57,7 @@ async def get_message_count(user_id: str):
         return {"count": count}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
 @router.post("/get-chat-sources")
 async def get_chat_sources(request: SourcesRequest):
     try:

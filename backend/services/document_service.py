@@ -3,8 +3,8 @@ import uuid
 from fastapi import UploadFile
 from dotenv import load_dotenv
 from db.supabase_client import supabase
-from cloud_chat import download_from_supabase, index_document
-from email_service import send_email, get_all_graduate_emails
+from services.cloud_chat_service import download_from_supabase, index_document
+from services.email_service import send_email, get_all_graduate_emails
 
 load_dotenv()
 

@@ -1,6 +1,6 @@
-from category_service import list_categories, create_category
+from services.category_service import list_categories, create_category
 from fastapi import APIRouter, HTTPException
-from category_models import CategoryCreate, CategoryResponse
+from models.category_models import CategoryCreate, CategoryResponse
 
 router = APIRouter(prefix="/categories", tags=["Categories"])
 

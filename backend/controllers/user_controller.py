@@ -1,7 +1,7 @@
-from userdatabase import get_all_graduates_count
+from services.user_service import get_all_graduates_count
 from fastapi import APIRouter, HTTPException
-from userdatabase import get_all_graduates, delete_user, update_graduate_basic, set_graduate_archived_status, get_graduate_details
-from user_models import GraduateResponse, GraduateUpdateRequest
+from services.user_service import get_all_graduates, delete_user, update_graduate_basic, set_graduate_archived_status, get_graduate_details
+from models.user_models import GraduateResponse, GraduateUpdateRequest
 
 
 router = APIRouter(prefix="/graduates", tags=["Graduates"])
