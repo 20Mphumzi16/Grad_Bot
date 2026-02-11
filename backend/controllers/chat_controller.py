@@ -26,6 +26,8 @@ class SourcesRequest(BaseModel):
     chunks: list[str]
 
 
+import traceback
+
 @router.post("/ask")
 async def ask_question(request: QuestionRequest):
     """
@@ -34,13 +36,14 @@ async def ask_question(request: QuestionRequest):
     
     print("Received question:", request.question)
     try:
-        result = chat(request.user_id, request.question)
+        result = await chat(request.user_id, request.question)
 
        
 
         return result
 
     except Exception as e:
+        traceback.print_exc()
         raise HTTPException(
             status_code=500,
             detail=f"Error processing question: {str(e)}"
