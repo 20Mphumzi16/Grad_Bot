@@ -90,6 +90,37 @@ export default function ForgotPassword() {
     return valid;
   };
 
+  const verifyOtp = async (otp: string) => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/otp/forgot-password/verify-otp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, otp }),
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        let message = "Invalid OTP";
+        try {
+          const json = JSON.parse(errText);
+          message = json.detail || message;
+        } catch {
+          message = errText || message;
+        }
+        throw new Error(message);
+      }
+
+      toast.success("OTP verified successfully!");
+      setStep(3);
+    } catch (err: any) {
+      setCodeError(err.message);
+      setShouldShake(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
     const pastedData = e.clipboardData.getData("text").replace(/[^A-Za-z0-9]/g, "").toUpperCase();
@@ -104,6 +135,10 @@ export default function ForgotPassword() {
     // Focus the next empty input or the last one
     const nextIndex = Math.min(pastedData.length, 7);
     inputsRef.current[nextIndex]?.focus();
+
+    if (next.join("").length === 8) {
+      verifyOtp(next.join(""));
+    }
   };
 
   const handleNext = async (e: React.FormEvent) => {
@@ -135,36 +170,7 @@ export default function ForgotPassword() {
       }
     } else if (step === 2) {
       if (!validateStep2()) return;
-
-      setLoading(true);
-      try {
-        const otp = codeChars.join("");
-        const res = await fetch(`${API_BASE_URL}/otp/forgot-password/verify-otp`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, otp }),
-        });
-
-        if (!res.ok) {
-          const errText = await res.text();
-          let message = "Invalid OTP";
-          try {
-            const json = JSON.parse(errText);
-            message = json.detail || message;
-          } catch {
-            message = errText || message;
-          }
-          throw new Error(message);
-        }
-
-        toast.success("OTP verified successfully!");
-        setStep(3);
-      } catch (err: any) {
-        setCodeError(err.message);
-        setShouldShake(true);
-      } finally {
-        setLoading(false);
-      }
+      verifyOtp(codeChars.join(""));
     }
   };
 
@@ -311,9 +317,17 @@ export default function ForgotPassword() {
                       </div>
                       <Button
                         type="submit"
+                        disabled={loading}
                         className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 rounded-xl"
                       >
-                        Continue
+                        {loading ? (
+                          <>
+                            <Loader2 className="animate-spin mr-2" />
+                            Sending...
+                          </>
+                        ) : (
+                          "Continue"
+                        )}
                       </Button>
                     </motion.div>
                   )}
@@ -345,6 +359,7 @@ export default function ForgotPassword() {
                                 type="text"
                                 inputMode="text"
                                 maxLength={1}
+                                disabled={loading}
                                 value={codeChars[idx]}
                                 onPaste={handlePaste}
                                 onChange={(e) => {
@@ -356,6 +371,10 @@ export default function ForgotPassword() {
                                   setCodeChars(next);
                                   if (v && idx < 7) {
                                     inputsRef.current[idx + 1]?.focus();
+                                  }
+                                  
+                                  if (next.join("").length === 8) {
+                                    verifyOtp(next.join(""));
                                   }
                                 }}
                                 onKeyDown={(e) => {
@@ -398,9 +417,17 @@ export default function ForgotPassword() {
                       </div>
                       <Button
                         type="submit"
+                        disabled={loading}
                         className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 rounded-xl"
                       >
-                        Continue
+                        {loading ? (
+                          <>
+                            <Loader2 className="animate-spin mr-2" />
+                            Verifying OTP...
+                          </>
+                        ) : (
+                          "Continue"
+                        )}
                       </Button>
                       <div className="text-center">
                         <button
