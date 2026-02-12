@@ -4,7 +4,6 @@ from pydantic import BaseModel
 from controllers.auth_controller import router as auth_router
 from controllers.graduate_skill_controller import router as graduate_skill_router
 from controllers.skills_controller import router as skills_router
-# 🔹 Import your core logic
 from controllers.document_controller import router as document_router
 from controllers.category_controller import router as category_router
 from controllers.user_controller import router as user_router
@@ -38,26 +37,6 @@ app.include_router(user_router)
 app.include_router(timeline_router)
 app.include_router(chat_router)
 app.include_router(otp_router)
-
-
-# ========== Request/Response Models ==========
-class QuestionRequest(BaseModel): 
-    user_id: str
-    question: str
-
-
-class Source(BaseModel):
-    chunk_id: str
-    text: str
-    source: str
-    page: str | None = None
-
-
-class QuestionResponse(BaseModel):
-    question: str
-    answer: str
-    sources: list[Source]
-
 
 
 # ========== API Endpoints ==========
