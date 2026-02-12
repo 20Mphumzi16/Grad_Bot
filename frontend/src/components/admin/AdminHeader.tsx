@@ -1,7 +1,7 @@
 import { cn } from '@/components/ui/utils';
 import { Button } from '../ui/button';
 import { Moon, Sun, LayoutDashboard, FileText, BarChart3, Settings, MessageSquare, Users, CheckSquare, Menu } from 'lucide-react';
-import { useLocation } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { useIsMobile } from '@/components/ui/use-mobile';
@@ -37,10 +37,14 @@ export function AdminHeader({ onMobileMenuToggle, isSidebarOpen }: { onMobileMen
   return (
     <header 
       className={cn(
-        "sticky top-0 z-40 w-full border-b bg-background h-16 flex-shrink-0 transition-all duration-300",
+        "sticky top-0 z-40 flex-shrink-0 transition-all duration-300",
+        isMobile 
+          ? "w-full border-b h-16" 
+          : "m-4 w-[calc(100%-2rem)] rounded-2xl border shadow-md h-16"
       )}
       style={{
-        backgroundColor: 'var(--background)',
+        background: 'var(--header-background)',
+        backdropFilter: isDark ? 'blur(12px)' : 'none',
         borderColor: 'var(--border)',
         color: 'var(--foreground)'
       }}

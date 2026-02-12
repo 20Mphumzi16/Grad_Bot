@@ -25,7 +25,7 @@ export function HeroSection() {
             <input
               type="text"
               placeholder="Ask me anything about the graduate programme..."
-              className="w-full px-6 py-5 rounded-2xl border border-gray-200 shadow-lg shadow-gray-100/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              className="w-full px-6 py-5 rounded-2xl border border-[var(--border)] bg-white dark:bg-gray-800 shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             />
             <Button 
               className="absolute right-2 top-1/2 -translate-y-1/2 bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 rounded-xl"

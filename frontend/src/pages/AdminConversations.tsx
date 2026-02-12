@@ -96,26 +96,26 @@ export function AdminConversations() {
       {/* Page header */}
       {/* Stats cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="p-6 border-gray-200">
+        <Card className="p-6 bg-[var(--card)]">
           <p className="text-gray-600 text-sm mb-1">Total Conversations</p>
           <p style={{ color: 'var(--foreground)' }}>1,429</p>
         </Card>
-        <Card className="p-6 border-gray-200">
+        <Card className="p-6 bg-[var(--card)]">
           <p className="text-gray-600 text-sm mb-1">Today</p>
           <p style={{ color: 'var(--foreground)' }}>89</p>
         </Card>
-        <Card className="p-6 border-gray-200">
+        <Card className="p-6 bg-[var(--card)]">
           <p className="text-gray-600 text-sm mb-1">Positive Feedback</p>
           <p style={{ color: 'var(--foreground)' }}>94.7%</p>
         </Card>
-        <Card className="p-6 border-gray-200">
+        <Card className="p-6 bg-[var(--card)]">
           <p className="text-gray-600 text-sm mb-1">Avg Response Time</p>
           <p style={{ color: 'var(--foreground)' }}>1.2s</p>
         </Card>
       </div>
 
       {/* Search */}
-      <Card className="p-6 border-gray-200">
+      <Card className="p-6 bg-[var(--card)]">
         <div className="flex items-center gap-4">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -135,7 +135,7 @@ export function AdminConversations() {
       {/* Conversations list */}
       <div className="space-y-4">
         {conversations.map((conversation) => (
-          <Card key={conversation.id} className="p-6 border-gray-200 hover:shadow-lg transition-shadow">
+          <Card key={conversation.id} className="p-6 hover:shadow-lg transition-shadow bg-[var(--card)]">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-teal-500 flex items-center justify-center text-white text-sm">
@@ -158,12 +158,12 @@ export function AdminConversations() {
             <div className="space-y-3">
               <div className="bg-gray-50 rounded-xl p-4">
                 <p className="text-xs text-gray-500 mb-2">USER QUERY</p>
-                <p style={{ color: 'var(--foreground)' }} className="text-sm">{conversation.query}</p>
+                <p className="text-sm text-black">{conversation.query}</p>
               </div>
 
               <div className="bg-blue-50 rounded-xl p-4">
                 <p className="text-xs text-blue-600 mb-2">BOT RESPONSE</p>
-                <p style={{ color: 'var(--foreground)' }} className="text-sm">{conversation.response}</p>
+                <p className="text-sm text-black">{conversation.response}</p>
               </div>
             </div>
 

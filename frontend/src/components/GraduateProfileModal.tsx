@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { CustomModal } from './ui/custom-modal';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Badge } from './ui/badge';
@@ -32,6 +33,7 @@ export interface GraduateProfile {
   branch?: string; // location
   start_date?: string;
   emp_no?: string | number;
+  skills?: string[];
 }
 
 interface GraduateProfileModalProps {
@@ -66,7 +68,7 @@ export function GraduateProfileModal({ user, isOpen, onClose }: GraduateProfileM
         open={isOpen}
         onClose={onClose}
         title="" 
-        className="w-full !max-w-md !p-0 overflow-hidden flex flex-col max-h-[85vh] mx-4" // Added mx-4 for safety on small screens, max-w-md
+        className="w-full max-w-xl !p-0 overflow-hidden flex flex-col max-h-[85vh] mx-4"
         contentClassName="flex-1 min-h-0 relative flex flex-col"
         overlayOpacity={0.5}
         overlayBlur={4}
@@ -81,7 +83,7 @@ export function GraduateProfileModal({ user, isOpen, onClose }: GraduateProfileM
           <div className="px-6 pb-6">
             <div className="relative flex justify-between items-end -mt-12 mb-4">
               <div className="relative group cursor-pointer" onClick={() => setIsImagePreviewOpen(true)}>
-                <Avatar className="w-24 h-24 border-4 border-white dark:border-gray-900 shadow-md transition-transform transform group-hover:scale-105 bg-white">
+                <Avatar className="w-24 h-24 border-4 border-[var(--card)] shadow-md transition-transform transform group-hover:scale-105 bg-white">
                   <AvatarImage src={avatarUrl || undefined} className="object-cover" />
                   <AvatarFallback className="text-2xl bg-blue-100 text-blue-700">
                     {firstInitial}{lastInitial}
@@ -93,30 +95,9 @@ export function GraduateProfileModal({ user, isOpen, onClose }: GraduateProfileM
               </div>
             </div>
 
-            <div className="space-y-1">
-              <h2 className="text-2xl font-bold text-foreground">{fullName}</h2>
+          <div className="space-y-1">
+            <h2 className="text-2xl font-bold text-foreground">{fullName}</h2>
             <p className="text-lg text-muted-foreground font-medium">{user.role}</p>
-            
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground mt-2">
-              {user.branch && (
-                <div className="flex items-center gap-1">
-                  <MapPin className="w-4 h-4" />
-                  <span>{user.branch}</span>
-                </div>
-              )}
-              {user.department && (
-                <div className="flex items-center gap-1">
-                  <Building2 className="w-4 h-4" />
-                  <span>{user.department}</span>
-                </div>
-              )}
-              {user.start_date && (
-                <div className="flex items-center gap-1">
-                  <Calendar className="w-4 h-4" />
-                  <span>Joined {new Date(user.start_date).toLocaleDateString()}</span>
-                </div>
-              )}
-            </div>
           </div>
 
           {/* Bio Section */}
@@ -126,6 +107,60 @@ export function GraduateProfileModal({ user, isOpen, onClose }: GraduateProfileM
               {user.bio || "No bio available."}
             </p>
           </div>
+
+          {/* Programme Information */}
+          <div className="mt-6">
+            <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-3">Programme Information</h3>
+            <div className="space-y-2">
+              {user.department && (
+                <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                  <div className="w-8 h-8 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-500 shrink-0">
+                    <Building2 className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="block font-medium text-foreground">Department</span>
+                    <span>{user.department}</span>
+                  </div>
+                </div>
+              )}
+              {user.branch && (
+                <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                  <div className="w-8 h-8 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-500 shrink-0">
+                    <MapPin className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="block font-medium text-foreground">Branch</span>
+                    <span>{user.branch}</span>
+                  </div>
+                </div>
+              )}
+              {user.start_date && (
+                <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                  <div className="w-8 h-8 rounded-full bg-teal-500/10 flex items-center justify-center text-teal-500 shrink-0">
+                    <Calendar className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="block font-medium text-foreground">Start Date</span>
+                    <span>{new Date(user.start_date).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Skills */}
+          {user.skills && user.skills.length > 0 && (
+            <div className="mt-6">
+              <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-3">Skills</h3>
+              <div className="flex flex-wrap gap-2">
+                {user.skills.map((skill, i) => (
+                  <Badge key={i} variant="outline" className="px-3 py-1 border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100">
+                    {skill}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Contact & Links */}
           <div className="mt-6 flex flex-col gap-6">
@@ -210,9 +245,9 @@ export function GraduateProfileModal({ user, isOpen, onClose }: GraduateProfileM
       </CustomModal>
 
       {/* Image Preview Overlay */}
-      {isImagePreviewOpen && (
+      {isImagePreviewOpen && createPortal(
         <div 
-          className="fixed inset-0 z-[1100] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+          className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-200"
           onClick={() => setIsImagePreviewOpen(false)}
         >
           <div className="relative max-w-4xl max-h-screen w-full flex items-center justify-center">
@@ -239,7 +274,8 @@ export function GraduateProfileModal({ user, isOpen, onClose }: GraduateProfileM
                </div>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

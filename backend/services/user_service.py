@@ -1,19 +1,14 @@
 import hashlib
 import os
 from dotenv import load_dotenv
-from supabase import create_client, Client
-from timeline_service import calculate_graduate_progress
+from db.supabase_client import supabase
+from services.timeline_service import calculate_graduate_progress
 
 
 
 load_dotenv()
 
-url: str = os.getenv("SUPABASE_URL")
-key: str = os.getenv("SUPABASE_SERVICE_KEY")
-supabase: Client = create_client(url, key)
 default_password = str(os.getenv("DEFAULT_PASS"))
-
-
 
 def password_hashing(password: str) -> str:
     return hashlib.sha256(password.encode()).hexdigest()
@@ -257,6 +252,21 @@ def get_all_graduates():
         # Fetch all tasks
         all_tasks = supabase.table("tasks").select("id, milestone_id").execute().data
         
+        # Fetch Skills
+        all_skills = supabase.table("skills").select("id, name").execute().data
+        skill_map = {s['id']: s['name'] for s in all_skills}
+
+        # Fetch Graduate Skills
+        all_grad_skills = supabase.table("graduate_skills").select("user_id, skill_id").in_("user_id", all_ids).execute().data
+        grad_skills_map = {}
+        for gs in all_grad_skills:
+            uid = gs['user_id']
+            sid = gs['skill_id']
+            if uid not in grad_skills_map:
+                grad_skills_map[uid] = []
+            if sid in skill_map:
+                grad_skills_map[uid].append(skill_map[sid])
+
         # Fetch user progress for these graduates
         user_progress = supabase.table("task_progress").select("graduate_id, task_id").eq("completed", True).in_("graduate_id", all_ids).execute().data
         
@@ -328,6 +338,7 @@ def get_all_graduates():
                     "department": p.get("department"),
                     "start_date": grad_row.get("start_date"),
                     "avatar_url": p.get("avatar_url"),
+                    "skills": grad_skills_map.get(gid, []),
                 }
                 graduates.append(grad)
             except Exception as inner_e:

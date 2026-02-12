@@ -1,5 +1,5 @@
 import { LayoutDashboard, FileText, BarChart3, Settings, MessageSquare, Users, CheckSquare, Menu, PanelLeftClose, ChevronRight, LogOut } from 'lucide-react';
-import { Link, useLocation, useNavigate } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useIsMobile } from '@/components/ui/use-mobile';
 import { cn } from '@/components/ui/utils';
@@ -9,6 +9,7 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import logo from '@/assets/logo.png';
 import logo1 from '@/assets/logo1.png';
 import logo2 from '@/assets/logo2.png';
+import logo3 from '@/assets/logo3.png';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
@@ -82,7 +83,7 @@ export function AdminSidebarContent({ onItemClick, minified = false }: { onItemC
               <Icon className="w-5 h-5 flex-shrink-0" />
               <div className={cn(
                 "flex items-center overflow-hidden transition-all duration-300 ease-in-out",
-                minified ? "hidden" : "flex-1 w-auto opacity-100 ml-3"
+                minified ? "w-0 opacity-0 ml-0" : "flex-1 w-auto opacity-100 ml-3"
               )}>
                 <span className="truncate whitespace-nowrap">{item.label}</span>
               </div>
@@ -107,7 +108,7 @@ export function AdminSidebarContent({ onItemClick, minified = false }: { onItemC
           
           <div className={cn(
             "flex items-center overflow-hidden transition-all duration-300 ease-in-out",
-            minified ? "hidden" : "flex-1 w-auto opacity-100 ml-3"
+            minified ? "w-0 opacity-0 ml-0" : "flex-1 w-auto opacity-100 ml-3"
           )}>
             <span className="truncate whitespace-nowrap">Logout</span>
           </div>
@@ -145,14 +146,17 @@ export function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
   return (
     <aside 
       className={cn(
-        "border-r z-50 transition-all duration-300 bg-background flex flex-col h-screen relative overflow-visible",
+        "z-50 transition-all duration-300 bg-background flex flex-col relative overflow-visible",
         // Mobile: Fixed positioning
-        isMobile ? "fixed inset-y-0 left-0" : "sticky top-0",
+        isMobile 
+          ? "fixed inset-y-0 left-0 h-full border-r" 
+          : "sticky top-0 m-4 h-[calc(100vh-2rem)] rounded-2xl border shadow-xl",
         isOpen ? "w-64" : "w-16",
       )}
       style={{
-        backgroundColor: 'var(--background)',
-        borderColor: 'var(--border)',
+        background: isDark ? 'var(--sidebar)' : '#eff6ff',
+        backdropFilter: 'none',
+        borderColor: 'var(--sidebar-border)',
         color: 'var(--foreground)'
       }}
     >
@@ -171,30 +175,35 @@ export function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
 
       <div className="h-full flex flex-col">
         {/* Logo Section */}
-        <div className={cn(
-          "flex items-center transition-all duration-300 h-16", 
-          isOpen ? "justify-between px-4" : "justify-center"
-        )}>
-          {isOpen ? (
-            <>
-              <div className="flex items-center gap-2">
-                {isDark ? (
-                  <img src={logo1} alt="Logo" className="h-8 object-contain" />
-                ) : (
-                  <img src={logo} alt="Logo" className="h-8 object-contain" />
-                )}
-              </div>
-              <Button variant="ghost" size="icon" onClick={onToggle} className="text-muted-foreground hover:text-foreground">
-                <PanelLeftClose className="h-5 w-5" />
-              </Button>
-            </>
-          ) : (
+        <div className="relative h-16 w-full overflow-hidden">
+          {/* Full Logo + Toggle Button (Visible when open) */}
+          <div 
+            className={cn(
+              "absolute inset-0 flex items-center justify-between px-4 transition-all duration-300 ease-in-out",
+              isOpen ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4 pointer-events-none"
+            )}
+          >
+            <div className="flex items-center gap-2">
+              <img src={isDark ? logo1 : logo} alt="Logo" className="h-8 object-contain" />
+            </div>
+            <Button variant="ghost" size="icon" onClick={onToggle} className="text-muted-foreground hover:text-foreground">
+              <PanelLeftClose className="h-5 w-5" />
+            </Button>
+          </div>
+
+          {/* Icon Logo (Visible when closed) */}
+          <div 
+            className={cn(
+              "absolute inset-0 flex items-center justify-center transition-all duration-300 ease-in-out",
+              !isOpen ? "opacity-100 scale-100" : "opacity-0 scale-75 pointer-events-none"
+            )}
+          >
             <img 
-              src={logo2} 
+              src={isDark ? logo3 : logo2} 
               alt="GradBot" 
               className="h-8 w-8 object-contain"
             />
-          )}
+          </div>
         </div>
 
         {/* Desktop Spacer - Hidden on Mobile */}

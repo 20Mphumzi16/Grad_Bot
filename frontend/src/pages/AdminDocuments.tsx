@@ -1,5 +1,5 @@
 import { useState, useEffect, SetStateAction } from 'react';
-import { useLocation } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import { useClickOutside } from '../hooks/use-click-outside';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
@@ -450,7 +450,7 @@ setCategories(data);
 
       {/* Stats cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="p-6 border-gray-200">
+        <Card className="p-6 bg-[var(--card)]">
           <div className="flex items-start justify-between mb-4">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
               <FileText className="w-6 h-6 text-white" />
@@ -459,7 +459,7 @@ setCategories(data);
           <p className="text-gray-600 text-sm mb-1">Total Documents</p>
           <p style={{ color: 'var(--foreground)' }} className="text-2xl font-semibold">{documents.length}</p>
         </Card>
-        <Card className="p-6 border-gray-200">
+        <Card className="p-6 bg-[var(--card)]">
           <div className="flex items-start justify-between mb-4">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
               <CheckCircle2 className="w-6 h-6 text-white" />
@@ -470,7 +470,7 @@ setCategories(data);
             {documents.filter((d) => d.status === 'processed').length}
           </p>
         </Card>
-        <Card className="p-6 border-gray-200">
+        <Card className="p-6 bg-[var(--card)]">
           <div className="flex items-start justify-between mb-4">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
               <Clock className="w-6 h-6 text-white" />
@@ -481,13 +481,13 @@ setCategories(data);
             {documents.filter((d) => d.status === 'processing').length}
           </p>
         </Card>
-        <Card className="p-6 border-gray-200">
+        <Card className="p-6 bg-[var(--card)]">
           <div className="flex items-start justify-between mb-4">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
               <Package className="w-6 h-6 text-white" />
             </div>
           </div>
-          <p className="text-gray-600 text-sm mb-1">Total Chunks</p>
+          <p className="text-gray-600 dark:text-gray-200 text-sm mb-1">Total Chunks</p>
           <p style={{ color: 'var(--foreground)' }} className="text-2xl font-semibold">
             {documents.reduce((sum, d) => sum + (d.chunks || 0), 0).toLocaleString()}
           </p>
@@ -495,7 +495,7 @@ setCategories(data);
       </div>
 
       {/* Search and filters */}
-      <Card className="p-6 border-gray-200">
+      <Card className="p-6 bg-[var(--card)]">
         <div className="space-y-4">
           <div className="flex items-center gap-4">
             <div className="flex-1 relative">
@@ -519,7 +519,7 @@ setCategories(data);
                 <ArrowUpDown className="w-4 h-4 mr-2" />
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
-              <SelectContent className="bg-input-background dark:bg-input/30 border-gray-300 dark:border-gray-500">
+              <SelectContent className="bg-white dark:bg-zinc-950 border-gray-300 dark:border-gray-500">
                 <SelectItem value="date">Sort by Date</SelectItem>
                 <SelectItem value="name">Sort Alphabetically</SelectItem>
               </SelectContent>
@@ -587,10 +587,10 @@ setCategories(data);
       </Card>
 
       {/* Documents table */}
-      <Card className="border-gray-200">
+      <Card className="bg-[var(--card)]">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="border-b border-gray-200">
+            <thead className="border-b">
               <tr>
                 <th className="text-left p-4 text-sm text-muted-foreground">Document Name</th>
                 <th className="text-left p-4 text-sm text-muted-foreground">Category</th>
@@ -616,15 +616,15 @@ setCategories(data);
                 </tr>
               ) : (
                 filteredDocuments.map((doc) => (
-                  <tr key={doc.id} className="border-b border-gray-100 hover:bg-gray-50">
+                  <tr key={doc.id} className="border-b border-gray-100 hover:bg-gray-50 group">
                     <td className="p-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
-                          <FileText className="w-5 h-5 text-gray-600" />
+                        <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0">
+                          <FileText className="w-5 h-5 text-gray-600 dark:text-gray-400 group-hover:text-black" />
                         </div>
                         <span 
                           onClick={() => handleView(doc.id, doc.name)}
-                          className="text-sm cursor-pointer hover:text-blue-500 hover:underline transition-colors text-gray-900 dark:text-gray-100"
+                          className="text-sm font-medium cursor-pointer hover:underline transition-colors document-name-text group-hover:!text-black"
                           title={doc.name}
                         >
                           {doc.name}
@@ -642,13 +642,13 @@ setCategories(data);
                       {getStatusBadge(doc.status || '')}
                     </td>
                     <td className="p-4">
-                      <span style={{ color: 'var(--foreground)' }} className="text-sm">{doc.chunks}</span>
+                      <span className="text-sm text-[var(--foreground)] group-hover:!text-black">{doc.chunks}</span>
                     </td>
                     <td className="p-4">
-                      <span className="text-gray-600 text-sm">{formatSizeMb(doc.size)}</span>
+                      <span className="text-gray-600 dark:text-gray-300 text-sm group-hover:!text-black">{formatSizeMb(doc.size)}</span>
                     </td>
                     <td className="p-4">
-                      <span className="text-gray-600 text-sm">{doc.uploadedAt}</span>
+                      <span className="text-gray-600 dark:text-gray-300 text-sm group-hover:!text-black">{doc.uploadedAt}</span>
                     </td>
                     <td className="p-4">
                       <div className="flex items-center gap-2">
@@ -751,7 +751,7 @@ setCategories(data);
     )
   }
 >
-  <p className="text-sm text-gray-600">
+  <p className="text-sm text-gray-600 dark:text-gray-400">
     Upload a new document to the knowledge base
   </p>
 
@@ -809,7 +809,7 @@ setCategories(data);
         <SelectValue placeholder="Select a category" />
       </SelectTrigger>
       <SelectContent 
-        className="bg-input-background dark:bg-input/30 border-gray-300 dark:border-gray-500"
+        className="bg-white dark:bg-zinc-800 border-gray-300 dark:border-gray-500"
         style={{ zIndex: 100001 }}
       >
         {loadingCategories ? (

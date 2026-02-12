@@ -2,7 +2,7 @@ import { Button } from '../ui/button';
 import { cn } from '../ui/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Bell, Moon, Sun, MessageSquare, User, BookOpen, Calendar, FileText, Home, Menu } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router';
+import { useNavigate, useLocation } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { useStudentNotifications } from '@/context/StudentNotificationContext';
@@ -155,10 +155,14 @@ export function StudentHeader({ onMobileMenuToggle, isSidebarOpen }: { onMobileM
   return (
     <header 
       className={cn(
-        "sticky top-0 z-40 w-full border-b bg-background h-16 flex-shrink-0 transition-all duration-300",
+        "sticky top-0 z-40 flex-shrink-0 transition-all duration-300",
+        isMobile 
+          ? "w-full border-b h-16" 
+          : "m-4 w-[calc(100%-2rem)] rounded-2xl border shadow-md h-16"
       )}
       style={{
-        backgroundColor: 'var(--background)',
+        background: 'var(--header-background)',
+        backdropFilter: isDark ? 'blur(12px)' : 'none',
         borderColor: 'var(--border)',
         color: 'var(--foreground)'
       }}

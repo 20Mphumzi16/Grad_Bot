@@ -8,6 +8,8 @@ from pptx import Presentation
 from openai import OpenAI
 from dotenv import load_dotenv
 from db.supabase_client import supabase
+from services.timeline_service import get_graduate_milestones_with_tasks
+from services.user_service import get_user_id
  
 load_dotenv()
  
@@ -33,9 +35,13 @@ client = OpenAI()
 TEMP = 0.2
 SIMILARITY_THRESHOLD = 0.1
 PROMPT = (
-        "You are a helpful assistant.\n"
-        "Answer the user's question using ONLY the provided document context.\n"
-        "You may expand on the answer using the provided context.\n"
+        "You are a helpful assistant to Datacentrix graduate trainees.\n"
+        "Your role is to answer questions related to Datacentrix's curriculum and training programs.\n"
+        "Answer as though you are a mentor and include possible timelines for each question.\n"
+        "You will be provided with document context and optionally the user's specific timeline context.\n"
+        "Answer the user's question using the provided context.\n"
+        "CRITICAL: If 'User Specific Timeline Context' is provided, you MUST use it to answer questions about when a task will be done or what milestone it belongs to.\n"
+        "You may expand on the answer using the provided document context.\n"
         "If the answer is not present in the context, say you do not know.\n"
         "Strict rules:\n"
         "- Output valid Markdown only\n"
@@ -466,12 +472,12 @@ def get_user_message_count(user_id):
     return count if count else 0
 
 ## Chat function to answer questions based on document context
-def chat(user_id, question):
- 
+async def chat(user_id, question):
+
     local_time = datetime.now().strftime('%I:%M:%S %p')
- 
+
     chat_id = get_chat_id(user_id)
- 
+
     if not chat_id:
         chat_id = new_chat(user_id)
 
@@ -505,7 +511,82 @@ def chat(user_id, question):
         page = source["page"]
         content = source["text"]
         context_text = context_text + f"Source: {file}, Page:{page} \n {content} \n \n"
- 
+
+    # / Fetch Graduate Timeline Context
+    try:
+        user_info = get_user_id(user_id)
+        if isinstance(user_info, dict) and user_info.get("role", "").lower() == "graduate":
+            print(f"User {user_id} is a graduate. Fetching milestones...")
+            milestones = await get_graduate_milestones_with_tasks(user_id)
+            
+            # Find relevant milestone/task info
+            timeline_context = []
+            q_lower = question.lower()
+            
+            for m in milestones:
+                # Check if milestone is relevant
+                m_title = m["title"]
+                m_status = m["status"]
+                m_week_label = m.get("week_label", "")
+                
+                timing_info = f" ({m_week_label})" if m_week_label else ""
+                
+                # Check tasks
+                for t in m["tasks"]:
+                    t_name = t["name"]
+                    # print(f"Checking task: {t_name} against query: {q_lower}")
+                    
+                    # Normalize strings for comparison
+                    t_tokens = set(t_name.lower().split())
+                    q_tokens = set(q_lower.split())
+                    
+                    # Check for intersection or substring match
+                    # Match if:
+                    # 1. Exact substring match (e.g. "instana" in "ibm instana")
+                    # 2. Significant token overlap (e.g. "instana" token exists in both)
+                    
+                    match = False
+                    
+                    # 1. Direct substring match (Bidirectional)
+                    # "instana" in "ibm instana l1-l4" -> True
+                    # "ibm instana" in "instana" -> False (but handled by token overlap)
+                    ignored_words = {"what", "when", "where", "how", "who", "do", "i", "am", "is", "are", "the", "a", "an", "to", "for", "in", "on", "at", "going", "will", "be", "ibm", "l1-l4", "l1", "l4", "cert", "certification"}
+                    
+                    # Clean tokens
+                    clean_t_tokens = {t for t in t_tokens if t not in ignored_words and len(t) > 2}
+                    clean_q_tokens = {q for q in q_tokens if q not in ignored_words and len(q) > 2}
+                    
+                    # Check for overlap
+                    if clean_t_tokens.intersection(clean_q_tokens):
+                        match = True
+                    
+                    # Fallback: Check if any significant query word is a substring of task name
+                    if not match:
+                        for q_word in clean_q_tokens:
+                            if q_word in t_name.lower():
+                                match = True
+                                break
+
+                    if match:
+                        status_str = "Completed" if t["completed"] else "Pending"
+                        entry = f"- Task: {t_name} (Milestone: {m_title}{timing_info}) is {status_str}."
+                        timeline_context.append(entry)
+                        print(f"Match found: {entry}")
+                
+                # If the question asks about "timeline" or "progress" generally, include current status
+                if "timeline" in q_lower or "progress" in q_lower:
+                     timeline_context.append(f"- Milestone: {m_title}{timing_info} is {m_status}.")
+
+            if timeline_context:
+                context_text += "\n\nUser Specific Timeline Context:\n" + "\n".join(timeline_context)
+                context_text += "\n(Use this information to tailor the answer to the student's current progress.)\n"
+                print("Timeline context injected.")
+            else:
+                print("No matching timeline context found.")
+
+    except Exception as e:
+        print(f"Error fetching timeline context: {e}")
+
     #/ get chat history
     chat_history = context_history(chat_id)
     
@@ -528,62 +609,41 @@ def chat(user_id, question):
     if TEST: print("\n answer: ",answer)
 
     ## Update DB
+    print("Storing question/answer to DB...")
 
-    #/ store question
-    question_tokens = len(tokenizer.encode(question))
+    try:
+        #/ store question
+        question_tokens = len(tokenizer.encode(question))
 
-    q = supabase.table("chat_messages").insert({
-        "chat_id": chat_id,
-        "role": "user",
-        "content": question,
-        "token_count": question_tokens,
-        "time_stamp": local_time
-    }).execute()
- 
-    #/ store answer
-    answer_time = datetime.now().strftime('%I:%M:%S %p')
-    answer_tokens = len(tokenizer.encode(answer))
-    sources_id = [ s["chunk_id"] for s in sources]
- 
-    supabase.table("chat_messages").insert({
-        "chat_id": chat_id,
-        "role": "assistant",
-        "content": answer,
-        "time_stamp": answer_time,
-        "token_count": answer_tokens,
-        "sources": sources_id
+        q = supabase.table("chat_messages").insert({
+            "chat_id": chat_id,
+            "role": "user",
+            "content": question,
+            "token_count": question_tokens,
+            "time_stamp": local_time
         }).execute()
+    
+        #/ store answer
+        answer_time = datetime.now().strftime('%I:%M:%S %p')
+        answer_tokens = len(tokenizer.encode(answer))
+        sources_id = [ s["chunk_id"] for s in sources]
+    
+        print("Sources IDs:", sources_id)
+
+        supabase.table("chat_messages").insert({
+            "chat_id": chat_id,
+            "role": "assistant",
+            "content": answer,
+            "time_stamp": answer_time,
+            "token_count": answer_tokens,
+            "sources": sources_id
+            }).execute()
+
+    except Exception as e:
+        print(f"Error storing chat history: {e}")
+        # Continue execution to return the answer to the user even if DB storage fails
  
     message = {"answer": answer, "question": question, "sources": sources, "chat_id": chat_id}
  
     return message
-
-def test():
-    #embed_all()
-    # user_id = "73205ea6-2afe-4407-a35e-6ea6f7260333"
-    question = "What is instana?"
-    convo  = chat(user_id, question)
-    q = convo["question"]
-    a = convo["answer"]
-    print("\n number of sources:", len(convo["sources"]))
-
-    prompt = f"""
-        A bot is used to answer trainees' questions based on provided document context.
-        Rate the question and answer pair out of 100. give a short explanation. Briefly suggest a better question if necessary and ways to improve the bot.
-        structure it as:
-          rating: <score out of 100>
-          explanation: <short explanation>
-          suggested_bot_improvements: <suggestions>
-          suggested_question_improvements: <suggestions>
- 
-        Question: {q}
-        Answer: {a}
-        """.strip()
- 
-    response = client.responses.create(
-        model="gpt-4o-mini",
-        input=prompt
-    )
-
-    print("\n",response.output_text.strip())
 

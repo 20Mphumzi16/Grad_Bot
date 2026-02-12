@@ -68,14 +68,7 @@ export function StudentTimeline() {
   };
 
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Completed':
-        return 'border-green-200 bg-green-50';
-      case 'In-Progress':
-        return 'border-orange-200 bg-orange-50';
-      default:
-        return 'border-gray-200 bg-white';
-    }
+    return 'bg-[var(--card)]';
   };
 
   const getMilestoneProgress = (milestone: any) => {
@@ -222,14 +215,14 @@ export function StudentTimeline() {
     : 0;
 
   return (
-    <div className="min-h-screen bg-gray-50/50 p-6">
+    <div className="p-6">
       <style>{`
         .black-progress-indicator [data-slot="progress-indicator"] {
           background-color: black !important;
         }
       `}</style>
       <div className="w-full space-y-8">
-        <Card className="p-6 border-gray-200">
+        <Card className="p-6 bg-[var(--card)]">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="mb-1">Overall Progress</h3>
@@ -239,7 +232,7 @@ export function StudentTimeline() {
             <p className="text-sm text-gray-600">Complete</p>
           </div>
         </div>
-        <Progress value={progressPercentage} className="h-3" />
+        <Progress value={progressPercentage} className="h-3 bg-gray-200 dark:bg-gray-700 black-progress-indicator" />
       </Card>
 
       <div className="relative">
@@ -268,11 +261,11 @@ export function StudentTimeline() {
                   <div className="mb-4">
                     <div className="flex items-center justify-between mb-2">
                       <div>
-                        <p className="text-sm mb-1" style={{ color: 'black' }}>
+                        <p className="text-sm mb-1" style={{ color: 'var(--foreground)' }}>
                           {milestone.week_label}
                           {milestone.created_at && ` • Added ${new Date(milestone.created_at).toLocaleDateString()}`}
                         </p>
-                        <h3 className="font-semibold" style={{ color: 'black' }}>{milestone.title}</h3>
+                        <h3 className="font-semibold" style={{ color: 'var(--foreground)' }}>{milestone.title}</h3>
                         {milestone.admin_status === 'completed' && (
                           <p className="text-xs text-green-600 font-medium mt-1">
                             Marked as Done by Admin
@@ -300,10 +293,10 @@ export function StudentTimeline() {
                     {(milestone.status === 'In-Progress' || milestone.status === 'Completed') && (
                       <div className="mt-4">
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm" style={{ color: 'black' }}>
+                          <span className="text-sm" style={{ color: 'var(--foreground)' }}>
                             {milestone.status === 'Completed' ? 'Completed' : 'Progress'}
                           </span>
-                          <span className="text-sm" style={{ color: 'black' }}>
+                          <span className="text-sm" style={{ color: 'var(--foreground)' }}>
                             {milestoneProgress.toFixed(0)}%
                           </span>
                         </div>
@@ -324,7 +317,7 @@ export function StudentTimeline() {
                         <div
                           key={taskIndex}
                           onClick={() => !isDisabled && handleToggleTask(index, taskIndex)}
-                          className={`flex items-center gap-3 p-3 rounded-lg bg-white/50 transition ${
+                          className={`flex items-center gap-3 p-3 rounded-lg bg-white/50 transition group ${
                             isDisabled ? 'cursor-default opacity-80' : 'cursor-pointer hover:bg-white'
                           }`}
                         >
@@ -337,9 +330,8 @@ export function StudentTimeline() {
                             className={`text-sm ${
                               isCompleted
                                 ? 'text-gray-500 line-through'
-                                : ''
+                                : 'text-[var(--foreground)] group-hover:text-black'
                             }`}
-                            style={!isCompleted ? { color: 'black' } : {}}
                           >
                             {task.name}
                           </span>

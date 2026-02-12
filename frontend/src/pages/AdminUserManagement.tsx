@@ -39,6 +39,7 @@ type GraduateUser = {
   branch?: string;
   start_date?: string;
   emp_no?: string | number;
+  skills?: string[];
 };
 
 function UserActionMenu({ 
@@ -73,7 +74,7 @@ function UserActionMenu({
         <MoreVertical className="w-4 h-4 text-gray-600" />
       </Button>
       {isOpen && (
-        <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 w-28 rounded-md border bg-white shadow-lg z-50">
+        <div className="absolute right-0 top-0 w-28 rounded-md border bg-white shadow-lg z-50">
           <button
             className="block w-full px-3 py-2 text-left text-sm hover:bg-gray-100"
             type="button"
@@ -87,7 +88,7 @@ function UserActionMenu({
             Edit
           </button>
           <button
-            className="block w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50"
+            className="block w-full px-3 py-2 text-left text-sm bg-red-600 text-white hover:bg-red-700"
             type="button"
             onClick={(e) => {
               e.stopPropagation();
@@ -161,6 +162,7 @@ export function AdminUserManagement() {
           branch: it?.branch ?? it?.location ?? '',
           start_date: it?.start_date ?? '',
           emp_no: it?.emp_no ?? '',
+          skills: it?.skills ?? [],
         }));
         setUsers(mapped);
         setSelectedUserIds([]);
@@ -229,6 +231,7 @@ export function AdminUserManagement() {
               branch: detailedUser.branch ?? detailedUser.location ?? prev.branch,
               start_date: detailedUser.start_date ?? detailedUser.startDate ?? prev.start_date,
               emp_no: detailedUser.emp_no ?? detailedUser.empNo ?? prev.emp_no,
+              skills: detailedUser.skills ?? prev.skills,
             };
           }
           return prev;
@@ -435,7 +438,7 @@ export function AdminUserManagement() {
 
   return (
     <div className="pt-8 space-y-8">
-      <Card className="p-6 border-gray-200">
+      <Card className="p-6 bg-[var(--card)]">
         <div className="flex items-center gap-4">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -462,7 +465,7 @@ export function AdminUserManagement() {
               </span>
             </div>
             <Button
-              className="rounded-xl"
+              className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white"
               onClick={() => {
                 setCreateForm({
                   firstName: '',
@@ -478,8 +481,8 @@ export function AdminUserManagement() {
               Add
             </Button>
             <Button
-              variant="outline"
-              className="rounded-xl border-red-200 text-red-600 hover:bg-red-50"
+              variant="destructive"
+              className="rounded-xl bg-red-600 hover:bg-red-700 text-white dark:bg-red-600 dark:hover:bg-red-700 dark:text-white"
               onClick={() => setConfirmDeleteAll(true)}
               disabled={filteredUsers.length === 0}
             >
@@ -488,7 +491,7 @@ export function AdminUserManagement() {
           </div>
         </div>
         {showFilters && (
-          <div className="flex items-center gap-4 border-t pt-4 mt-4">
+          <div className="flex items-center gap-4 border-t border-[var(--border)] pt-4 mt-4">
             <div className="flex-1">
               <Label className="text-sm mb-2 block">Filter by Role</Label>
               <Select value={filterRole} onValueChange={setFilterRole}>
@@ -523,10 +526,10 @@ export function AdminUserManagement() {
         </Alert>
       )}
 
-      <Card className="border-gray-200">
+      <Card className="bg-[var(--card)]">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="border-b border-gray-200">
+            <thead className="border-b">
               <tr>
                 <th className="text-left p-6 text-sm text-muted-foreground" />
                 <th className="text-left p-6 text-sm text-muted-foreground">
@@ -555,7 +558,7 @@ export function AdminUserManagement() {
             <tbody>
               {loadingUsers ? (
                 Array.from({ length: 4 }).map((_, index) => (
-                  <tr key={index} className="border-b border-gray-100">
+                  <tr key={index} className="border-b border-[var(--border)]">
                     <td className="p-6">
                       <div className="flex items-center gap-3">
                         <Skeleton className="w-10 h-10 rounded-lg" />
@@ -599,11 +602,12 @@ export function AdminUserManagement() {
                 filteredUsers.map((user) => (
                   <tr
                     key={user.id}
-                    className="border-b border-gray-100 hover:bg-white hover:text-black cursor-pointer"
+                    className="group border-b border-[var(--border)] hover:bg-gray-50 cursor-pointer hover:text-black"
                     onClick={() => handleUserClick(user)}
                   >
                     <td className="p-6" onClick={(e) => e.stopPropagation()}>
                       <Checkbox
+                        className="opacity-0 group-hover:opacity-100 data-[state=checked]:opacity-100 transition-opacity"
                         checked={selectedUserIds.includes(user.id)}
                         onCheckedChange={(checked) =>
                           setSelectedUserIds((prev) => {
@@ -686,6 +690,8 @@ export function AdminUserManagement() {
         title="Add user"
         overlayOpacity={0}
         overlayBlur={0}
+        className="max-w-xl max-h-[85vh] flex flex-col"
+        contentClassName="overflow-y-auto flex-1 pr-2"
         footer={
           <>
             <Button
@@ -844,6 +850,8 @@ export function AdminUserManagement() {
         title="Edit user"
         overlayOpacity={0}
         overlayBlur={0}
+        className="max-w-xl max-h-[85vh] flex flex-col"
+        contentClassName="overflow-y-auto flex-1 pr-2"
         footer={
           <>
             <Button
@@ -956,6 +964,7 @@ export function AdminUserManagement() {
             </Button>
             <Button
               variant="destructive"
+              className="bg-red-600 hover:bg-red-700 text-white dark:bg-red-600 dark:hover:bg-red-700 dark:text-white"
               onClick={async () => {
                 const id = confirmUserId!;
                 setConfirmUserId(null);
@@ -985,6 +994,7 @@ export function AdminUserManagement() {
             </Button>
             <Button
               variant="destructive"
+              className="bg-red-600 hover:bg-red-700 text-white dark:bg-red-600 dark:hover:bg-red-700 dark:text-white"
               onClick={async () => {
                 setConfirmDeleteAll(false);
                 if (hasSelectedUsers) {

@@ -1,15 +1,5 @@
-import os
-from dotenv import load_dotenv
-from supabase import create_client, Client
+from db.supabase_client import supabase
 
-load_dotenv()
-
-# Initialize Supabase client
-url: str = os.getenv("SUPABASE_URL")
-key: str = os.getenv("SUPABASE_SERVICE_KEY")
-supabase: Client = create_client(url, key)
-
-print("CATEGORY SERVICE LOADED FROM:", __file__)
 
 def create_category(name: str, description: str | None = None):
     insert_data = {

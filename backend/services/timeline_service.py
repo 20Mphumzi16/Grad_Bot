@@ -2,14 +2,9 @@ import os
 import uuid
 from datetime import datetime
 from dotenv import load_dotenv
-from supabase import create_client, Client
-from email_service import send_email, get_all_graduate_emails, get_graduate_email_by_id
+from db.supabase_client import supabase
+from services.email_service import send_email, get_all_graduate_emails, get_graduate_email_by_id
 
-load_dotenv()
-
-url: str = os.getenv("SUPABASE_URL")
-key: str = os.getenv("SUPABASE_SERVICE_KEY")
-supabase: Client = create_client(url, key)
 
 from uuid import UUID
 
@@ -492,6 +487,11 @@ def get_next_three_active_milestones(graduate_id: UUID):
 
         results = []
         for m in milestones:
+            # Check if milestone is assigned to specific graduate
+            assigned_to = m.get("graduate_id")
+            if assigned_to and str(assigned_to) != str(graduate_id):
+                continue
+
             m_tasks = [t for t in tasks if t["milestone_id"] == m["id"]]
 
             if not m_tasks:

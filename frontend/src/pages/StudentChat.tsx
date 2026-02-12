@@ -3,6 +3,7 @@ import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { API_BASE_URL } from '../utils/config';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Send,
   FileText,
@@ -10,7 +11,9 @@ import {
   ThumbsDown,
   Sparkles,
   RotateCcw,
-  ArrowDown
+  ArrowDown,
+  ArrowBigDown,
+  Plus
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
  
@@ -75,6 +78,7 @@ export function StudentChat() {
   const [inputValue, setInputValue] = useState('');
  
   const chatRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isAtBottom, setIsAtBottom] = useState(true);
  
   // Sources panel state
@@ -102,14 +106,20 @@ export function StudentChat() {
   };
  
   const scrollToBottom = () => {
-    const el = chatRef.current;
-    if (!el) return;
-    el.scrollTo({
-      top: el.scrollHeight,
-      behavior: 'smooth',
-    });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     setIsAtBottom(true);
   };
+
+  // Scroll to bottom when history finishes loading
+  useEffect(() => {
+    if (!isHistoryLoading) {
+      // Use a small timeout to ensure DOM is updated
+      setTimeout(() => {
+        scrollToBottom();
+      }, 100);
+    }
+  }, [isHistoryLoading]);
+
   const handleChatScroll = () => {
     const el = chatRef.current;
     if (!el) return;
@@ -301,6 +311,33 @@ export function StudentChat() {
     setActiveSources(message.sources);
     setActiveSourcesMessageId(message.id);
     setIsSourcesPanelOpen(true);
+    
+    // Scroll to top when sources are opened
+    // Use setTimeout to allow state updates and layout transitions to start
+    setTimeout(() => {
+      // 1. Scroll chat messages to top
+      if (chatRef.current) {
+        chatRef.current.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      }
+
+      // 2. Scroll the main page content container (StudentLayout)
+      const mainContent = document.getElementById('student-main-content');
+      if (mainContent) {
+        mainContent.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      }
+
+      // 3. Fallback: scroll window
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }, 100);
   };
  
   const handleSuggestedQuestion = (question: string) => {
@@ -345,7 +382,7 @@ export function StudentChat() {
       {activeSources?.map((source, index) => (
         <div
           key={source.chunk_id || index}
-          className="border border-gray-200 rounded-lg p-3 bg-gray-50 space-y-2"
+          className="border rounded-lg p-3 bg-gray-50 space-y-2"
         >
           <div className="flex items-center gap-2 text-xs text-gray-500">
             <FileText className="w-3 h-3" />
@@ -363,11 +400,11 @@ export function StudentChat() {
   return (
     <div className="h-full">
       <div className={`flex flex-col h-full mx-auto transition-all duration-300 ${isSourcesPanelOpen ? 'w-full px-4 max-w-[1600px]' : 'max-w-4xl'}`}>
-      <div className="flex flex-row gap-6 overflow-hidden h-full">        
+      <div className="flex flex-row overflow-hidden h-full">        
          
          
           {/* Chat container */}
-          <Card className="flex-1 border-gray-200 flex flex-col overflow-hidden min-w-[350px]">
+          <Card className="flex-1 flex flex-col overflow-hidden min-w-[350px] relative bg-[var(--card)]">
             {/* Messages area */}
             <div
               ref={chatRef}
@@ -494,7 +531,7 @@ export function StudentChat() {
             )}
  
             {/* Input area */}
-            <div className="border-t border-gray-200 p-6">
+            <div className="border-t p-6 relative z-50">
               <div className="flex justify-center mb-2 gap-2">
                 {messages.length > 1 && (
                   <Button
@@ -506,18 +543,6 @@ export function StudentChat() {
                   >
                     <RotateCcw className={`w-3.5 h-3.5 ${isResetting ? 'animate-spin' : ''}`} />
                     Reset Chat
-                  </Button>
-                )}
-               
-                {!isAtBottom && (
-                  <Button
-                    onClick={scrollToBottom}
-                    variant="ghost"
-                    size="sm"
-                    className="text-xs text-gray-400 hover:text-gray-600 hover:bg-gray-50 h-auto py-1.5 px-3 rounded-full gap-1.5 transition-colors animate-bounce"
-                  >
-                    <ArrowDown className="w-3.5 h-3.5" />
-                    Scroll to Bottom
                   </Button>
                 )}
               </div>
@@ -537,35 +562,54 @@ export function StudentChat() {
                 </Button>
               </div>
             </div>
- 
- 
+            <div ref={messagesEndRef} />
+
+
+
           </Card>
  
           {/* Sources side panel */}
-          {isSourcesPanelOpen && activeSources && (
-            <Card
-              className="w-[400px] flex-none border-gray-200 flex flex-col overflow-hidden h-full animate-in slide-in-from-right-10 fade-in duration-300 shadow-lg"
-            >
-            <div className="border-b border-gray-200 px-4 py-3 flex items-center justify-between">
-                <h2 className="text-sm font-semibold">Sources</h2>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6"
-                  onClick={() => {
-                    setIsSourcesPanelOpen(false);
-                    setActiveSources(null);
-                    setActiveSourcesMessageId(null);
-                  }}
+          <AnimatePresence>
+            {isSourcesPanelOpen && activeSources && (
+              <motion.div
+                initial={{ width: 0, opacity: 0, x: 20 }}
+                animate={{ width: 400, opacity: 1, x: 0 }}
+                exit={{ width: 0, opacity: 0, x: 20 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="flex-none h-full"
+              >
+                <Card
+                  className="w-full h-full flex flex-col overflow-hidden shadow-lg bg-[var(--card)]"
                 >
-                  {'×'}
-                </Button>
-              </div>
-              <SourcesContent />
-            </Card>
-          )}
+                  <div className="border-b px-4 py-3 flex items-center justify-between">
+                    <h2 className="text-sm font-semibold">Sources</h2>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6"
+                      onClick={() => setIsSourcesPanelOpen(false)}
+                    >
+                      {'×'}
+                    </Button>
+                  </div>
+                  <SourcesContent />
+                </Card>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
+
+      {/* Floating Action Button for Scroll to Bottom - Always visible when chat active */}
+      {messages.length > 1 && (
+        <Button
+          onClick={scrollToBottom}
+          className="fixed bottom-8 right-8 w-14 h-14 rounded-full shadow-2xl bg-blue-600 hover:bg-blue-700 text-white z-[100] transition-transform hover:scale-105 animate-bounce"
+          title="Scroll to Bottom"
+        >
+          <ArrowBigDown className="w-8 h-8" fill="currentColor" />
+        </Button>
+      )}
     </div>
   );
 }

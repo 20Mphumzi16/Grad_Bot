@@ -1,12 +1,12 @@
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Depends
-from document_service import delete_document, upload_document
-from document_models import DocumentResponse
+from services.document_service import delete_document, upload_document
+from models.document_models import DocumentResponse
 from uuid import UUID
 import os
 from dotenv import load_dotenv
 from supabase import create_client, Client
 from datetime import datetime, timedelta, timezone
-from auth_routes import get_current_user
+from controllers.auth_controller import get_current_user
 
 load_dotenv()
 
