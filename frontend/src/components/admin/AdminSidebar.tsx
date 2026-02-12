@@ -151,7 +151,7 @@ export function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
         isMobile 
           ? "fixed inset-y-0 left-0 h-full border-r" 
           : "sticky top-0 m-4 h-[calc(100vh-2rem)] rounded-2xl border shadow-xl",
-        isOpen ? "w-64" : "w-16",
+        isOpen ? "w-64" : (isMobile ? "w-0 border-none" : "w-16"),
       )}
       style={{
         background: isDark ? 'var(--sidebar)' : '#eff6ff',
@@ -160,20 +160,21 @@ export function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
         color: 'var(--foreground)'
       }}
     >
-      {/* Toggle Button - Absolute Positioned on Desktop - Only visible when minified */}
-      {!isMobile && !isOpen && (
+      {/* Toggle Button - Absolute Positioned - Visible when minified/closed */}
+      {!isOpen && (
         <Button
           onClick={onToggle}
           className={cn(
-            "absolute -right-3 top-[70px] z-[100] h-6 w-6 rounded-full border shadow-md p-0",
-            "bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-600"
+            "absolute top-[70px] z-[100] h-6 w-6 rounded-full border shadow-md p-0",
+            "bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-600",
+            isMobile ? "-right-6" : "-right-3"
           )}
         >
           <ChevronRight className="h-4 w-4" />
         </Button>
       )}
 
-      <div className="h-full flex flex-col">
+      <div className={cn("h-full flex flex-col", isMobile && !isOpen && "invisible")}>
         {/* Logo Section */}
         <div className="relative h-16 w-full overflow-hidden">
           {/* Full Logo + Toggle Button (Visible when open) */}
