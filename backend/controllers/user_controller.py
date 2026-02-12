@@ -1,4 +1,7 @@
+from services.user_service import get_user_id
+from uuid import UUID
 from services.user_service import get_all_graduates_count
+from datetime import datetime
 from fastapi import APIRouter, HTTPException
 from services.user_service import get_all_graduates, delete_user, update_graduate_basic, set_graduate_archived_status, get_graduate_details
 from models.user_models import GraduateResponse, GraduateUpdateRequest
@@ -69,3 +72,26 @@ async def archive_graduate_endpoint(user_id: str, archived: bool):
         return {"status": "success", "id": user_id, "archived": archived}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/days-active/{user_id}")
+def calculate_days_active(user_id: UUID) -> int:
+    """Calculate number of days on Grad Programme"""
+    
+    user = get_user_id(user_id)
+    if not user or not user.get("start_date"):
+        return 0
+        
+    start_date = user["start_date"]
+    
+    if isinstance(start_date, str):
+        try:
+            # Handle 'Z' for UTC if present
+            start_date = datetime.fromisoformat(start_date.replace('Z', '+00:00'))
+        except ValueError:
+            return 0
+            
+    now = datetime.now()
+    if start_date.tzinfo:
+        now = now.astimezone(start_date.tzinfo)
+        
+    return (now - start_date).days + 1
