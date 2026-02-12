@@ -10,6 +10,7 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import logo from '@/assets/logo.png';
 import logo1 from '@/assets/logo1.png';
 import logo2 from '@/assets/logo2.png';
+import logo3 from '@/assets/logo3.png';
 
 const navItems = [
   { icon: Home, label: 'Dashboard', path: '/student' },
@@ -225,7 +226,7 @@ export function StudentSidebar({ isOpen, onToggle }: StudentSidebarProps) {
             )}
           >
             <img 
-              src={logo2} 
+              src={isDark ? logo3 : logo2} 
               alt="GradBot" 
               className="h-8 w-8 object-contain"
             />
