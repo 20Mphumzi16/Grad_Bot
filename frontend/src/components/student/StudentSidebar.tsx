@@ -1,5 +1,5 @@
 import { MessageSquare, User, BookOpen, Calendar, FileText, Home, ChevronRight, PanelLeftClose, LogOut } from 'lucide-react';
-import { Link, useLocation, useNavigate } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useStudentNotifications } from '@/context/StudentNotificationContext';
 import { useTheme } from '@/context/ThemeContext';

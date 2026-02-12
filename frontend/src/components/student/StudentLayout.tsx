@@ -1,4 +1,4 @@
-import { Outlet, useLocation, useOutletContext } from 'react-router';
+import { Outlet, useLocation, useOutletContext } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { PageTransition } from '../ui/PageTransition';
 

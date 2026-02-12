@@ -2,7 +2,7 @@ import { Button } from '../ui/button';
 import { cn } from '../ui/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Bell, Moon, Sun, MessageSquare, User, BookOpen, Calendar, FileText, Home, Menu } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router';
+import { useNavigate, useLocation } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { useStudentNotifications } from '@/context/StudentNotificationContext';

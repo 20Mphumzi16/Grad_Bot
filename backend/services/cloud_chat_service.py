@@ -8,7 +8,6 @@ from pptx import Presentation
 from openai import OpenAI
 from dotenv import load_dotenv
 from db.supabase_client import supabase
-from services.email_service import send_email, get_all_graduate_emails, get_graduate_email_by_id
 from services.timeline_service import get_graduate_milestones_with_tasks
 from services.user_service import get_user_id
  
@@ -647,36 +646,4 @@ async def chat(user_id, question):
     message = {"answer": answer, "question": question, "sources": sources, "chat_id": chat_id}
  
     return message
-
-import asyncio
-
-def test():
-    #embed_all()
-    # user_id = "73205ea6-2afe-4407-a35e-6ea6f7260333"
-    question = "What is instana?"
-    # convo  = chat(user_id, question)
-    convo = asyncio.run(chat(user_id, question))
-    q = convo["question"]
-    a = convo["answer"]
-    print("\n number of sources:", len(convo["sources"]))
-
-    prompt = f"""
-        A bot is used to answer trainees' questions based on provided document context.
-        Rate the question and answer pair out of 100. give a short explanation. Briefly suggest a better question if necessary and ways to improve the bot.
-        structure it as:
-          rating: <score out of 100>
-          explanation: <short explanation>
-          suggested_bot_improvements: <suggestions>
-          suggested_question_improvements: <suggestions>
- 
-        Question: {q}
-        Answer: {a}
-        """.strip()
- 
-    response = client.responses.create(
-        model="gpt-4o-mini",
-        input=prompt
-    )
-
-    print("\n",response.output_text.strip())
 

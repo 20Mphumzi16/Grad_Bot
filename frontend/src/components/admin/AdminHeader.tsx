@@ -1,7 +1,7 @@
 import { cn } from '@/components/ui/utils';
 import { Button } from '../ui/button';
 import { Moon, Sun, LayoutDashboard, FileText, BarChart3, Settings, MessageSquare, Users, CheckSquare, Menu } from 'lucide-react';
-import { useLocation } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { useIsMobile } from '@/components/ui/use-mobile';

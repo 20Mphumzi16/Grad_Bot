@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Lock, ArrowLeft, Loader2 } from 'lucide-react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { useLoading } from '../components/ui/loading';
 import { AnimatePresence } from 'framer-motion';
 import { PageTransition } from '../components/ui/PageTransition';

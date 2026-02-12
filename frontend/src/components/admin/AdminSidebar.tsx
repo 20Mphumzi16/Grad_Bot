@@ -1,5 +1,5 @@
 import { LayoutDashboard, FileText, BarChart3, Settings, MessageSquare, Users, CheckSquare, Menu, PanelLeftClose, ChevronRight, LogOut } from 'lucide-react';
-import { Link, useLocation, useNavigate } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useIsMobile } from '@/components/ui/use-mobile';
 import { cn } from '@/components/ui/utils';

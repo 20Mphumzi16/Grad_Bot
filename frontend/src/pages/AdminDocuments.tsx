@@ -1,5 +1,5 @@
 import { useState, useEffect, SetStateAction } from 'react';
-import { useLocation } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import { useClickOutside } from '../hooks/use-click-outside';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';

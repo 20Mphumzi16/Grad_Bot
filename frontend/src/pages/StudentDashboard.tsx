@@ -12,7 +12,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { Progress } from '../components/ui/progress';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { useEffect, useState, } from 'react';
 import { useLoading } from '../components/ui/loading';
 import { API_BASE_URL } from '../utils/config';

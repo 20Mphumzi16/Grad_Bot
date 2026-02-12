@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router';
+import { Outlet } from 'react-router-dom';
 import { useState } from 'react';
 import { useIsMobile } from '@/components/ui/use-mobile';
 import { StudentSidebar } from './StudentSidebar';
