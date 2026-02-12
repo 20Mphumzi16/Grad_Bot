@@ -4,6 +4,13 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
 import { 
   User,
   Mail,
@@ -29,6 +36,16 @@ const user_data: any = {
 
 }
 
+interface Department {
+  id: number;
+  name: string;
+}
+
+interface Branch {
+  id: number;
+  name: string;
+}
+
 export function StudentProfile() {
   const [avatar_url, setAvatarUrl] = useState<string | null>(null);
   const [uploading_avatar, setUploadingAvatar] = useState<boolean>(false);
@@ -50,6 +67,9 @@ export function StudentProfile() {
     linkedin: 'linkedin.com/in/janesmith',
     github: 'github.com/janesmith',
   });
+  const [phoneError, setPhoneError] = useState<string | null>(null);
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [branches, setBranches] = useState<Branch[]>([]);
 
   const { loading, setLoading } = useLoading();
 
@@ -126,6 +146,31 @@ export function StudentProfile() {
   };
 
   useEffect(() => {
+    const fetchMetadata = async () => {
+      try {
+        const [deptRes, branchRes] = await Promise.all([
+          fetch(`${API_BASE_URL}/department/get-all`),
+          fetch(`${API_BASE_URL}/branch/get-all`)
+        ]);
+
+        if (deptRes.ok) {
+          const data = await deptRes.json();
+          setDepartments(data);
+        }
+        
+        if (branchRes.ok) {
+          const data = await branchRes.json();
+          setBranches(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch metadata", error);
+      }
+    };
+    
+    fetchMetadata();
+  }, []);
+
+  useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) return;
 
@@ -142,7 +187,16 @@ export function StudentProfile() {
   }, [setLoading]);
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData({ ...formData, [field]: value });
+    let finalValue = value;
+    if (field === 'phone') {
+      finalValue = value.replace(/\s/g, '');
+      if (finalValue && !/^0\d{9}$/.test(finalValue)) {
+        setPhoneError('Phone number must be 10 digits and start with 0');
+      } else {
+        setPhoneError(null);
+      }
+    }
+    setFormData({ ...formData, [field]: finalValue });
   };
 
   const handleAvatarUploadClick = () => {
@@ -240,6 +294,11 @@ export function StudentProfile() {
   };
 
    const handleSave = async () => {
+    if (!formData.phone || !/^0\d{9}$/.test(formData.phone)) {
+      toast.error('Phone number must be 10 digits and start with 0');
+      return;
+    }
+
     setLoading(true);
 
       try {
@@ -434,14 +493,21 @@ export function StudentProfile() {
           <div className="space-y-2">
             <Label htmlFor="department" style={{ color: 'var(--foreground)' }}>Department</Label>
             <div className="relative">
-              <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <Input
-                id="department"
-                value={formData.department}
-                onChange={(e) => handleInputChange('department', e.target.value)}
-                className="pl-10 rounded-xl"
+              <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 z-10" />
+              <Select 
+                value={formData.department} 
+                onValueChange={(value) => handleInputChange('department', value)}
                 disabled={loading}
-              />
+              >
+                <SelectTrigger className="w-full pl-10 rounded-xl">
+                  <SelectValue placeholder="Select Department" />
+                </SelectTrigger>
+                <SelectContent>
+                  {departments.map((dept) => (
+                    <SelectItem key={dept.id} value={dept.name}>{dept.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -462,30 +528,38 @@ export function StudentProfile() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="phone" style={{ color: 'var(--foreground)' }}>Phone</Label>
+            <Label htmlFor="phone" style={{ color: 'var(--foreground)' }} className={phoneError ? 'text-red-500' : ''}>Phone</Label>
             <div className="relative">
               <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <Input
                 id="phone"
                 value={formData.phone}
                 onChange={(e) => handleInputChange('phone', e.target.value)}
-                className="pl-10 rounded-xl"
+                className={`pl-10 rounded-xl ${phoneError ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
                 disabled={loading}
               />
             </div>
+            {phoneError && <p className="text-xs text-red-500">{phoneError}</p>}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="location" style={{ color: 'var(--foreground)' }}>Location</Label>
             <div className="relative">
-              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <Input
-                id="location"
-                value={formData.location}
-                onChange={(e) => handleInputChange('location', e.target.value)}
-                className="pl-10 rounded-xl"
+              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 z-10" />
+              <Select 
+                value={formData.location} 
+                onValueChange={(value) => handleInputChange('location', value)}
                 disabled={loading}
-              />
+              >
+                <SelectTrigger className="w-full pl-10 rounded-xl">
+                  <SelectValue placeholder="Select Location" />
+                </SelectTrigger>
+                <SelectContent>
+                  {branches.map((branch) => (
+                    <SelectItem key={branch.id} value={branch.name}>{branch.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

@@ -1,7 +1,9 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel      
 from controllers.auth_controller import router as auth_router
+from controllers.department_controller import router as department_router
+from controllers.branch_controller import router as branch_router
 from controllers.graduate_skill_controller import router as graduate_skill_router
 from controllers.skills_controller import router as skills_router
 from controllers.document_controller import router as document_router
@@ -27,9 +29,11 @@ app.add_middleware(
 )
 
 # Enable CORS
-# 🔥 ADD THIS LINE
+# 🔥 ADD THIS LINE  
 app.include_router(auth_router)
 app.include_router(skills_router)
+app.include_router(branch_router)
+app.include_router(department_router)
 app.include_router(graduate_skill_router)
 app.include_router(document_router)
 app.include_router(category_router)

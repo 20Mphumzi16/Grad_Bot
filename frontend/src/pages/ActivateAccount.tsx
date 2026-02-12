@@ -9,6 +9,8 @@ import { useLoading } from "../components/ui/loading";
 import { API_BASE_URL } from "../utils/config";
 import { ShieldCheck, ArrowLeft, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { PasswordStrength } from "../components/ui/PasswordStrength";
+import { validatePasswordComplexity } from "../utils/passwordValidation";
 
 export default function ActivateAccount() {
   const navigate = useNavigate();
@@ -33,6 +35,7 @@ export default function ActivateAccount() {
   const [serverError, setServerError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [shouldShake, setShouldShake] = useState(false);
+  const [isPasswordValid, setIsPasswordValid] = useState(false);
 
   useEffect(() => {
     if (shouldShake) {
@@ -74,9 +77,12 @@ export default function ActivateAccount() {
     if (!password.trim()) {
       setPasswordError("Password is required");
       valid = false;
-    } else if (password.length < 8) {
-      setPasswordError("Password must be at least 8 characters");
-      valid = false;
+    } else {
+       const { isValid, firstError } = validatePasswordComplexity(password);
+       if (!isValid) {
+         setPasswordError(firstError || "Password complexity not met");
+         valid = false;
+       }
     }
 
     if (!confirmPassword.trim()) {
@@ -88,6 +94,37 @@ export default function ActivateAccount() {
     }
 
     return valid;
+  };
+
+  const verifyOtp = async (otp: string) => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/otp/first-login/verify-otp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, otp }),
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        let message = "Invalid OTP";
+        try {
+          const json = JSON.parse(errText);
+          message = json.detail || message;
+        } catch {
+          message = errText || message;
+        }
+        throw new Error(message);
+      }
+
+      toast.success("OTP verified successfully!");
+      setStep(3);
+    } catch (err: any) {
+      setCodeError(err.message);
+      setShouldShake(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
@@ -104,6 +141,10 @@ export default function ActivateAccount() {
     // Focus the next empty input or the last one
     const nextIndex = Math.min(pastedData.length, 7);
     inputsRef.current[nextIndex]?.focus();
+
+    if (next.join("").length === 8) {
+      verifyOtp(next.join(""));
+    }
   };
 
   const handleNext = async (e: React.FormEvent) => {
@@ -148,35 +189,7 @@ export default function ActivateAccount() {
         return;
       }
 
-      setLoading(true);
-      try {
-        const otp = codeChars.join("");
-        const res = await fetch(`${API_BASE_URL}/otp/first-login/verify-otp`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, otp }),
-        });
-
-        if (!res.ok) {
-          const errText = await res.text();
-          let message = "Invalid OTP";
-          try {
-            const json = JSON.parse(errText);
-            message = json.detail || message;
-          } catch {
-            message = errText || message;
-          }
-          throw new Error(message);
-        }
-
-        toast.success("OTP verified successfully!");
-        setStep(3);
-      } catch (err: any) {
-        setCodeError(err.message);
-        setShouldShake(true);
-      } finally {
-        setLoading(false);
-      }
+      verifyOtp(codeChars.join(""));
     }
   };
 
@@ -329,9 +342,17 @@ function getRoleFromToken(token: string | null): string | null {
                       </div>
                       <Button
                         type="submit"
+                        disabled={loading}
                         className="w-full bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 rounded-xl"
                       >
-                        Continue
+                        {loading ? (
+                          <>
+                            <Loader2 className="animate-spin mr-2" />
+                            Sending...
+                          </>
+                        ) : (
+                          "Continue"
+                        )}
                       </Button>
                     </motion.div>
                   )}
@@ -363,6 +384,7 @@ function getRoleFromToken(token: string | null): string | null {
                                 type="text"
                                 inputMode="text"
                                 maxLength={1}
+                                disabled={loading}
                                 value={codeChars[idx]}
                                 onPaste={handlePaste}
                                 onChange={(e) => {
@@ -374,6 +396,10 @@ function getRoleFromToken(token: string | null): string | null {
                                   setCodeChars(next);
                                   if (v && idx < 7) {
                                     inputsRef.current[idx + 1]?.focus();
+                                  }
+                                  
+                                  if (next.join("").length === 8) {
+                                    verifyOtp(next.join(""));
                                   }
                                 }}
                                 onKeyDown={(e) => {
@@ -416,9 +442,17 @@ function getRoleFromToken(token: string | null): string | null {
                       </div>
                       <Button
                         type="submit"
+                        disabled={loading}
                         className="w-full bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 rounded-xl"
                       >
-                        Continue
+                        {loading ? (
+                          <>
+                            <Loader2 className="animate-spin mr-2" />
+                            Verifying OTP...
+                          </>
+                        ) : (
+                          "Continue"
+                        )}
                       </Button>
                       <div className="text-center">
                         <button
@@ -455,6 +489,7 @@ function getRoleFromToken(token: string | null): string | null {
                           autoFocus
                           className="rounded-xl"
                         />
+                        <PasswordStrength password={password} onValidationChange={setIsPasswordValid} />
                         {passwordError && (
                           <p className="text-sm text-red-600">{passwordError}</p>
                         )}
