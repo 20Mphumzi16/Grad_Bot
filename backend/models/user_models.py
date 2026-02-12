@@ -29,13 +29,13 @@ class UserResponse(BaseModel):
     role: str
     first_name: str
     last_name: str
-    phone: str | None
-    department: str | None
-    branch: str | None
-    start_date: str | None
-    bio: str | None
-    linkedin_link: str | None
-    github_link: str | None
+    phone: str | None = None
+    department: str | None = None
+    branch: str | None = None
+    start_date: str | None = None
+    bio: str | None = None
+    linkedin_link: str | None = None
+    github_link: str | None = None
     position: str | None = None
 
 class GraduateResponse(BaseModel):

@@ -822,14 +822,13 @@ export function AdminUserManagement() {
               <Input
                 id="newPhone"
                 value={createForm.phone}
-                maxLength={10}
                 placeholder="0..."
                 aria-invalid={!!(createFormTouched.phone && getFieldError('phone', createForm.phone))}
                 onBlur={() => setCreateFormTouched(prev => ({ ...prev, phone: true }))}
                 onChange={(e) =>
                   setCreateForm((prev) =>
                     prev
-                      ? { ...prev, phone: e.target.value }
+                      ? { ...prev, phone: e.target.value.replace(/\s/g, '') }
                       : prev
                   )
                 }
@@ -941,7 +940,7 @@ export function AdminUserManagement() {
                 onChange={(e) =>
                   setEditForm((prev) =>
                     prev
-                      ? { ...prev, phone: e.target.value }
+                      ? { ...prev, phone: e.target.value.replace(/\s/g, '') }
                       : prev
                   )
                 }

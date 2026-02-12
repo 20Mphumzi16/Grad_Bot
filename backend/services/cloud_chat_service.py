@@ -491,6 +491,7 @@ async def chat(user_id, question):
     if not previous_questions: previous_questions = [question]
  
     rewritten_question = rewrite_query(previous_questions, question)
+    
     if TEST:
         print("previous_questions: ","\n".join(previous_questions))
         print("question:           ",question)

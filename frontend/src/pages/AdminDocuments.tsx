@@ -809,21 +809,21 @@ setCategories(data);
         <SelectValue placeholder="Select a category" />
       </SelectTrigger>
       <SelectContent 
-        className="bg-white dark:bg-zinc-800 border-gray-300 dark:border-gray-500"
+        className="border-gray-300 dark:border-gray-500"
         style={{ zIndex: 100001 }}
       >
         {loadingCategories ? (
-          <SelectItem value="loading" disabled className="py-3 pl-6 pr-12 cursor-pointer focus:bg-gray-100 dark:focus:bg-gray-800">
+          <SelectItem value="loading" disabled className="py-3 pl-6 pr-12 cursor-pointer">
             Loading...
           </SelectItem>
         ) : categories.length > 0 ? (
           categories.map((cat) => (
-            <SelectItem key={cat.id} value={String(cat.id)} className="py-3 pl-6 pr-12 cursor-pointer focus:bg-gray-100 dark:focus:bg-gray-800">
+            <SelectItem key={cat.id} value={String(cat.id)} className="py-3 pl-6 pr-12 cursor-pointer">
               {cat.name}
             </SelectItem>
           ))
         ) : (
-          <SelectItem value="" disabled className="py-3 pl-6 pr-12 cursor-pointer focus:bg-gray-100 dark:focus:bg-gray-800">
+          <SelectItem value="" disabled className="py-3 pl-6 pr-12 cursor-pointer">
             {categoriesError ? `Error: ${categoriesError}` : 'No categories available'}
           </SelectItem>
         )}
