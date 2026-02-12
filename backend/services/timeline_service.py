@@ -1,7 +1,6 @@
 import os
 import uuid
 from datetime import datetime
-from dotenv import load_dotenv
 from db.supabase_client import supabase
 from services.email_service import send_email, get_all_graduate_emails, get_graduate_email_by_id
 
