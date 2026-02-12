@@ -9,6 +9,8 @@ import { useLoading } from "../components/ui/loading";
 import { API_BASE_URL } from "../utils/config";
 import { ShieldCheck, ArrowLeft, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { PasswordStrength } from "../components/ui/PasswordStrength";
+import { validatePasswordComplexity } from "../utils/passwordValidation";
 
 export default function ActivateAccount() {
   const navigate = useNavigate();
@@ -33,6 +35,7 @@ export default function ActivateAccount() {
   const [serverError, setServerError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [shouldShake, setShouldShake] = useState(false);
+  const [isPasswordValid, setIsPasswordValid] = useState(false);
 
   useEffect(() => {
     if (shouldShake) {
@@ -74,9 +77,12 @@ export default function ActivateAccount() {
     if (!password.trim()) {
       setPasswordError("Password is required");
       valid = false;
-    } else if (password.length < 8) {
-      setPasswordError("Password must be at least 8 characters");
-      valid = false;
+    } else {
+       const { isValid, firstError } = validatePasswordComplexity(password);
+       if (!isValid) {
+         setPasswordError(firstError || "Password complexity not met");
+         valid = false;
+       }
     }
 
     if (!confirmPassword.trim()) {
@@ -483,6 +489,7 @@ function getRoleFromToken(token: string | null): string | null {
                           autoFocus
                           className="rounded-xl"
                         />
+                        <PasswordStrength password={password} onValidationChange={setIsPasswordValid} />
                         {passwordError && (
                           <p className="text-sm text-red-600">{passwordError}</p>
                         )}
