@@ -413,15 +413,6 @@ export function StudentChat() {
               className="flex-1 overflow-y-auto p-6 space-y-6"
               onScroll={handleChatScroll}
             >
-              {isHistoryLoading && (
-                <div className="flex justify-center p-4">
-                  <div className="typing">
-                    <span className="dot"></span>
-                    <span className="dot"></span>
-                    <span className="dot"></span>
-                  </div>
-                </div>
-              )}
               {messages.map((message) => (
                 <div
                   key={message.id}
@@ -510,6 +501,15 @@ export function StudentChat() {
                   </div>
                 </div>
               ))}
+              {isHistoryLoading && (
+                <div className="flex justify-center p-4">
+                  <div className="typing">
+                    <span className="dot"></span>
+                    <span className="dot"></span>
+                    <span className="dot"></span>
+                  </div>
+                </div>
+              )}
             </div>
  
             {/* Suggested questions */}

@@ -12,6 +12,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { Progress } from '../components/ui/progress';
+import { Skeleton } from '../components/ui/skeleton';
 import { Link } from 'react-router-dom';
 import { useEffect, useState, } from 'react';
 import { useLoading } from '../components/ui/loading';
@@ -19,6 +20,7 @@ import { API_BASE_URL } from '../utils/config';
 
 export function StudentDashboard() {
 
+  const [daysActive, setDaysActive] = useState<number>(0);
   const [firstName, setFirstName] = useState<string | null>(null);
   const [upcomingMilestones, setUpcomingMilestones] = useState<any[]>([]);
   const [progressData, setProgressData] = useState({ 
@@ -60,6 +62,24 @@ export function StudentDashboard() {
       const f = data.first_name || data.given_name || data.firstName || data.first || (data.name ? data.name.split(' ')[0] : null);
 
       if (f) setFirstName(f);
+      
+      // Fetch days active
+      try {
+        const daysActiveRes = await fetch(`${API_BASE_URL}/graduates/days-active/${data.id}`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+    
+        if (daysActiveRes.ok) {
+           const daysActiveData = await daysActiveRes.json();
+           setDaysActive(daysActiveData);
+        }
+      } catch (e) {
+        console.error("Failed to fetch days active", e);
+      }
 
       // Fetch milestones for progress
       if (data.id) {
@@ -269,13 +289,26 @@ export function StudentDashboard() {
     <div className="pt-8 space-y-8">
       {/* Welcome section */}
       <div className="bg-gradient-to-r from-blue-500 to-teal-500 rounded-3xl p-8 text-white">
-        <h1 className="mb-2">Welcome back, {firstName}!</h1>
-        <p className="text-blue-100 mb-6">
-          You're on day 15 of your graduate programme. Keep up the great progress!
-        </p>
+        {statsLoading ? (
+          <>
+            <h1 className="mb-2 flex items-center gap-2">
+              Welcome back, <Skeleton className="h-5 w-22 bg-white/20" />
+            </h1>
+            <p className="text-blue-100 mb-6 flex items-center gap-2">
+              You're on day <Skeleton className="h-5 w-12 bg-white/20" /> of your graduate programme. Keep up the great progress!
+            </p>
+          </>
+        ) : (
+          <>
+            <h1 className="mb-2">Welcome back, {firstName}!</h1>
+            <p className="text-blue-100 mb-6">
+              You're on day {daysActive} of your graduate programme. Keep up the great progress!
+            </p>
+          </>
+        )}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {quickActions.map((action) => {
-            const Icon = action.icon;
+            const Icon = action.icon;15
             return (
               <Link key={action.path} to={action.path}>
                 <Button 
