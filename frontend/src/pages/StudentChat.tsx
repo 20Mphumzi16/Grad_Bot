@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useIsMobile } from '../components/ui/use-mobile';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -64,6 +65,7 @@ const formatTime = (dateInput?: string | Date) => {
 };
  
 export function StudentChat() {
+  const isMobile = useIsMobile();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
@@ -514,7 +516,7 @@ export function StudentChat() {
             {messages.length === 1 && (
               <div className="px-6 pb-4">
                 <p className="text-sm text-gray-500 mb-3">Suggested questions:</p>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   {suggestedQuestions.map((question, index) => (
                     <Button
                       key={index}
@@ -531,7 +533,7 @@ export function StudentChat() {
             )}
  
             {/* Input area */}
-            <div className="border-t p-6 relative z-50">
+            <div className="border-t p-4 md:p-6 relative z-50">
               <div className="flex justify-center mb-2 gap-2">
                 {messages.length > 1 && (
                   <Button
@@ -573,10 +575,10 @@ export function StudentChat() {
             {isSourcesPanelOpen && activeSources && (
               <motion.div
                 initial={{ width: 0, opacity: 0, x: 20 }}
-                animate={{ width: 400, opacity: 1, x: 0 }}
+                animate={{ width: isMobile ? "100%" : 400, opacity: 1, x: 0 }}
                 exit={{ width: 0, opacity: 0, x: 20 }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
-                className="flex-none h-full"
+                className="flex-none h-full absolute md:relative z-[60] md:z-auto bg-background md:bg-transparent right-0 top-0 bottom-0 shadow-xl md:shadow-none"
               >
                 <Card
                   className="w-full h-full flex flex-col overflow-hidden shadow-lg bg-[var(--card)]"
