@@ -17,7 +17,7 @@ export function AdminSettings() {
   return (
     <div className="pt-8 space-y-8">
       {/* General Settings */}
-      <Card className="p-6 border-border bg-[var(--card)]">
+      <Card className="p-6 bg-[var(--card)]/60 backdrop-blur-sm border-white/20 shadow-sm transition-colors">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-teal-500 flex items-center justify-center">
             <Settings className="w-5 h-5 text-white" />
@@ -58,7 +58,7 @@ export function AdminSettings() {
       </Card>
 
       {/* RAG Settings */}
-      <Card className="p-6 border-border bg-[var(--card)]">
+      <Card className="p-6 bg-[var(--card)]/60 backdrop-blur-sm border-white/20 shadow-sm transition-colors">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
             <Database className="w-5 h-5 text-white" />
@@ -104,7 +104,7 @@ export function AdminSettings() {
       </Card>
 
       {/* Security Settings */}
-      <Card className="p-6 border-border bg-[var(--card)]">
+      <Card className="p-6 bg-[var(--card)]/60 backdrop-blur-sm border-white/20 shadow-sm transition-colors">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center">
             <Shield className="w-5 h-5 text-white" />
@@ -144,7 +144,7 @@ export function AdminSettings() {
       </Card>
 
       {/* Notification Settings */}
-      <Card className="p-6 border-border bg-[var(--card)]">
+      <Card className="p-6 bg-[var(--card)]/60 backdrop-blur-sm border-white/20 shadow-sm transition-colors">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
             <Bell className="w-5 h-5 text-white" />
@@ -184,7 +184,7 @@ export function AdminSettings() {
       </Card>
 
       {/* Performance Settings */}
-      <Card className="p-6 border-border bg-[var(--card)]">
+      <Card className="p-6 bg-[var(--card)]/60 backdrop-blur-sm border-white/20 shadow-sm transition-colors">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
             <Zap className="w-5 h-5 text-white" />

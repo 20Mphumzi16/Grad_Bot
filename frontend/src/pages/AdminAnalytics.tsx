@@ -68,7 +68,7 @@ export function AdminAnalytics() {
     <div className="pt-8 space-y-8">
       {/* Key metrics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="p-6 bg-[var(--card)]">
+        <Card className="p-6 bg-[var(--card)]/60 backdrop-blur-sm border-white/20 shadow-sm transition-colors">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
               <MessageSquare className="w-5 h-5 text-white" />
@@ -79,7 +79,7 @@ export function AdminAnalytics() {
           <p className="text-sm text-green-600">+12.5% vs last week</p>
         </Card>
 
-        <Card className="p-6 bg-[var(--card)]">
+        <Card className="p-6 bg-[var(--card)]/60 backdrop-blur-sm border-white/20 shadow-sm transition-colors">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center">
               <Clock className="w-5 h-5 text-white" />
@@ -90,7 +90,7 @@ export function AdminAnalytics() {
           <p className="text-sm text-green-600">-0.3s improvement</p>
         </Card>
 
-        <Card className="p-6 bg-[var(--card)]">
+        <Card className="p-6 bg-[var(--card)]/60 backdrop-blur-sm border-white/20 shadow-sm transition-colors">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
               <ThumbsUp className="w-5 h-5 text-white" />
@@ -101,7 +101,7 @@ export function AdminAnalytics() {
           <p className="text-sm text-green-600">+2.1% vs last month</p>
         </Card>
 
-        <Card className="p-6 bg-[var(--card)]">
+        <Card className="p-6 bg-[var(--card)]/60 backdrop-blur-sm border-white/20 shadow-sm transition-colors">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
               <TrendingUp className="w-5 h-5 text-white" />
@@ -115,7 +115,7 @@ export function AdminAnalytics() {
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="p-6 bg-[var(--card)]">
+        <Card className="p-6 bg-[var(--card)]/60 backdrop-blur-sm border-white/20 shadow-sm transition-colors">
           <h3 style={{ color: 'var(--foreground)' }} className="mb-6">Conversation Volume</h3>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={conversationData}>
@@ -134,7 +134,7 @@ export function AdminAnalytics() {
           </ResponsiveContainer>
         </Card>
 
-        <Card className="p-6 bg-[var(--card)]">
+        <Card className="p-6 bg-[var(--card)]/60 backdrop-blur-sm border-white/20 shadow-sm transition-colors">
           <h3 style={{ color: 'var(--foreground)' }} className="mb-6">Response Time Trend</h3>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={responseTimeData}>
@@ -156,7 +156,7 @@ export function AdminAnalytics() {
 
       {/* Tables */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="p-6 bg-[var(--card)]">
+        <Card className="p-6 bg-[var(--card)]/60 backdrop-blur-sm border-white/20 shadow-sm transition-colors">
           <h3 style={{ color: 'var(--foreground)' }} className="mb-6">Top Queries</h3>
           <div className="space-y-4">
             {topQueries.map((item, index) => (
@@ -173,7 +173,7 @@ export function AdminAnalytics() {
           </div>
         </Card>
 
-        <Card className="p-6 bg-[var(--card)]">
+        <Card className="p-6 bg-[var(--card)]/60 backdrop-blur-sm border-white/20 shadow-sm transition-colors">
           <h3 style={{ color: 'var(--foreground)' }} className="mb-6">Document Usage</h3>
           <ResponsiveContainer width="100%" height={240}>
             <BarChart data={documentUsage} layout="vertical">

@@ -113,7 +113,7 @@ export function StudentResources() {
   return (
     <div className="pt-8 space-y-8">
       {/* Search and filters */}
-      <Card className="p-6 bg-[var(--card)]">
+      <Card className="p-6 bg-[var(--card)]/60 backdrop-blur-sm border-white/20 shadow-sm transition-colors">
         <div className="space-y-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -148,7 +148,7 @@ export function StudentResources() {
       {/* Resources grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {filteredResources.map((res) => (
-          <Card key={res.id} className="p-6 hover:shadow-lg transition-shadow bg-[var(--card)]">
+          <Card key={res.id} className="p-6 hover:shadow-lg transition-shadow bg-[var(--card)]/60 backdrop-blur-sm border-white/20 shadow-sm transition-colors">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-teal-500 flex items-center justify-center flex-shrink-0">
                 <BookOpen className="w-6 h-6 text-white" />
@@ -198,7 +198,7 @@ export function StudentResources() {
       </div>
 
       {filteredResources.length === 0 && (
-        <Card className="p-12 text-center bg-[var(--card)]">
+        <Card className="p-12 text-center bg-[var(--card)]/60 backdrop-blur-sm border-white/20 shadow-sm transition-colors">
           <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <h3 style={{ color: 'var(--foreground)' }} className="mb-2">No resources found</h3>
           <p className="text-gray-600">Try adjusting your search or filters</p>

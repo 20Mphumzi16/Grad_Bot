@@ -375,7 +375,7 @@ export function StudentProfile() {
       </div>
 
       {/* Profile picture section */}
-      <Card className="p-6 border-border bg-[var(--card)]">
+      <Card className="p-6 border-white/20 bg-[var(--card)]/60 backdrop-blur-sm shadow-sm transition-colors">
         <div className="flex items-center gap-6">
           <div className="relative">
             <Avatar className="w-24 h-24">
@@ -446,7 +446,7 @@ export function StudentProfile() {
       </Card>
 
       {/* Personal Information */}
-      <Card className="p-6 border-border bg-[var(--card)]">
+      <Card className="p-6 border-white/20 bg-[var(--card)]/60 backdrop-blur-sm shadow-sm transition-colors">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-teal-500 flex items-center justify-center">
             <User className="w-5 h-5 text-white" />
@@ -582,7 +582,7 @@ export function StudentProfile() {
       <SkillsSection graduateId={user_data.id} />
 
       {/* Programme Information */}
-      <Card className="p-6 border-border bg-[var(--card)]">
+      <Card className="p-6 border-border bg-[var(--card)]/60 backdrop-blur-sm shadow-sm transition-colors">
         <h3 className="text-foreground mb-6">Programme Information</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -613,7 +613,7 @@ export function StudentProfile() {
       </Card>
 
       {/* Social Links */}
-      <Card className="p-6 border-border bg-[var(--card)]">
+      <Card className="p-6 bg-[var(--card)]/60 backdrop-blur-sm border-white/20 shadow-sm transition-colors">
         <h3 className="text-foreground mb-6">Social Links</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -644,7 +644,7 @@ export function StudentProfile() {
       </Card>
 
       {/* Preferences */}
-      <Card className="p-6 border-border bg-[var(--card)]">
+      <Card className="p-6 border-white/20 bg-[var(--card)]/60 backdrop-blur-sm shadow-sm transition-colors">
         <h3 className="text-foreground mb-6">Preferences</h3>
 
         <div className="space-y-4">
@@ -1043,7 +1043,7 @@ function SkillsSection({ graduateId }: { graduateId?: string }) {
   };
 
   return (
-    <Card className="p-6 border-border bg-[var(--card)]">
+    <Card className="p-6 border-white/20 bg-[var(--card)]/60 backdrop-blur-sm shadow-sm transition-colors">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-teal-500 flex items-center justify-center">

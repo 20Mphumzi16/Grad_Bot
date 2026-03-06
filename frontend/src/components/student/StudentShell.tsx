@@ -4,6 +4,7 @@ import { useIsMobile } from '@/components/ui/use-mobile';
 import { StudentSidebar } from './StudentSidebar';
 import { StudentHeader } from './StudentHeader';
 import { StudentNotificationProvider } from '@/context/StudentNotificationContext';
+import { CursorEffect } from '@/components/ui/CursorEffect';
 
 type SidebarContext = {
   isSidebarOpen: boolean;
@@ -18,6 +19,7 @@ export function StudentShell() {
   return (
     <StudentNotificationProvider>
       <div className="fixed inset-0 flex w-full h-full bg-background overflow-hidden">
+        <CursorEffect />
         {/* Sidebar: Fixed on mobile, Relative on desktop */}
         <StudentSidebar
           isOpen={isSidebarOpen}
@@ -25,7 +27,7 @@ export function StudentShell() {
         />
         
         {/* Main Content Column */}
-        <div className="flex flex-col flex-1 h-full min-w-0 overflow-hidden">
+        <div className="relative z-10 flex flex-col flex-1 h-full min-w-0 overflow-hidden">
           <StudentHeader 
             onMobileMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)} 
             isSidebarOpen={isSidebarOpen}

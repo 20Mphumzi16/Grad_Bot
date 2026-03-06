@@ -467,7 +467,7 @@ export function AdminTaskManagement() {
         </div> */}
       </div>
 
-      <div className="flex items-center justify-between bg-[var(--card)] p-4 rounded-lg border border-[var(--border)] shadow-sm">
+      <div className="flex items-center justify-between bg-[var(--card)]/60 backdrop-blur-sm border-white/20 shadow-sm transition-colors p-4 rounded-lg">
         {/* Left Side: Search */}
         <div className="relative w-96">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -567,7 +567,7 @@ export function AdminTaskManagement() {
               milestoneRefs.current[milestone.key] = el;
             }}
           >
-          <Card className="p-6 relative overflow-hidden bg-[var(--card)]">
+          <Card className="p-6 relative overflow-hidden bg-[var(--card)]/60 backdrop-blur-sm border-white/20 shadow-sm transition-colors">
             <div className="flex items-start justify-between mb-6">
               <div>
                 <p className="text-sm text-muted-foreground mb-1">

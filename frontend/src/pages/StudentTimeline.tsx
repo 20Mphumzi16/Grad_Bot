@@ -68,7 +68,7 @@ export function StudentTimeline() {
   };
 
   const getStatusColor = (status: string) => {
-    return 'bg-[var(--card)]';
+    return 'bg-[var(--card)]/60 backdrop-blur-sm border-white/20 shadow-sm transition-colors';
   };
 
   const getMilestoneProgress = (milestone: any) => {
@@ -222,7 +222,7 @@ export function StudentTimeline() {
         }
       `}</style>
       <div className="w-full space-y-8">
-        <Card className="p-6 bg-[var(--card)]">
+        <Card className="p-6 bg-[var(--card)]/60 backdrop-blur-sm border-white/20 shadow-sm transition-colors">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="mb-1">Overall Progress</h3>
