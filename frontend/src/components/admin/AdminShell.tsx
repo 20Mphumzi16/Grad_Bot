@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { useIsMobile } from '@/components/ui/use-mobile';
 import { AdminSidebar } from './AdminSidebar';
 import { AdminHeader } from './AdminHeader';
-import { CursorEffect } from '@/components/ui/CursorEffect';
 
 type SidebarContext = {
   isSidebarOpen: boolean;
@@ -17,7 +16,6 @@ export function AdminShell() {
 
   return (
     <div className="fixed inset-0 flex w-full h-full bg-background overflow-hidden">
-      <CursorEffect />
       {/* Sidebar: Fixed on mobile, Relative on desktop */}
       <AdminSidebar
         isOpen={isSidebarOpen}

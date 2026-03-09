@@ -467,7 +467,8 @@ export function AdminTaskManagement() {
         </div> */}
       </div>
 
-      <div className="flex items-center justify-between bg-[var(--card)]/60 backdrop-blur-sm border-white/20 shadow-sm transition-colors p-4 rounded-lg">
+      <Card className="bg-gradient-to-br from-[var(--card-gradient-start)] to-[var(--card-gradient-end)] backdrop-blur-sm border-white/20 shadow-sm transition-all hover:shadow-md p-4 rounded-lg">
+        <div className="flex flex-row items-center justify-between">
         {/* Left Side: Search */}
         <div className="relative w-96">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -522,7 +523,8 @@ export function AdminTaskManagement() {
             </Button>
           </div>
         </div>
-      </div>
+        </div>
+      </Card>
 
       {error && (
         <div className="text-red-600 font-medium p-4 bg-red-50 rounded-lg">
@@ -567,7 +569,7 @@ export function AdminTaskManagement() {
               milestoneRefs.current[milestone.key] = el;
             }}
           >
-          <Card className="p-6 relative overflow-hidden bg-[var(--card)]/60 backdrop-blur-sm border-white/20 shadow-sm transition-colors">
+          <Card className="p-6 relative overflow-hidden bg-gradient-to-br from-[var(--card-gradient-start)] to-[var(--card-gradient-end)] backdrop-blur-sm border-white/20 shadow-sm transition-all hover:shadow-md">
             <div className="flex items-start justify-between mb-6">
               <div>
                 <p className="text-sm text-muted-foreground mb-1">
