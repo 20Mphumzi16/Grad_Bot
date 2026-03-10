@@ -44,6 +44,10 @@
   --admin-login-to: #f3f4f6;
   --student-login-from: #eff6ff;
   --student-login-to: #f0fdfa;
+
+  /* Card Gradients */
+  --card-gradient-start: #ffffff;
+  --card-gradient-end: #eff6ff;
 }
 
 .dark {
@@ -90,6 +94,10 @@
   --admin-login-to: #1e293b;
   --student-login-from: #0f172a;
   --student-login-to: #1e293b;
+
+  /* Card Gradients */
+  --card-gradient-start: #1f2937;
+  --card-gradient-end: #111827;
 }
 
 @theme inline {

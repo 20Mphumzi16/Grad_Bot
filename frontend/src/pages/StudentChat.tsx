@@ -406,7 +406,7 @@ export function StudentChat() {
          
          
           {/* Chat container */}
-          <Card className="flex-1 flex flex-col overflow-hidden min-w-[350px] relative bg-[var(--card)]/60 backdrop-blur-sm border-white/20 shadow-sm transition-colors">
+          <Card className="flex-1 flex flex-col overflow-hidden min-w-[350px] relative bg-gradient-to-br from-[var(--card-gradient-start)] to-[var(--card-gradient-end)] backdrop-blur-sm border-white/20 shadow-sm transition-colors">
             {/* Messages area */}
             <div
               ref={chatRef}
@@ -581,7 +581,7 @@ export function StudentChat() {
                 className="flex-none h-full absolute md:relative z-[60] md:z-auto bg-background md:bg-transparent right-0 top-0 bottom-0 shadow-xl md:shadow-none"
               >
                 <Card
-                  className="w-full h-full flex flex-col overflow-hidden shadow-lg bg-[var(--card)]/60 backdrop-blur-sm border-white/20 transition-colors"
+                  className="w-full h-full flex flex-col overflow-hidden shadow-lg bg-gradient-to-br from-[var(--card-gradient-start)] to-[var(--card-gradient-end)] backdrop-blur-sm border-white/20 transition-colors"
                 >
                   <div className="border-b px-4 py-3 flex items-center justify-between">
                     <h2 className="text-sm font-semibold">Sources</h2>

@@ -356,4 +356,4 @@ def purge_used_otps(user_id: str):
         .lt("expires_at", now) \
         .execute()
 
-purge_expired_otps()
+# purge_expired_otps()

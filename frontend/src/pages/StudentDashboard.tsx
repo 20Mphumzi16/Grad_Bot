@@ -308,7 +308,7 @@ export function StudentDashboard() {
         )}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {quickActions.map((action) => {
-            const Icon = action.icon;15
+            const Icon = action.icon;
             return (
               <Link key={action.path} to={action.path}>
                 <Button 
@@ -326,7 +326,7 @@ export function StudentDashboard() {
 
       {/* Stats grid */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="p-6 bg-[var(--card)]/60 backdrop-blur-sm border-white/20 shadow-sm transition-colors">
+        <Card className="p-6 bg-gradient-to-br from-[var(--card-gradient-start)] to-[var(--card-gradient-end)] backdrop-blur-sm border-white/20 shadow-sm transition-colors">
           <div className="flex items-center justify-between mb-4">
             <div className={`w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center`}>
               <MessageSquare className="w-6 h-6 text-white" />
@@ -349,7 +349,7 @@ export function StudentDashboard() {
           </p>
         </Card>
 
-        <Card className="p-6 bg-[var(--card)]/60 backdrop-blur-sm border-white/20 shadow-sm transition-colors">
+        <Card className="p-6 bg-gradient-to-br from-[var(--card-gradient-start)] to-[var(--card-gradient-end)] backdrop-blur-sm border-white/20 shadow-sm transition-colors">
           <div className="flex items-center justify-between mb-4">
             <div className={`w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center`}>
               <BookOpen className="w-6 h-6 text-white" />
@@ -372,7 +372,7 @@ export function StudentDashboard() {
           </p>
         </Card>
 
-        <Card className="p-6 bg-[var(--card)]/60 backdrop-blur-sm border-white/20 shadow-sm transition-colors">
+        <Card className="p-6 bg-gradient-to-br from-[var(--card-gradient-start)] to-[var(--card-gradient-end)] backdrop-blur-sm border-white/20 shadow-sm transition-colors">
           <div className="flex items-center justify-between mb-4">
             <div className={`w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center`}>
               <TrendingUp className="w-6 h-6 text-white" />
@@ -395,7 +395,7 @@ export function StudentDashboard() {
           </p>
         </Card>
 
-        <Card className="p-6 bg-[var(--card)]/60 backdrop-blur-sm border-white/20 shadow-sm transition-colors">
+        <Card className="p-6 bg-gradient-to-br from-[var(--card-gradient-start)] to-[var(--card-gradient-end)] backdrop-blur-sm border-white/20 shadow-sm transition-colors">
           <div className="flex items-center justify-between mb-4">
             <div className={`w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center`}>
               <CheckCircle2 className="w-6 h-6 text-white" />
@@ -422,7 +422,7 @@ export function StudentDashboard() {
       {/* Main content grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Upcoming milestones */}
-        <Card className="p-6 bg-[var(--card)]/60 backdrop-blur-sm border-white/20 shadow-sm transition-colors">
+        <Card className="p-6 bg-gradient-to-br from-[var(--card-gradient-start)] to-[var(--card-gradient-end)] backdrop-blur-sm border-white/20 shadow-sm transition-colors">
           <div className="flex items-center justify-between mb-6">
             <h3 style={{ color: 'var(--foreground)' }}>Upcoming Milestones</h3>
             <Link to="/student/timeline">
@@ -468,7 +468,7 @@ export function StudentDashboard() {
         </Card>
 
         {/* Recent resources */}
-        <Card className="p-6 bg-[var(--card)]/60 backdrop-blur-sm border-white/20 shadow-sm transition-colors">
+        <Card className="p-6 bg-gradient-to-br from-[var(--card-gradient-start)] to-[var(--card-gradient-end)] backdrop-blur-sm border-white/20 shadow-sm transition-colors">
           <div className="flex items-center justify-between mb-6">
             <h3 style={{ color: 'var(--foreground)' }}>Popular Resources</h3>
             <Link to="/student/resources">
@@ -504,7 +504,7 @@ export function StudentDashboard() {
       </div>
 
       {/* Quick tip */}
-      <Card className="p-6 bg-[var(--card)]/60 backdrop-blur-sm border-white/20 shadow-sm transition-colors">
+      <Card className="p-6 bg-gradient-to-br from-[var(--card-gradient-start)] to-[var(--card-gradient-end)] backdrop-blur-sm border-white/20 shadow-sm transition-colors">
         <div className="flex items-start gap-4">
           <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
             <MessageSquare className="w-5 h-5 text-blue-600" />

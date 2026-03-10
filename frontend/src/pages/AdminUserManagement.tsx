@@ -189,7 +189,7 @@ export function AdminUserManagement() {
       // before removing the global loader overlay.
       const timeoutId = setTimeout(() => {
         setLoading(false);
-      }, 500);
+      }, 1500);
       return () => clearTimeout(timeoutId);
     }
   }, [loadingUsers, setLoading]);
@@ -438,7 +438,7 @@ export function AdminUserManagement() {
 
   return (
     <div className="pt-8 space-y-8">
-      <Card className="p-6 bg-[var(--card)]/60 backdrop-blur-sm border-white/20 shadow-sm transition-colors">
+      <Card className="p-6 bg-gradient-to-br from-[var(--card-gradient-start)] to-[var(--card-gradient-end)] backdrop-blur-sm border-white/20 shadow-sm transition-all hover:shadow-md">
         <div className="flex items-center gap-4">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -526,7 +526,7 @@ export function AdminUserManagement() {
         </Alert>
       )}
 
-      <Card className="bg-[var(--card)]/60 backdrop-blur-sm border-white/20 shadow-sm transition-colors">
+      <Card className="bg-gradient-to-br from-[var(--card-gradient-start)] to-[var(--card-gradient-end)] backdrop-blur-sm border-white/20 shadow-sm transition-all hover:shadow-md">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="border-b">

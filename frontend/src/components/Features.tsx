@@ -43,7 +43,7 @@ export function Features() {
             return (
               <Card 
                 key={feature.title}
-                className="p-8 hover:shadow-lg hover:shadow-gray-200/50 transition-all duration-300 bg-[var(--card)]/60 backdrop-blur-sm border-white/20 shadow-sm"
+                className="p-8 hover:shadow-lg hover:shadow-gray-200/50 transition-all duration-300 bg-gradient-to-br from-[var(--card-gradient-start)] to-[var(--card-gradient-end)] backdrop-blur-sm border-white/20 shadow-sm"
               >
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-teal-500 flex items-center justify-center mb-4">
                   <Icon className="w-6 h-6 text-white" />
